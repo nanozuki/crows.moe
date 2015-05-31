@@ -19,4 +19,7 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^$', include('homepage.urls', namespace='home')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^blog/', include('blog.urls', namespace='blog')),
+    url(r'^aboutme/', include('aboutme.urls', namespace='aboutme')),
+    url(r'^msgboard/', include('msgboard.urls', namespace='msgboard')),
 ]
