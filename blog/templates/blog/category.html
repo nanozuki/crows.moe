@@ -1,25 +1,26 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <title>文章</title>
+{% extends 'blog/base.html' %}
 
-    <!-- Bootstrap -->
-      {% load staticfiles %}
-    <link href="{% static 'blog/css/bootstrap.min.css' %}" rel="stylesheet">
+{% block title %}
+  {% if category %}
+    {{ category.category_name }}
+  {% else %}
+    Error
+  {% endif %}
+{% endblock %}
 
-  </head>
-  <body>
+{% block content %}
   {% if category %}
     <h1>{{ category.category_name }}</h1>
+    {% if recent_update %}
+    <ul>最近发表：
+    {% for article in recent_update %}
+      <li><a href="{% url 'blog:article' article.id %}">{{ article.title }}({{ article.author }})</a></li>
+    {% endfor %}
+    </ul>
+    {% else %}
+    <p>暂时还没有文章，敬请期待</p>
+    {% endif %}
   {% else %}
     <h1>未找到相应的分类</h1>
   {% endif %}
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src={% static "blog/js/jquery.min.js" %}></script>
-    <script src={% static "blog/js/bootstrap.min.js" %}></script>
-  </body>
-</html>
+{% endblock %}
