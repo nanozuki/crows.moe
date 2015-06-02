@@ -1,4 +1,4 @@
-{% extends 'blog/base.html' %}
+{% extends 'common/base_navbar.html' %}
 
 {% block title %}
   {% if category %}
@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block content %}
+<div class="container">
   {% if category %}
     <h1>{{ category.category_name }}</h1>
     {% if recent_update %}
@@ -23,4 +24,5 @@
   {% else %}
     <h1>未找到相应的分类</h1>
   {% endif %}
+</div>
 {% endblock %}

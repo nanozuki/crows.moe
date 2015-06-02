@@ -1,22 +1,9 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <title>MySite</title>
-
-    <!-- Bootstrap -->
-      {% load staticfiles %}
-    <link href="{% static 'homepage/css/bootstrap.min.css' %}" rel="stylesheet">
-
-  </head>
-  <body>
+{% extends 'common/base.html' %}
+{% block title %}乌鸦储物室{% endblock %}
+{% block content %}
+  <div class="container">
     <h1>这是首页</h1>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src={% static "homepage/js/jquery.min.js" %}></script>
-    <script src={% static "homepage/js/bootstrap.min.js" %}></script>
     <ul>
         <li>博客
         {% if category_list %}
@@ -32,5 +19,5 @@
         <li><a href="{% url 'msgboard:index' %}">留言板</a></li>
         <li><a href="{% url 'aboutme:index' %}">联系我</a></li>
     </ul>
-  </body>
-</html>
+  </div>
+{% endblock %}
