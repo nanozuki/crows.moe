@@ -1,10 +1,39 @@
-{% extends 'common/base_navbar.html' %}
+{% extends 'blog/base_blog.html' %}
 
 {% block title %}{{ article.title }}{% endblock %}
 
-{% block content %}
-<div class="container">
+{% block nav_var_left %}
+{% for category_item in category_list %}
+  {% ifequal category_item.id article.category.id %}
+  <li class="active"><a href="{% url 'blog:category' category_item.id %}">
+    {{ category_item.category_name }}</a></li>
+  {% else %}
+  <li><a href="{% url 'blog:category' category_item.id %}">
+    {{ category_item.category_name }}</a></li>
+  {% endifequal %}
+{% endfor %}
+{% endblock %}
+
+{% block top_banner %}
+  <h1>乌鸦的居所</h1>
+  <h2>{{ article.category.category_name }}</h2>
+{% endblock %}
+
+{% block main_area %}
   <h1>{{ article.title }}</h1>
-  <div>{{ article.text }}</div>
-</div>
+  <p>{{ article.text }}</p>
+{% endblock %}
+
+{% block sidebar_right %}
+  <div class="panel panel-default pan">
+    <div class="panel-heading">热门文章</div>
+    <ul class="list-group">
+      <li class="list-group-item">测试1</li>
+      <li class="list-group-item">测试2</li>
+    </ul>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  <p class="text-center">结夜野棠的个人博客</p>
 {% endblock %}

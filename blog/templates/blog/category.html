@@ -1,11 +1,17 @@
 {% extends 'common/base_navbar.html' %}
 
-{% block title %}
-  {% if category %}
-    {{ category.category_name }}
+{% block title %}{{ category.category_name }}{% endblock %}
+
+{% block nav_var_left %}
+{% for category_item in category_list %}
+  {% ifequal category_item.id category.id %}
+  <li class="active"><a href="{% url 'blog:category' category_item.id %}">
+    {{ category_item.category_name }}</a></li>
   {% else %}
-    Error
-  {% endif %}
+  <li><a href="{% url 'blog:category' category_item.id %}">
+    {{ category_item.category_name }}</a></li>
+  {% endifequal %}
+{% endfor %}
 {% endblock %}
 
 {% block content %}

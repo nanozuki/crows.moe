@@ -1,6 +1,12 @@
 {% extends 'common/base_navbar.html' %}
 
 {% block title %}关于{% endblock %}
+
+{% block nav_bar_right %}
+<li class="active"><a href="{% url 'aboutme:index' %}">关于</a></li>
+<li><a href="{% url 'msgboard:index' %}">留言板</a></li>
+{% endblock %}
+
 {% block content %}
 <div class="container">
   <h1>留言版</h1>

@@ -5,3 +5,7 @@
   <h1>关于我的信息</h1>
 </div>
 {% endblock %}
+{% block nav_bar_right %}
+<li class="active"><a href="{% url 'aboutme:index' %}">关于</a></li>
+<li><a href="{% url 'msgboard:index' %}">留言板</a></li>
+{% endblock %}
