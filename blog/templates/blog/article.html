@@ -20,8 +20,9 @@
 {% endblock %}
 
 {% block main_area %}
-  <h1>{{ article.title }}</h1>
-  <p>{{ article.text }}</p>
+  <h1 class="text-center">{{ article.title }}</h1>
+  {% load blog_filter %}
+  {{ article.text|markdown2html }}
 {% endblock %}
 
 {% block sidebar_right %}
@@ -35,5 +36,6 @@
 {% endblock %}
 
 {% block footer %}
+  <hr/>
   <p class="text-center">结夜野棠的个人博客</p>
 {% endblock %}

@@ -1,5 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Article, Category
+from django import template
+from django.template.defaultfilters import stringfilter
+import markdown
 
 
 def category_view(request, category_id):

@@ -1,4 +1,4 @@
-{% extends 'common/base_navbar.html' %}
+{% extends 'blog/base_blog.html' %}
 
 {% block title %}{{ category.category_name }}{% endblock %}
 
@@ -14,21 +14,37 @@
 {% endfor %}
 {% endblock %}
 
-{% block content %}
-<div class="container">
+{% block top_banner %}
+  <h1>乌鸦的居所</h1>
+  <h2>{{ category.category_name }}</h2>
+{% endblock %}
+
+{% block main_area %}
   {% if category %}
-    <h1>{{ category.category_name }}</h1>
     {% if recent_update %}
-    <ul>最近发表：
+    <ul><h4>最近发表：</h4>
     {% for article in recent_update %}
       <li><a href="{% url 'blog:article' article.id %}">{{ article.title }}({{ article.author }})</a></li>
     {% endfor %}
     </ul>
     {% else %}
-    <p>暂时还没有文章，敬请期待</p>
+    <h4>暂时还没有文章，敬请期待</h4>
     {% endif %}
   {% else %}
     <h1>未找到相应的分类</h1>
   {% endif %}
-</div>
+{% endblock %}
+
+{% block sidebar_right %}
+  <div class="panel panel-default pan">
+    <div class="panel-heading">热门文章</div>
+    <ul class="list-group">
+      <li class="list-group-item">测试1</li>
+      <li class="list-group-item">测试2</li>
+    </ul>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  <p class="text-center">结夜野棠的个人博客</p>
 {% endblock %}
