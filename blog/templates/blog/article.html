@@ -20,9 +20,31 @@
 {% endblock %}
 
 {% block main_area %}
-  <h1 class="text-center">{{ article.title }}</h1>
-  {% load blog_filter %}
-  {{ article.text|markdown2html }}
+  <div>
+    <h1 class="text-center">{{ article.title }}</h1>
+  </div>
+  <div>
+    {% if tags_list %}
+    <ul class="list-inline">
+      {% for tag in tags_list %}
+      <li><span class="label label‐default">aaa{{ tag.tag_name }}</span></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  <div>
+    {% load blog_filter %}
+    {{ article.text|markdown2html }}
+  </div>
+  <hr/>
+  {% if comments_list %}
+  <h5>目前有{{ comments_list.count }}条评论</h5>
+  {% for comment in comments_list %}
+  <p>{{ comment.name }}: {{ comment.content }}</p>
+  {% endfor %}
+  {% else %}
+  <h5>目前尚未有评论，欢迎发表意见</h5>
+  {% endif %}
 {% endblock %}
 
 {% block sidebar_right %}

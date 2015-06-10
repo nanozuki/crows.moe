@@ -1,8 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Article, Category
-from django import template
-from django.template.defaultfilters import stringfilter
-import markdown
+from .models import Article, Category, Tag, Comment
 
 
 def category_view(request, category_id):
@@ -19,6 +16,10 @@ def category_view(request, category_id):
 def article_view(request, article_id):
     article = get_object_or_404(Article, pk=article_id)
     category_list = Category.objects.all()
+    tags_list = article.tags.all()
+    comments_list = article.comments.all()
     return render(request, 'blog/article.html',
                   {'article': article,
-                   'category_list': category_list})
+                   'category_list': category_list,
+                   'tags_list': tags_list,
+                   'comments_list': comments_list})

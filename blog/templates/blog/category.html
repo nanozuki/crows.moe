@@ -22,7 +22,7 @@
 {% block main_area %}
   {% if category %}
     {% if recent_update %}
-    <ul><h4>最近发表：</h4>
+    <ul><h4>最近更新：</h4>
     {% for article in recent_update %}
       <li><a href="{% url 'blog:article' article.id %}">{{ article.title }}({{ article.author }})</a></li>
     {% endfor %}

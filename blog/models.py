@@ -26,6 +26,19 @@ class Tag(models.Model):
         return self.tag_name
 
 
+class Comment(models.Model):
+    """ Comments of Article """
+    floor = models.IntegerField()
+    name = models.CharField(max_length=30)
+    email = models.EmailField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    content = models.TextField(max_length=300)
+    reply_id = models.IntegerField(default=-1)
+
+    def __str__(self):
+        return self.content
+
+
 class Article(models.Model):
     """ Blog Article """
     title = models.CharField(max_length=100)
@@ -35,6 +48,7 @@ class Article(models.Model):
     publish_time = models.DateTimeField(auto_now_add=True)
     last_update_time = models.DateField(auto_now=True)
     text = models.TextField()
+    comments = models.ManyToManyField(Comment, blank=True)
 
     def __str__(self):
         return '"{0}({1})"'.format(self.title, self.author)
