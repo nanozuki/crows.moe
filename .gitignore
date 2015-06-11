@@ -60,3 +60,6 @@ target/
 .idea/
 *sublime*
 .tag*
+
+# OSX
+*.DS_Store

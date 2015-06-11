@@ -11,12 +11,12 @@
     <link href="{% static 'common/css/bootstrap.min.css' %}" rel="stylesheet">
   </head>
   <body>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src={% static "common/js/jquery.min.js" %}></script>
+    <script src={% static "common/js/bootstrap.min.js" %}></script>
     {% block nav_bar %}
     {% endblock %}
     {% block content %}
     {% endblock %}
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src={% static "common/js/jquery.min.js" %}></script>
-    <script src={% static "common/js/bootstrap.min.js" %}></script>
   </body>
 </html>

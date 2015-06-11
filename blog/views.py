@@ -1,4 +1,6 @@
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.core.urlresolvers import reverse
 from .models import Article, Category, Tag, Comment
 
 
@@ -23,3 +25,29 @@ def article_view(request, article_id):
                    'category_list': category_list,
                    'tags_list': tags_list,
                    'comments_list': comments_list})
+
+
+def post_comment(request, article_id):
+    article = get_object_or_404(Article, pk=article_id)
+    if 'visitor_name' in request.POST:
+        name = request.POST['visitor_name']
+    else:
+        name = 'Anonymous'
+
+    if 'visitor_email' in request.POST:
+        email = request.POST['visitor_email']
+    else:
+        email = ''
+
+    if 'content' in request.POST:
+        content = request.POST['content']
+    else:
+        content = ''
+
+    cmt = Comment(floor=article.comments.count(),
+                  name=name,
+                  email=email,
+                  content=content)
+    cmt.save()
+    article.comments.add(Comment.objects.get(id=cmt.id))
+    return HttpResponseRedirect(reverse('blog:article', args=(article_id,)) + '#lastcmt')

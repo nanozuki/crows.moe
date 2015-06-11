@@ -29,8 +29,8 @@ class Tag(models.Model):
 class Comment(models.Model):
     """ Comments of Article """
     floor = models.IntegerField()
-    name = models.CharField(max_length=30)
-    email = models.EmailField()
+    name = models.CharField(max_length=30, default="匿名访客")
+    email = models.EmailField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     content = models.TextField(max_length=300)
     reply_id = models.IntegerField(default=-1)
