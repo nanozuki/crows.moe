@@ -1,23 +1,24 @@
-{% extends 'common/base.html' %}
-{% block title %}乌鸦的居所{% endblock %}
+{% extends 'common/base_navbar.html' %}
+{% block title %}{{ site_title }}{% endblock %}
+{% block nav_var_left %}{% endblock %}
 {% block content %}
   <div class="container">
-    <h1>这是首页</h1>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <ul>
-        <li>博客
+      <div class="jumbotron">
+        <h1>{{ site_title }}</h1>
+
+        <p>结夜野棠的个人网页</p>
         {% if category_list %}
-            <ul>
-                {% for category in category_list %}
-                <li><a href="{% url 'blog:category' category.id %}">{{ category.category_name }}</a></li>
-                {% endfor %}
-            </ul>
+          <div class="btn-group">
+            {% for category in category_list %}
+              <!--button type="button" class="btn btn-default" onclick="{% url 'blog:category' category.id %}">
+              {{ category.category_name }}</button-->
+              <a class="btn btn-primary btn-lg" href="{% url 'blog:category' category.id %}">
+                {{ category.category_name }}</a>
+            {% endfor %}
+          </div>
         {% else %}
-            <p>无可用的文章分类</p>
+          <p>无可用的文章分类</p>
         {% endif %}
-        </li>
-        <li><a href="{% url 'msgboard:index' %}">留言板</a></li>
-        <li><a href="{% url 'aboutme:index' %}">联系我</a></li>
-    </ul>
+      </div>
   </div>
 {% endblock %}
