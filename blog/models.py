@@ -13,6 +13,7 @@ class Author(models.Model):
 class Category(models.Model):
     """ Category of Article """
     category_name = models.CharField(max_length=30)
+    clicks = models.IntegerField(default=0)
 
     def __str__(self):
         return self.category_name
@@ -21,6 +22,8 @@ class Category(models.Model):
 class Tag(models.Model):
     """ Key word of Article """
     tag_name = models.CharField(max_length=30)
+    clicks = models.IntegerField(default=0)
+    category = models.ForeignKey(Category, null=True)
 
     def __str__(self):
         return self.tag_name
@@ -49,6 +52,13 @@ class Article(models.Model):
     last_update_time = models.DateField(auto_now=True)
     text = models.TextField()
     comments = models.ManyToManyField(Comment, blank=True)
+    comments_count = models.IntegerField(default=0)
+    clicks = models.IntegerField(default=0)
 
     def __str__(self):
         return '"{0}({1})"'.format(self.title, self.author)
+
+    def add_comment(self, comment):
+        self.comments.add(Comment.objects.get(id=comment.id))
+        self.comments_count = self.comments.count()
+        self.save()

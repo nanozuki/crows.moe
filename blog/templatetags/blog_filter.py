@@ -12,3 +12,7 @@ register = template.Library()
 def markdown2html(value):
     html = markdown.markdown(value)
     return mark_safe(html)
+
+@register.filter()
+def article_cmt_count(article):
+    return article.comments.count()

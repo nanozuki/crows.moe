@@ -2,17 +2,27 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from .models import Article, Category, Tag, Comment
+from .sidebar import SidebarData
+
+
+def update_clicks_counter(article, delta=1):
+    article.clicks += delta
+    article.save()
+    article.category.clicks += delta
+    article.category.save()
+    for tag in article.tags.all():
+        tag.clicks += delta
+        tag.save()
 
 
 def category_view(request, category_id):
     _category = get_object_or_404(Category, pk=category_id)
     category_list = Category.objects.all()
-    recent_update = Article.objects.order_by('-last_update_time').filter(category=_category)
-    if len(recent_update) > 5:
-        recent_update = recent_update[:5]
-    return render(request, 'blog/category.html', {'category': _category,
-                                                  'category_list':category_list,
-                                                  'recent_update': recent_update})
+    sbd = SidebarData()
+    content = sbd.gather_data(_category)
+    _category.clicks += 1
+    content.update({'category': _category, 'category_list': category_list})
+    return render(request, 'blog/category.html', content)
 
 
 def article_view(request, article_id):
@@ -20,11 +30,15 @@ def article_view(request, article_id):
     category_list = Category.objects.all()
     tags_list = article.tags.all()
     comments_list = article.comments.all()
-    return render(request, 'blog/article.html',
-                  {'article': article,
-                   'category_list': category_list,
-                   'tags_list': tags_list,
-                   'comments_list': comments_list})
+    update_clicks_counter(article)
+
+    sbd = SidebarData()
+    content = sbd.gather_data(article.category)
+    content.update({'article': article,
+                    'category_list': category_list,
+                    'tags_list': tags_list,
+                    'comments_list': comments_list})
+    return render(request, 'blog/article.html', content)
 
 
 def post_comment(request, article_id):
@@ -41,8 +55,10 @@ def post_comment(request, article_id):
                   floor=article.comments.count() + 1,
                   reply_id=-1)
     cmt.save()
-    article.comments.add(Comment.objects.get(pk=cmt.id))
-    return HttpResponseRedirect(reverse("blog:article", args=(article_id,)) + "#last_cmt")
+    article.add_comment(cmt)
+    # This is ugly. Will be Repaired in the future.
+    update_clicks_counter(article, -1)
+    return HttpResponseRedirect(reverse("blog:article", args=(article_id,)) + "#lastcmt")
 
 
 def post_article(request):
