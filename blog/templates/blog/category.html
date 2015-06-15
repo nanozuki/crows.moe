@@ -15,27 +15,26 @@
 {% endblock %}
 
 {% block top_banner %}
-  <h1>乌鸦的居所</h1>
+  <h1>乌鸦的庭院</h1>
   <h2>{{ category.category_name }}</h2>
 {% endblock %}
 
 {% block main_area %}
-  {% if category %}
-    {% if recent_update %}
-      <ul><h4>最近更新：</h4>
-        {% for article in recent_update %}
-          <li><a href="{% url 'blog:article' article.id %}">{{ article.title }}({{ article.author }})</a></li>
-        {% endfor %}
-      </ul>
+  {% block article_list_area %}
+    {% if category %}
+      {% if article_list %}
+        <ul><h4>文章列表：</h4>
+          {% for article in article_list %}
+            <li><a href="{% url 'blog:article' article.id %}">{{ article.title }}({{ article.author }})</a></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <h4>暂时还没有文章，敬请期待</h4>
+      {% endif %}
     {% else %}
-      <h4>暂时还没有文章，敬请期待</h4>
+      <h1>未找到相应的分类</h1>
     {% endif %}
-  {% else %}
-    <h1>未找到相应的分类</h1>
-  {% endif %}
-{% endblock %}
-
-{% block recent_update_area %}
+  {% endblock %}
 {% endblock %}
 
 {% block footer %}

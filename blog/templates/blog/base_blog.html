@@ -18,7 +18,7 @@
               <div class="panel-heading">最多点击</div>
               <ul class="list-group">
                 {% for article in most_clicks_articles %}
-                  <li class="list-group-item">{{ article.title }}({{ article.clicks }})</li>
+                  <li class="list-group-item"><a href="{% url 'blog:article' article.id %}">{{ article.title }}</a> <small>{{ article.clicks }}</small></li>
                 {% endfor %}
               </ul>
             </div>
@@ -28,7 +28,7 @@
               <div class="panel-heading">Tags</div>
               <ul class="list-group">
                 {% for tag in most_clicks_tags %}
-                  <li class="list-group-item">{{ tag.tag_name }}({{ tag.clicks }})</li>
+                  <li class="list-group-item"><a href="{% url 'blog:tag' tag.id %}">{{ tag.tag_name }}</a> <small>{{ tag.clicks }}</small></li>
                 {% endfor %}
               </ul>
             </div>
@@ -39,7 +39,7 @@
               <ul class="list-group">
                 {% for article in most_commented %}
                   {% load blog_filter %}
-                  <li class="list-group-item">{{ article.title }}({{ article | article_cmt_count }})</li>
+                  <li class="list-group-item"><a href="{% url 'blog:article' article.id %}">{{ article.title }}</a> <small>{{ article | article_cmt_count }}</small></li>
                 {% endfor %}
               </ul>
             </div>
@@ -51,7 +51,7 @@
                 <ul class="list-group">
                   {% for article in recent_update %}
                     {% load blog_filter %}
-                    <li class="list-group-item">{{ article.title }}({{ article.last_update_time| date:"Y-m-d" }})</li>
+                    <li class="list-group-item"><a href="{% url 'blog:article' article.id %}">{{ article.title }}</a> <small>{{ article.last_update_time| date:"Y-m-d" }}</small></li>
                   {% endfor %}
                 </ul>
               </div>

@@ -19,9 +19,11 @@ def category_view(request, category_id):
     _category = get_object_or_404(Category, pk=category_id)
     category_list = Category.objects.all()
     sbd = SidebarData()
-    content = sbd.gather_data(_category)
+    content = sbd.gather_data(_category, need_recent_update=False)
     _category.clicks += 1
-    content.update({'category': _category, 'category_list': category_list})
+    _category.save()
+    article_list = Article.objects.order_by('-last_update_time').filter(category=_category)
+    content.update({'category': _category, 'category_list': category_list, 'article_list': article_list})
     return render(request, 'blog/category.html', content)
 
 
@@ -39,6 +41,22 @@ def article_view(request, article_id):
                     'tags_list': tags_list,
                     'comments_list': comments_list})
     return render(request, 'blog/article.html', content)
+
+
+def tag_view(request, tag_id):
+    tag = get_object_or_404(Tag, id=tag_id)
+    category_list = Category.objects.all()
+    sbd = SidebarData()
+    content = sbd.gather_data(tag.category, need_recent_update=False)
+    tag.clicks += 1
+    tag.category.clicks += 1
+    tag.save()
+    tag.category.save()
+    article_list = Article.objects.order_by('-last_update_time').filter(tags__in=[tag.id])[:]
+    content.update({'tag': tag,
+                    'category_list': category_list,
+                    'article_list': article_list, })
+    return render(request, 'blog/tag.html', content)
 
 
 def post_comment(request, article_id):
