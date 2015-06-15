@@ -12,6 +12,9 @@ def index(request):
             article.clicks += 1
             article.category.clicks += 1
             tag_aboutme.clicks += 1
+            article.save()
+            article.category.save()
+            tag_aboutme.save()
             return render(request, 'aboutme/index.html', {
                 'category_list': category_list,
                 'article': article_list[0]
