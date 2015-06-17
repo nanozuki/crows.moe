@@ -10,9 +10,9 @@
         {% if category_list %}
           <div class="btn-group">
             {% for category in category_list %}
-              <!--button type="button" class="btn btn-default" onclick="{% url 'blog:category' category.id %}">
+              <!--button type="button" class="btn btn-default" onclick="{% url 'blog:category' category.url_name %}">
               {{ category.category_name }}</button-->
-              <a class="btn btn-primary btn-lg" href="{% url 'blog:category' category.id %}">
+              <a class="btn btn-primary btn-lg" href="{% url 'blog:category' category.url_name %}">
                 {{ category.category_name }}</a>
             {% endfor %}
           </div>

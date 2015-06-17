@@ -15,8 +15,8 @@ def update_clicks_counter(article, delta=1):
         tag.save()
 
 
-def category_view(request, category_id):
-    _category = get_object_or_404(Category, pk=category_id)
+def category_view(request, category_url_name):
+    _category = get_object_or_404(Category, url_name=category_url_name)
     category_list = Category.objects.all()
     sbd = SidebarData()
     content = sbd.gather_data(_category, need_recent_update=False)

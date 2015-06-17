@@ -5,10 +5,10 @@
 {% block nav_var_left %}
   {% for category_item in category_list %}
     {% ifequal category_item.id article.category.id %}
-      <li class="active"><a href="{% url 'blog:category' category_item.id %}">
+      <li class="active"><a href="{% url 'blog:category' category_item.url_name %}">
         {{ category_item.category_name }}</a></li>
     {% else %}
-      <li><a href="{% url 'blog:category' category_item.id %}">
+      <li><a href="{% url 'blog:category' category_item.url_name %}">
         {{ category_item.category_name }}</a></li>
     {% endifequal %}
   {% endfor %}

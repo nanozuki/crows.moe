@@ -12,6 +12,7 @@ class Author(models.Model):
 
 class Category(models.Model):
     """ Category of Article """
+    url_name = models.CharField(max_length=10, unique=True)
     category_name = models.CharField(max_length=30)
     clicks = models.IntegerField(default=0)
 

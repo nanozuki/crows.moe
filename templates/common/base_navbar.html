@@ -18,7 +18,7 @@
       <ul class="nav navbar-nav">
         {% block nav_var_left %}
         {% for category in category_list %}
-        <li><a href="{% url 'blog:category' category.id %}">{{ category.category_name }}</a></li>
+        <li><a href="{% url 'blog:category' category.url_name %}">{{ category.category_name }}</a></li>
         {% endfor %}
         {% endblock %}
       </ul>
