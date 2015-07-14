@@ -15,6 +15,14 @@ def update_clicks_counter(article, delta=1):
         tag.save()
 
 
+def index_view(request):
+    category_list = Category.objects.all()
+    site_title = "烏鴉的庭院"
+    return render(request, 'blog/index.html',
+                  {'category_list': category_list,
+                   'site_title': site_title})
+
+
 def category_view(request, category_url_name):
     _category = get_object_or_404(Category, url_name=category_url_name)
     category_list = Category.objects.all()
@@ -24,7 +32,10 @@ def category_view(request, category_url_name):
     _category.save()
     article_list = Article.objects.order_by('-last_update_time').filter(category=_category)
     content.update({'category': _category, 'category_list': category_list, 'article_list': article_list})
-    return render(request, 'blog/category.html', content)
+    if _category.category_name == "编程" or _category.category_name == "闲语" :
+        return render(request, 'blog/progr_gossip/category.html', content)
+    else:
+        return render(request, 'blog/category.html', content)
 
 
 def article_view(request, article_id):
@@ -40,7 +51,11 @@ def article_view(request, article_id):
                     'category_list': category_list,
                     'tags_list': tags_list,
                     'comments_list': comments_list})
-    return render(request, 'blog/article.html', content)
+
+    if article.category.category_name == "编程" or article.category.category_name == "闲语" :
+        return render(request, 'blog/progr_gossip/article.html', content)
+    else:
+        return render(request, 'blog/article.html', content)
 
 
 def tag_view(request, tag_id):
@@ -56,7 +71,11 @@ def tag_view(request, tag_id):
     content.update({'tag': tag,
                     'category_list': category_list,
                     'article_list': article_list, })
-    return render(request, 'blog/tag.html', content)
+
+    if tag.category.category_name == "编程" or tag.category.category_name == "闲语" :
+        return render(request, 'blog/progr_gossip/tag.html', content)
+    else:
+        return render(request, 'blog/tag.html', content)
 
 
 def post_comment(request, article_id):

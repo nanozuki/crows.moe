@@ -1,0 +1,24 @@
+{% extends 'common/base_navbar.html' %}
+{% block title %}{{ site_title }}{% endblock %}
+{% block nav_var_left %}{% endblock %}
+{% block content %}
+  <div class="container">
+      <div class="jumbotron">
+        <h1>{{ site_title }}</h1>
+
+        <p>结夜野棠的个人博客</p>
+        {% if category_list %}
+          <div class="btn-group">
+            {% for category in category_list %}
+              <!--button type="button" class="btn btn-default" onclick="{% url 'blog:category' category.url_name %}">
+              {{ category.category_name }}</button-->
+              <a class="btn btn-primary btn-lg" href="{% url 'blog:category' category.url_name %}">
+                {{ category.category_name }}</a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p>无可用的文章分类</p>
+        {% endif %}
+      </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'blog/progr_gossip/base_blog.html' %}
+
+{% block title %}Tag: {{ tag.tag_name }}{% endblock %}
+
+{% block nav_var_left %}
+  {% for category_item in category_list %}
+    {% ifequal category_item.id category.id %}
+      <li class="active"><a href="{% url 'blog:category' category_item.url_name %}">
+        {{ category_item.category_name }}</a></li>
+    {% else %}
+      <li><a href="{% url 'blog:category' category_item.url_name %}">
+        {{ category_item.category_name }}</a></li>
+    {% endifequal %}
+  {% endfor %}
+{% endblock %}
+
+{% block top_banner %}
+  <h1>#{{ tag.tag_name }}</h1>
+{% endblock %}
+
+{% block main_area %}
+  {% block article_list_area %}
+    {% if tag %}
+      {% if article_list %}
+        <ul><h4>文章列表：</h4>
+          {% for article in article_list %}
+            <li><a href="{% url 'blog:article' article.id %}">{{ article.title }}({{ article.author }})</a></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <h4>暂时还没有文章，敬请期待</h4>
+      {% endif %}
+    {% else %}
+      <h1>未找到相应的分类</h1>
+    {% endif %}
+  {% endblock %}
+{% endblock %}
+
+{% block footer %}
+  <p class="text-center">结夜野棠的个人博客</p>
+{% endblock %}
