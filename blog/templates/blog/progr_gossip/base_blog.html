@@ -1,0 +1,100 @@
+{% extends 'common/base_navbar.html' %}
+
+{% block stylesheet %}
+  {% load staticfiles %}
+  <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'material/css/roboto.min.css' %}" rel="stylesheet">
+  <link href="{% static 'material/css/material.min.css' %}" rel="stylesheet">
+  <link href="{% static 'material/css/ripples.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block js %}
+  <script src={% static "bootstrap/js/jquery.min.js" %}></script>
+  <script src={% static "bootstrap/js/bootstrap.min.js" %}></script>
+  <!-- Material boostrap -->
+  <script src="{% static 'material/js/ripples.min.js' %}"></script>
+  <script src="{% static 'material/js/material.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="page-header">
+      {% block top_banner %}
+      {% endblock %}
+    </div>
+    <div class="row">
+      <div class="col-sm-9 col-xs-12">
+        {% block main_area %}
+        {% endblock %}
+      </div>
+      <div class="col-sm-3 hidden-xs">
+        {% block sidebar_right %}
+          {% if most_clicks_articles %}
+            <div class="panel panel-default pan">
+              <div class="panel-heading">最多点击</div>
+              <ul class="list-group">
+                {% for article in most_clicks_articles %}
+                  <li class="list-group-item"><a
+                      href="{% url 'blog:article' article.id %}">{{ article.title }}</a>
+                    <small>{{ article.clicks }}</small>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+          {% if most_clicks_tags %}
+            <div class="panel panel-default pan">
+              <div class="panel-heading">Tags</div>
+              <ul class="list-group">
+                {% for tag in most_clicks_tags %}
+                  <li class="list-group-item"><a
+                      href="{% url 'blog:tag' tag.id %}">{{ tag.tag_name }}</a>
+                    <small>{{ tag.clicks }}</small>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+          {% if most_commented %}
+            <div class="panel panel-default pan">
+              <div class="panel-heading">最多评论</div>
+              <ul class="list-group">
+                {% for article in most_commented %}
+                  {% load blog_filter %}
+                  <li class="list-group-item"><a
+                      href="{% url 'blog:article' article.id %}">{{ article.title }}</a>
+                    <small>{{ article | article_cmt_count }}</small>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+          {% block recent_update_area %}
+            {% if recent_update %}
+              <div class="panel panel-default pan">
+                <div class="panel-heading">最近更新</div>
+                <ul class="list-group">
+                  {% for article in recent_update %}
+                    {% load blog_filter %}
+                    <li class="list-group-item"><a
+                        href="{% url 'blog:article' article.id %}">{{ article.title }}</a>
+                      <small>{{ article.last_update_time| date:"Y-m-d" }}</small>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+          {% endblock %}
+        {% endblock %}
+      </div>
+    </div>
+    <div class="visible-xs">
+      {% block xs_bottom %}
+      {% endblock %}
+    </div>
+    <div>
+      {% block footer %}
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}

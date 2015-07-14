@@ -1,0 +1,111 @@
+{% extends 'blog/progr_gossip/base_blog.html' %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block nav_var_left %}
+  {% for category_item in category_list %}
+    {% ifequal category_item.id article.category.id %}
+      <li class="active"><a href="{% url 'blog:category' category_item.url_name %}">
+        {{ category_item.category_name }}</a></li>
+    {% else %}
+      <li><a href="{% url 'blog:category' category_item.url_name %}">
+        {{ category_item.category_name }}</a></li>
+    {% endifequal %}
+  {% endfor %}
+{% endblock %}
+
+{% block top_banner %}
+  <h1>乌鸦的庭院</h1>
+  <h2>{{ article.category.category_name }}</h2>
+{% endblock %}
+
+{% block main_area %}
+  <div class="well">
+    <div>
+      <h1 class="text-center">{{ article.title }}</h1>
+    </div>
+    <div>
+      {% if tags_list %}
+        <ul class="list-inline">
+          {% for tag in tags_list %}
+            <li><span class="label label-default">{{ tag.tag_name }}</span></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <div>
+      {% load blog_filter %}
+      {{ article.text|markdown2html }}
+    </div>
+    <hr/>
+    {% block comment_display %}
+      <div>
+        {% if comments_list %}
+          <p>阅读{{ article.clicks }} 评论{{ comments_list.count }}</p>
+          <ul class="media-list">
+            {% for comment in comments_list %}
+              {% if forloop.last %}
+                <a name="lastcmt"></a>
+              {% endif %}
+              <li class="media">
+                <div class="media-left">
+                </div>
+                <div class="media-body">
+                  <h5 class="media-heading">{{ comment.name }}
+                    <small>{{ comment.timestamp | date:"Y-m-d H:i:s" }}</small>
+                  </h5>
+                  <p>{{ comment.content }}</p>
+                </div>
+              </li>
+              <hr/>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>阅读:{{ article.clicks }} 评论:0</p>
+          <p>目前尚未有评论，欢迎发表意见</p>
+        {% endif %}
+      </div>
+    {% endblock %}
+  </div>
+  {% block comment_form %}
+    <div class="well">
+      <form class="form-horizontal" action="{% url 'blog:comment' article.id %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="col-md-1 control-label align-left" for="name">Name</label>
+
+          <div class="col-md-5">
+            <input type="text" class="form-control" id="name"
+                   placeholder="Enter your name" name="name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-md-1 control-label align-left" for="email">Email</label>
+
+          <div class="col-md-5">
+            <input type="email" class="form-control" id="email"
+                   placeholder="Enter your email" name="email">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-md-1 col-md-offset-1 ali">
+            <button type="submit" class="btn btn-raised">提交</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-md-1 control-label" for="content">评论</label>
+
+          <div class="col-md-10">
+        <textarea class="form-control" rows="3" id="content" placeholder="评论"
+                  maxlength="300" name="content" required="true"></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+  {% endblock %}
+{% endblock %}
+
+{% block footer %}
+  <hr/>
+  <p class="text-center">结夜野棠的个人博客</p>
+{% endblock %}

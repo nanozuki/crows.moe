@@ -3,6 +3,7 @@ from . import views
 
 
 urlpatterns = [
+    url(r'^$', views.index_view, name='index'),
     url(r'^(?P<category_url_name>\w+)/$', views.category_view, name='category'),
     url(r'^article/(?P<article_id>\d+)/$', views.article_view, name='article'),
     url(r'^comment/(?P<article_id>\d+)/$', views.post_comment, name='comment'),
