@@ -68,3 +68,7 @@ target/
 
 # OSX
 *.DS_Store
+
+# deploy
+mysite_nginx.conf
+uwsgi_params
