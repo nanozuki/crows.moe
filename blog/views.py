@@ -32,7 +32,7 @@ def category_view(request, category_url_name):
     _category.save()
     article_list = Article.objects.order_by('-last_update_time').filter(category=_category)
     content.update({'category': _category, 'category_list': category_list, 'article_list': article_list})
-    if _category.category_name == "编程" or _category.category_name == "闲语" :
+    if _category.url_name == "progr" or _category.url_name == "gossip":
         return render(request, 'blog/progr_gossip/category.html', content)
     else:
         return render(request, 'blog/category.html', content)
@@ -52,7 +52,7 @@ def article_view(request, article_id):
                     'tags_list': tags_list,
                     'comments_list': comments_list})
 
-    if article.category.category_name == "编程" or article.category.category_name == "闲语" :
+    if article.category.url_name == "progr" or article.category.url_name == "gossip":
         return render(request, 'blog/progr_gossip/article.html', content)
     else:
         return render(request, 'blog/article.html', content)
@@ -72,7 +72,7 @@ def tag_view(request, tag_id):
                     'category_list': category_list,
                     'article_list': article_list, })
 
-    if tag.category.category_name == "编程" or tag.category.category_name == "闲语" :
+    if tag.category.url_name == "progr" or tag.category.url_name == "gossip":
         return render(request, 'blog/progr_gossip/tag.html', content)
     else:
         return render(request, 'blog/tag.html', content)
