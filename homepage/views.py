@@ -14,7 +14,8 @@ def index(request):
             article.category.save()
             tag_aboutme.save()
             return render(request, 'homepage/index.html', {
-                'article': article_list[0]
+                'site_title': "乌鸦的庭院",
+                'article': article_list[0],
             })
         else:
             return render(request, 'homepage/index.html')

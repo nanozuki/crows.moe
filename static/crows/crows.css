@@ -1,0 +1,26 @@
+.crows-card {
+    border-radius: 25px !important;
+    padding: 35px !important;
+}
+
+.btn-category {
+    background-color: white !important;
+    border-radius: 12px;
+}
+
+#home-page-1 {
+    background: url("../picture/home-page-1.jpg") top center no-repeat;
+    background-size: 100%;
+    padding-top: 150px;
+    padding-bottom: 150px;
+}
+
+#home-page-2 {
+    padding-bottom: 100px;
+    padding-top: 100px;
+    background-color: #81c784;
+}
+
+#home-page-3 {
+
+}
