@@ -1,26 +1,10 @@
-.crows-card {
-    border-radius: 25px !important;
-    padding: 35px !important;
+body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4 {
+    font-family: RobotoDraft,Roboto,Helvetica Neue,Helvetica,Arial,"Microsoft YaHei",微软雅黑,sans-serif;
+    font-weight: 300;
 }
 
-.btn-category {
-    background-color: white !important;
-    border-radius: 12px;
-}
-
-#home-page-1 {
-    background: url("../picture/home-page-1.jpg") top center no-repeat;
-    background-size: 100%;
-    padding-top: 150px;
-    padding-bottom: 150px;
-}
-
-#home-page-2 {
-    padding-bottom: 100px;
-    padding-top: 100px;
-    background-color: #81c784;
-}
-
-#home-page-3 {
-
+.container .crows-card,
+.container-fluid .crows-card {
+    border-radius: 15px;
+    padding: 30px;
 }

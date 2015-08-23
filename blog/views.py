@@ -15,6 +15,17 @@ def update_clicks_counter(article, delta=1):
         tag.save()
 
 
+def choose_color_style(content, category):
+    if category.url_name == "anime":
+        content.update({'color_style': '/static/crows/color-anime.css'})
+    elif category.url_name == "games":
+        content.update({'color_style': '/static/crows/color-games.css'})
+    elif category.url_name == "progr":
+        content.update({'color_style': '/static/crows/color-progr.css'})
+    elif category.url_name == "gossip":
+        content.update({'color_style': '/static/crows/color-gossip.css'})
+
+
 def index_view(request):
     category_list = Category.objects.all()
     site_title = "烏鴉的庭院"
@@ -31,6 +42,7 @@ def category_view(request, category_url_name):
     _category.clicks += 1
     _category.save()
     article_list = Article.objects.order_by('-last_update_time').filter(category=_category)
+    choose_color_style(content, _category)
     content.update({'category': _category, 'category_list': category_list, 'article_list': article_list})
     return render(request, 'blog/category.html', content)
 
@@ -44,6 +56,7 @@ def article_view(request, article_id):
 
     sbd = SidebarData()
     content = sbd.gather_data(article.category)
+    choose_color_style(content, article.category)
     content.update({'article': article,
                     'category_list': category_list,
                     'tags_list': tags_list,
@@ -62,6 +75,7 @@ def tag_view(request, tag_id):
     tag.save()
     tag.category.save()
     article_list = Article.objects.order_by('-last_update_time').filter(tags__in=[tag.id])[:]
+    choose_color_style(content, tag.category)
     content.update({'tag': tag,
                     'category_list': category_list,
                     'article_list': article_list, })

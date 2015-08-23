@@ -8,13 +8,12 @@
   <title>{% block title %}{% endblock %}</title>
   <!-- Bootstrap -->
   {% load staticfiles %}
+  <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'material/css/roboto.min.css' %}" rel="stylesheet">
+  <link href="{% static 'material/css/material-fullpalette.min.css' %}" rel="stylesheet">
+  <link href="{% static 'material/css/ripples.min.css' %}" rel="stylesheet">
+  <link href="{% static 'crows/crows.css' %}" rel="stylesheet">
   {% block stylesheet %}
-    {% load staticfiles %}
-    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'material/css/roboto.min.css' %}" rel="stylesheet">
-    <link href="{% static 'material/css/material-fullpalette.min.css' %}" rel="stylesheet">
-    <link href="{% static 'material/css/ripples.min.css' %}" rel="stylesheet">
-    <link href="{% static 'crows/crows.css' %}" rel="stylesheet">
   {% endblock %}
 </head>
 <body>

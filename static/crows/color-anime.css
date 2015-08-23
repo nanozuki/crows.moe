@@ -1,0 +1,23 @@
+.navbar.navbar {
+    background-color: #E64A19;
+}
+
+.container .crows-card.crows-header,
+.container-fluid .crows-card.crows-header {
+    background-color: #FF5722;
+    color: #ffffff;
+}
+
+.container .crows-card.crows-header .crows-header-primary,
+.container-fluid .crows-card.crows-header .crows-header-primary {
+    color: rgba(255, 255, 255, 0.84);
+}
+
+.container .crows-card.crows-header .crows-header-minor,
+.container-fluid .crows-card.crows-header .crows-header-minor {
+    color: #FFCCBC;
+}
+
+.crows-header .crows-tag.label.btn {
+    background-color: transparent;
+}

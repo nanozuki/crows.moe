@@ -1,0 +1,19 @@
+.navbar.navbar {
+    background-color: #C2185B;
+}
+
+.container .crows-card.crows-header,
+.container-fluid .crows-card.well {
+    background-color: #E91E63;
+    color: #ffffff;
+}
+
+.container .crows-card.crows-header .crows-header-primary,
+.container-fluid .crows-card.crows-header .crows-header-primary {
+    color: rgba(255, 255, 255, 0.84);
+}
+
+.container .crows-card.crows-header .crows-header-minor,
+.container-fluid .crows-card.crows-header .crows-header-minor {
+    color: #F8BBD0;
+}
