@@ -1,5 +1,5 @@
 body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4 {
-    font-family: RobotoDraft,Roboto,Helvetica Neue,Helvetica,Arial,"Microsoft YaHei",微软雅黑,sans-serif;
+    font-family: RobotoDraft, Roboto, Helvetica Neue, Helvetica, Arial, "Microsoft YaHei", 微软雅黑, sans-serif;
     font-weight: 300;
 }
 
@@ -7,4 +7,8 @@ body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4 {
 .container-fluid .crows-card {
     border-radius: 15px;
     padding: 30px;
+}
+
+a:hover {
+    text-decoration: none
 }

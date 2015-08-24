@@ -21,3 +21,18 @@
 .crows-header .crows-tag.label.btn {
     background-color: transparent;
 }
+
+.crows-panel .crows-panel-heading,
+.crows-panel .crows-panel-heading-text {
+    background-color: #FF5722;
+    color: rgba(255, 255, 255, 0.84);
+}
+
+.crows-panel-info .crows-panel-heading {
+    background: #03A9F4;
+    color: rgba(255, 255, 255, 0.84);
+}
+
+.crows-panel-info .crows-panel-body {
+    color: #727272;
+}

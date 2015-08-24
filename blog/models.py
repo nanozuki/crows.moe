@@ -14,6 +14,7 @@ class Category(models.Model):
     """ Category of Article """
     url_name = models.CharField(max_length=10, unique=True)
     category_name = models.CharField(max_length=30)
+    brief = models.CharField(max_length=70, blank=True)
     clicks = models.IntegerField(default=0)
 
     def __str__(self):
@@ -51,6 +52,7 @@ class Article(models.Model):
     tags = models.ManyToManyField(Tag, blank=True)
     publish_time = models.DateTimeField(auto_now_add=True)
     last_update_time = models.DateField(auto_now=True)
+    abstract = models.TextField(blank=True)
     text = models.TextField()
     comments = models.ManyToManyField(Comment, blank=True)
     comments_count = models.IntegerField(default=0)

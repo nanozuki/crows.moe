@@ -17,3 +17,22 @@
 .container-fluid .crows-card.crows-header .crows-header-minor {
     color: #F8BBD0;
 }
+
+.crows-header .crows-tag.label.btn {
+    background-color: transparent;
+}
+
+.crows-panel .crows-panel-heading,
+.crows-panel .crows-panel-heading-text {
+    background-color: #E91E63;
+    color: rgba(255, 255, 255, 0.84);
+}
+
+.crows-panel-info .crows-panel-heading {
+    background: #7C4DFF;
+    color: rgba(255, 255, 255, 0.84);
+}
+
+.crows-panel-info .crows-panel-body {
+    color: #727272;
+}

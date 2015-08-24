@@ -2,72 +2,89 @@
 
 {% load staticfiles %}
 {% block stylesheet %}
+  <link href="{% static 'crows/blog.css' %}" rel="stylesheet">
   <link href="{{ color_style }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
   <div class="container">
-    <div >
+    <div>
       {% block top_banner %}
       {% endblock %}
     </div>
     <div class="row">
-      <div class="col-sm-9 col-xs-12">
+      <div class="col-md-9 col-sm-12">
         {% block main_area %}
         {% endblock %}
       </div>
-      <div class="col-sm-3 hidden-xs">
-        {% block sidebar_right %}
-          {% if most_clicks_articles %}
-            <div class="panel panel-default pan">
-              <div class="panel-heading">最多点击</div>
-              <ul class="panel-body list-group">
-                {% for article in most_clicks_articles %}
-                  <li class="list-group-item"><a href="{% url 'blog:article' article.id %}">{{ article.title }}</a> <small>{{ article.clicks }}</small></li>
-                {% endfor %}
-              </ul>
-            </div>
-          {% endif %}
-          {% if most_clicks_tags %}
-            <div class="panel panel-default pan">
-              <div class="panel-heading">Tags</div>
-              <ul class="panel-body list-group">
-                {% for tag in most_clicks_tags %}
-                  <li class="list-group-item"><a href="{% url 'blog:tag' tag.id %}">{{ tag.tag_name }}</a> <small>{{ tag.clicks }}</small></li>
-                {% endfor %}
-              </ul>
-            </div>
-          {% endif %}
-          {% if most_commented %}
-            <div class="panel panel-default pan">
-              <div class="panel-heading">最多评论</div>
-              <ul class="panel-body list-group">
-                {% for article in most_commented %}
-                  {% load blog_filter %}
-                  <li class="list-group-item"><a href="{% url 'blog:article' article.id %}">{{ article.title }}</a> <small>{{ article | article_cmt_count }}</small></li>
-                {% endfor %}
-              </ul>
-            </div>
-          {% endif %}
-          {% block recent_update_area %}
-            {% if recent_update %}
-              <div class="panel panel-default pan">
-                <div class="panel-heading">最近更新</div>
-                <ul class="panel-body list-group">
-                  {% for article in recent_update %}
-                    {% load blog_filter %}
-                    <li class="list-group-item"><a href="{% url 'blog:article' article.id %}">{{ article.title }}</a> <small>{{ article.last_update_time| date:"Y-m-d" }}</small></li>
-                  {% endfor %}
-                </ul>
-              </div>
+      <div class="col-md-3 col-sm-12">
+        <div class="row">
+          {% block sidebar_right %}
+            {% if most_clicks_articles %}
+              <section class="col-md-12 col-sm-6 col-xs-12">
+                <div class="panel panel-default crows-panel-info">
+                  <div class="panel-heading crows-panel-heading">最多点击</div>
+                  <ul class="panel-body list-group crows-panel-body">
+                    {% for article in most_clicks_articles %}
+                      <li class="list-group-item"><a href="{% url 'blog:article' article.id %}">{{ article.title }}</a>
+                        <small>{{ article.clicks }}</small>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </section>
             {% endif %}
+            {% if most_clicks_tags %}
+              <section class="col-md-12 col-sm-6 col-xs-12">
+                <div class="panel panel-default crows-panel-info">
+                  <div class="panel-heading crows-panel-heading">Tags</div>
+                  <ul class="panel-body list-group crows-panel-body">
+                    {% for tag in most_clicks_tags %}
+                      <li class="list-group-item"><a href="{% url 'blog:tag' tag.id %}">{{ tag.tag_name }}</a>
+                        <small>{{ tag.clicks }}</small>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </section>
+            {% endif %}
+            {% if most_commented %}
+              <section class="col-md-12 col-sm-6 col-xs-12">
+                <div class="panel panel-default crows-panel-info">
+                  <div class="panel-heading crows-panel-heading">最多评论</div>
+                  <ul class="panel-body list-group crows-panel-body">
+                    {% for article in most_commented %}
+                      {% load blog_filter %}
+                      <li class="list-group-item">
+                        <a href="{% url 'blog:article' article.id %}">{{ article.title }}</a>
+                        <small>{{ article | article_cmt_count }}</small>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </section>
+            {% endif %}
+            {% block recent_update_area %}
+              {% if recent_update %}
+                <section class="col-md-12 col-sm-6 col-xs-12">
+                  <div class="panel panel-default crows-panel-info">
+                    <div class="panel-heading crows-panel-heading">最近更新</div>
+                    <ul class="panel-body list-group crows-panel-body">
+                      {% for article in recent_update %}
+                        {% load blog_filter %}
+                        <li class="list-group-item"><a
+                            href="{% url 'blog:article' article.id %}">{{ article.title }}</a>
+                          <small>{{ article.last_update_time| date:"Y-m-d" }}</small>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </section>
+              {% endif %}
+            {% endblock %}
           {% endblock %}
-        {% endblock %}
+        </div>
       </div>
-    </div>
-    <div class="visible-xs">
-      {% block xs_bottom %}
-      {% endblock %}
     </div>
     <div>
       {% block footer %}

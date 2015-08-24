@@ -1,11 +1,11 @@
 .navbar.navbar {
-    background-color: #00796B;
+    background-color: #7B1FA2;
 }
 
 .container .crows-card.crows-header,
 .container-fluid .crows-card.well {
-    background-color: #009688;
-    color: #ffffff;
+    background-color: #9C27B0;
+    color: rgba(255, 255, 255, 0.84);
 }
 
 .container .crows-card.crows-header .crows-header-primary,
@@ -15,5 +15,24 @@
 
 .container .crows-card.crows-header .crows-header-minor,
 .container-fluid .crows-card.crows-header .crows-header-minor {
-    color: #B2DFDB;
+    color: #E1BEE7;
+}
+
+.crows-panel .crows-panel-heading,
+.crows-panel .crows-panel-heading-text {
+    background-color: #9C27B0;
+    color: rgba(255, 255, 255, 0.84);
+}
+
+.crows-header .crows-tag.label.btn {
+    background-color: transparent;
+}
+
+.crows-panel-info .crows-panel-heading {
+    background: #607D8B;
+    color: rgba(255, 255, 255, 0.84);
+}
+
+.crows-panel-info .crows-panel-body {
+    color: #727272;
 }
