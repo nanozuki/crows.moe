@@ -24,11 +24,24 @@
   {% block article_list_area %}
     {% if tag %}
       {% if article_list %}
-        <ul><h4>文章列表：</h4>
+        <div class="row">
           {% for article in article_list %}
-            <li><a href="{% url 'blog:article' article.id %}">{{ article.title }}({{ article.author }})</a></li>
+            <section class="col-sm-6 col-xs-12">
+              <div class="panel panel-default crows-panel">
+                <div class="panel-heading crows-panel-heading shadow-z-1">
+                  <a href="{% url 'blog:article' article.id %}" class="crows-panel-heading-text">
+                    <h2>{{ article.title }}</h2></a>
+                </div>
+                <!--div class="panel-heading crows-panel-heading shadow-z-1">
+                  <h3>{{ article.title }}</h3>
+                </div-->
+                <div class="panel-body crows-panel-body">
+                  <p>{{ article.abstract }}</p>
+                </div>
+              </div>
+            </section>
           {% endfor %}
-        </ul>
+        </div>
       {% else %}
         <h4>暂时还没有文章，敬请期待</h4>
       {% endif %}

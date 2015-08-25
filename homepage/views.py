@@ -6,13 +6,6 @@ def index(request):
         tag_aboutme = Tag.objects.get(tag_name='关于')
         article_list = tag_aboutme.article_set.order_by("-last_update_time")
         if len(article_list) > 0:
-            article = article_list[0]
-            article.clicks += 1
-            article.category.clicks += 1
-            tag_aboutme.clicks += 1
-            article.save()
-            article.category.save()
-            tag_aboutme.save()
             return render(request, 'homepage/index.html', {
                 'site_title': "乌鸦的庭院",
                 'article': article_list[0],

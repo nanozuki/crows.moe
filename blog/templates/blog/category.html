@@ -14,11 +14,21 @@
   {% endfor %}
 {% endblock %}
 
+{% block path_nav %}
+  <ol class="breadcrumb visible-xs">
+    <li><a href="{% url 'homepage:index' %}">Home</a></li>
+    <li><a href="{% url 'blog:index' %}">Blog</a></li>
+    <li class="active"><a href="{% url 'blog:category' category.url_name %}">
+      {{ category.category_name }}</a></li>
+  </ol>
+{% endblock %}
+
 {% block top_banner %}
   <div class="well crows-card crows-header">
     <h1 class="crows-header-primary">乌鸦的庭院</h1>
 
     <h2 class="crows-header-minor">{{ category.category_name }}</h2>
+
     <p class="text-right crows-header-minor">{{ category.brief }}</p>
   </div>
 {% endblock %}

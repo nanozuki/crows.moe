@@ -1,25 +1,6 @@
-from django.shortcuts import render
-from blog.models import Article, Category, Tag
+from django.shortcuts import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 
 
 def index(request):
-    category_list = Category.objects.all()
-    try:
-        tag_aboutme = Tag.objects.get(tag_name='关于')
-        article_list = tag_aboutme.article_set.order_by("-last_update_time")
-        if len(article_list) > 0:
-            article = article_list[0]
-            article.clicks += 1
-            article.category.clicks += 1
-            tag_aboutme.clicks += 1
-            article.save()
-            article.category.save()
-            tag_aboutme.save()
-            return render(request, 'aboutme/index.html', {
-                'category_list': category_list,
-                'article': article_list[0]
-            })
-        else:
-            return render(request, 'aboutme/index.html', {'category_list': category_list})
-    except Tag.DoesNotExist:
-        return render(request, 'aboutme/index.html', {'category_list': category_list})
+    return HttpResponseRedirect(reverse("homepage:index") + "#about")

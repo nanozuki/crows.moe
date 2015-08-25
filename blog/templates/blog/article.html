@@ -14,9 +14,12 @@
   {% endfor %}
 {% endblock %}
 
-{% block top_banner %}
-  <!--h1>乌鸦的庭院</h1>
-  <h2>{{ article.category.category_name }}</h2-->
+{% block path_nav %}
+  <ol class="breadcrumb visible-xs">
+    <li><a href="{% url 'homepage:index' %}">Home</a></li>
+    <li><a href="{% url 'blog:index' %}">Blog</a></li>
+    <li><a href="{% url 'blog:category' article.category.url_name %}">{{ article.category.category_name }}</a></li>
+  </ol>
 {% endblock %}
 
 {% block main_area %}

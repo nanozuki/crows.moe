@@ -12,3 +12,19 @@ body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4 {
 a:hover {
     text-decoration: none
 }
+
+.crows-avatar {
+    height: 150px;
+    -webkit-border-radius: 75px;
+    -moz-border-radius: 75px;
+    border-radius: 75px;
+}
+
+.social-icon {
+    height: 60px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    display: inline;
+    margin: 10px;
+}

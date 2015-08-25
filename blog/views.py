@@ -27,11 +27,13 @@ def choose_color_style(content, category):
 
 
 def index_view(request):
-    category_list = Category.objects.all()
-    site_title = "烏鴉的庭院"
-    return render(request, 'blog/index.html',
-                  {'category_list': category_list,
-                   'site_title': site_title})
+    # category_list = Category.objects.all()
+    # site_title = "烏鴉的庭院"
+    # return render(request, 'blog/index.html',
+    #              {'category_list': category_list,
+    #               'site_title': site_title})
+    return HttpResponseRedirect(reverse("homepage:index"))
+
 
 
 def category_view(request, category_url_name):

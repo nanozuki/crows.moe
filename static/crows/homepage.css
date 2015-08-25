@@ -1,26 +1,58 @@
-.btn-category {
-    background-color: white;
+.btn-category,
+.btn-category:not(.btn-link):not(.btn-flat) {
+    color: rgba(255, 255, 255, 0.5);
 }
 
 #home-page-1 {
     background: url("../picture/home-page-1.jpg") center center no-repeat;
     background-size: auto 100%;
-    padding-top: 180px;
-    padding-bottom: 180px;
+    padding-top: 150px;
+    padding-bottom: 150px;
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 #title-img {
-    width: 322px;
-    height: 100px;
+    width: 100%;
     margin-bottom: 50px;
 }
 
 #home-page-2 {
-    padding-bottom: 100px;
-    padding-top: 100px;
-    background-color: #5f7ea0;
+    margin: 30px 0px;
 }
 
-#home-page-3 {
-    background-color: #5fa082;
+.crows-panel {
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
 }
+
+.crows-panel .crows-panel-heading {
+    -webkit-border-radius: 20px 20px 0px 0px;
+    -moz-border-radius: 20px 20px 0px 0px;
+    border-radius: 20px 20px 0px 0px;
+}
+
+.crows-card.crows-card-light {
+    border-radius: 3px;
+    background: #eae6e7;
+    border-bottom-color: rgba(0, 0, 0, 0.84);
+}
+
+.crows-avatar {
+    height: 150px;
+    -webkit-border-radius: 75px;
+    -moz-border-radius: 75px;
+    border-radius: 75px;
+    margin-bottom: 15px;
+}
+
+.social-icon {
+    height: 50px;
+    -webkit-border-radius: 25px;
+    -moz-border-radius: 25px;
+    border-radius: 25px;
+    display: inline;
+    margin: 8px;
+}
+
