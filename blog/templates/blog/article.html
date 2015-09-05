@@ -1,6 +1,6 @@
 {% extends 'blog/base_blog.html' %}
 
-{% block title %}{{ article.title }}{% endblock %}
+{% block title %}乌鸦的庭院:{{ article.title }}{% endblock %}
 
 {% block nav_var_left %}
   {% for category_item in category_list %}
@@ -41,10 +41,10 @@
     </div>
     <p class="text-right"><I>{{ article.last_update_time| date:"Y-m-d" }}</I></p>
   </section>
-  <div class="well crows-card">
+  <article class="well crows-card">
     {% load blog_filter %}
     {{ article.text|markdown2html }}
-  </div>
+  </article>
   {% block comment_display %}
     <div class="well crows-card">
       {% if comments_list %}
@@ -83,7 +83,7 @@
 
           <div class="col-md-5">
             <input type="text" class="form-control" id="name"
-                   placeholder="Enter your name" name="name">
+                   placeholder="(可选)留下你的昵称吧" name="name">
           </div>
         </div>
         <div class="form-group">
@@ -91,19 +91,19 @@
 
           <div class="col-md-5">
             <input type="email" class="form-control" id="email"
-                   placeholder="Enter your email" name="email">
+                   placeholder="(可选)您的邮箱不会公开" name="email">
           </div>
         </div>
         <div class="form-group">
           <div class="col-md-1 col-md-offset-1 ali">
-            <button type="submit" class="btn btn-default btn-raised">提交</button>
+            <button type="submit" class="btn btn-default btn-raised btn-submit">提交</button>
           </div>
         </div>
         <div class="form-group">
           <label class="col-md-1 control-label" for="content">评论</label>
 
           <div class="col-md-10">
-        <textarea class="form-control" rows="3" id="content" placeholder="评论"
+        <textarea class="form-control" rows="3" id="content" placeholder="说点什么吧"
                   maxlength="300" name="content" required="true"></textarea>
           </div>
         </div>

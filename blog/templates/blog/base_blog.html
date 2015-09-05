@@ -37,7 +37,7 @@
             {% if most_clicks_tags %}
               <section class="col-md-12 col-sm-6 col-xs-12">
                 <div class="panel panel-default crows-panel-info">
-                  <div class="panel-heading crows-panel-heading">Tags</div>
+                  <div class="panel-heading crows-panel-heading">标签</div>
                   <ul class="panel-body list-group crows-panel-body">
                     {% for tag in most_clicks_tags %}
                       <li class="list-group-item"><a href="{% url 'blog:tag' tag.id %}">{{ tag.tag_name }}</a>

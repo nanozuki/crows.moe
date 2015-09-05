@@ -28,7 +28,9 @@
     color: rgba(255, 255, 255, 0.84);
 }
 
-.crows-panel-info .crows-panel-heading {
+.crows-panel-info .crows-panel-heading,
+.btn-submit:not(.btn-link):not(.btn-flat),
+.btn-submit:hover:not(.btn-link):not(.btn-flat) {
     background: #7C4DFF;
     color: rgba(255, 255, 255, 0.84);
 }

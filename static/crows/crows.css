@@ -28,3 +28,7 @@ a:hover {
     display: inline;
     margin: 10px;
 }
+
+article img {
+    width: 100%;
+}
