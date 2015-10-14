@@ -68,13 +68,13 @@
               {% if recent_update %}
                 <section class="col-md-12 col-sm-6 col-xs-12">
                   <div class="panel panel-default crows-panel-info">
-                    <div class="panel-heading crows-panel-heading">最近更新</div>
+                    <div class="panel-heading crows-panel-heading">最近发表</div>
                     <ul class="panel-body list-group crows-panel-body">
                       {% for article in recent_update %}
                         {% load blog_filter %}
                         <li class="list-group-item"><a
                             href="{% url 'blog:article' article.id %}">{{ article.title }}</a>
-                          <small>{{ article.last_update_time| date:"Y-m-d" }}</small>
+                          <small>{{ article.publish_time | date:"Y-m-d" }}</small>
                         </li>
                       {% endfor %}
                     </ul>

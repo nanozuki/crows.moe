@@ -43,7 +43,7 @@ def category_view(request, category_url_name):
     content = sbd.gather_data(_category, need_recent_update=False)
     _category.clicks += 1
     _category.save()
-    article_list = Article.objects.order_by('-last_update_time').filter(category=_category)
+    article_list = Article.objects.order_by('-publish_time').filter(category=_category)
     choose_color_style(content, _category)
     content.update({'category': _category, 'category_list': category_list, 'article_list': article_list})
     return render(request, 'blog/category.html', content)
@@ -76,7 +76,7 @@ def tag_view(request, tag_id):
     tag.category.clicks += 1
     tag.save()
     tag.category.save()
-    article_list = Article.objects.order_by('-last_update_time').filter(tags__in=[tag.id])[:]
+    article_list = Article.objects.order_by('-publish_time').filter(tags__in=[tag.id])[:]
     choose_color_style(content, tag.category)
     content.update({'tag': tag,
                     'category_list': category_list,

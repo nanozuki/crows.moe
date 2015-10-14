@@ -35,7 +35,7 @@ class SidebarData:
             content['most_commented'] = self.most_commented
 
         if need_recent_update is True:
-            self.recent_update = Article.objects.order_by('-last_update_time').filter(
+            self.recent_update = Article.objects.order_by('-publish_time').filter(
                 category=category)[:recent_update_cnt]
             content['recent_update'] = self.recent_update
 
