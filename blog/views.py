@@ -1,6 +1,7 @@
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
+from django.contrib.syndication.views import Feed
 from .models import Article, Category, Tag, Comment
 from .sidebar import SidebarData
 
@@ -33,7 +34,6 @@ def index_view(request):
     #              {'category_list': category_list,
     #               'site_title': site_title})
     return HttpResponseRedirect(reverse("homepage:index"))
-
 
 
 def category_view(request, category_url_name):
@@ -107,3 +107,9 @@ def post_comment(request, article_id):
 
 def post_article(request):
     return render(request, 'blog/post.html')
+
+
+class RSSFeed(Feed):
+    title = "乌鸦的庭院：文章订阅"
+    link = "feeds/posts/"
+    description_template = "乌鸦的庭院：结夜野棠的个人网站"
