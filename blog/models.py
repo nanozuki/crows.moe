@@ -28,7 +28,7 @@ class Tag(models.Model):
     category = models.ForeignKey(Category, null=True)
 
     def __str__(self):
-        return self.tag_name
+        return "{0}({1})".format(self.tag_name, self.category.category_name)
 
 
 class Comment(models.Model):
