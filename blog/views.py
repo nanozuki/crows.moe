@@ -1,7 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
-from django.contrib.syndication.views import Feed
 from .models import Article, Category, Tag, Comment
 from .sidebar import SidebarData
 
@@ -107,9 +106,3 @@ def post_comment(request, article_id):
 
 def post_article(request):
     return render(request, 'blog/post.html')
-
-
-class RSSFeed(Feed):
-    title = "乌鸦的庭院：文章订阅"
-    link = "feeds/posts/"
-    description_template = "乌鸦的庭院：结夜野棠的个人网站"
