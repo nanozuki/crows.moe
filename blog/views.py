@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from .models import Article, Category, Tag, Comment
@@ -33,7 +33,6 @@ def index_view(request):
     #              {'category_list': category_list,
     #               'site_title': site_title})
     return HttpResponseRedirect(reverse("homepage:index"))
-
 
 
 def category_view(request, category_url_name):
