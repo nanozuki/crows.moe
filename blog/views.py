@@ -85,19 +85,24 @@ def tag_view(request, tag_id):
     return render(request, 'blog/tag.html', content)
 
 
-def post_comment(request, article_id):
+def post_comment(request, article_id, reply_id=None):
     article = get_object_or_404(Article, pk=article_id)
     name = request.POST['name']
     email = request.POST['email']
     content = request.POST['content']
+    target = -1
+
     if name == "":
         name = "匿名访客"
+
+    if reply_id is not None:
+        target = reply_id
 
     cmt = Comment(name=name,
                   email=email,
                   content=content,
                   floor=article.comments.count() + 1,
-                  reply_id=-1)
+                  reply_id=target)
     cmt.save()
     article.add_comment(cmt)
     # This is ugly. Will be Repaired in the future.
