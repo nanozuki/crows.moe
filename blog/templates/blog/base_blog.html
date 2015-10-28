@@ -17,11 +17,10 @@
         {% block main_area %}
         {% endblock %}
       </div>
-      <div class="col-md-3 col-sm-12">
-        <div class="row">
+
           {% block sidebar_right %}
             {% if most_clicks_articles %}
-              <section class="col-md-12 col-sm-6 col-xs-12">
+              <section class="col-md-3 col-sm-6 col-xs-12">
                 <div class="panel panel-default crows-panel-info">
                   <div class="panel-heading crows-panel-heading">最多点击</div>
                   <ul class="panel-body list-group crows-panel-body">
@@ -35,7 +34,7 @@
               </section>
             {% endif %}
             {% if most_clicks_tags %}
-              <section class="col-md-12 col-sm-6 col-xs-12">
+              <section class="col-md-3 col-sm-6 col-xs-12">
                 <div class="panel panel-default crows-panel-info">
                   <div class="panel-heading crows-panel-heading">标签</div>
                   <ul class="panel-body list-group crows-panel-body">
@@ -49,7 +48,7 @@
               </section>
             {% endif %}
             {% if most_commented %}
-              <section class="col-md-12 col-sm-6 col-xs-12">
+              <section class="col-md-3 col-sm-6 col-xs-12">
                 <div class="panel panel-default crows-panel-info">
                   <div class="panel-heading crows-panel-heading">最多评论</div>
                   <ul class="panel-body list-group crows-panel-body">
@@ -66,7 +65,7 @@
             {% endif %}
             {% block recent_update_area %}
               {% if recent_update %}
-                <section class="col-md-12 col-sm-6 col-xs-12">
+                <section class="col-md-3 col-sm-6 col-xs-12">
                   <div class="panel panel-default crows-panel-info">
                     <div class="panel-heading crows-panel-heading">最近发表</div>
                     <ul class="panel-body list-group crows-panel-body">
@@ -84,11 +83,12 @@
             {% endblock %}
           {% endblock %}
         </div>
-      </div>
-    </div>
+
     <div>
       {% block footer %}
       {% endblock %}
     </div>
   </div>
+  {% block addition %}
+  {% endblock %}
 {% endblock %}

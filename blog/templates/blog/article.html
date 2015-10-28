@@ -58,10 +58,12 @@
               <div class="media-left">
               </div>
               <div class="media-body">
-                <h5 class="media-heading">{{ comment.name }}
+                <h5 class="media-heading">
+                  <a href="#post" class="comment"
+                    id="{{ comment.floor }}">#{{ comment.floor }} {{ comment.name }}</a>
                   <small>{{ comment.timestamp | date:"Y-m-d H:i:s" }}</small>
                 </h5>
-                <p>{{ comment.content }}</p>
+                <p>{{ comment.content|markdown2html }}</p>
               </div>
             </li>
             <hr/>
@@ -76,8 +78,9 @@
 
   {% block comment_form %}
     <div class="well crows-card">
-      <form class="form-horizontal" action="{% url 'blog:comment' article.id %}" method="post">
+      <form class="form-horizontal" id="post-form" action="{% url 'blog:comment' article.id %}" method="post">
         {% csrf_token %}
+        <a name="post"></a>
         <div class="form-group">
           <label class="col-md-1 control-label align-left" for="name">Name</label>
 
@@ -103,7 +106,7 @@
           <label class="col-md-1 control-label" for="content">评论</label>
 
           <div class="col-md-10">
-        <textarea class="form-control" rows="3" id="content" placeholder="说点什么吧"
+        <textarea class="form-control" rows="3" id="content" placeholder="说点什么吧(点击楼层号或ID可回复，支持markdown格式)"
                   maxlength="300" name="content" required="true"></textarea>
           </div>
         </div>
@@ -114,4 +117,20 @@
 
 {% block footer %}
   <p class="text-center">结夜野棠的个人博客</p>
+{% endblock %}
+
+{% block addition %}
+<script type="text/javascript" charset="utf-8">
+
+  $(".comment").click(function () {
+    var cmtId = $(this).attr('id');
+    var msg = document.getElementById(cmtId).innerHTML;
+    var text = document.getElementById("content");
+    text.value = "    回复 " + msg + " 的评论\n";
+    var formAction = "{% url 'blog:comment' article.id %}" + cmtId + '/';
+    $('#post-form').attr('action', formAction);
+    self.location.href="#post";
+  });
+
+</script>
 {% endblock %}
