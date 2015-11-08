@@ -7,11 +7,13 @@ import markdown
 
 register = template.Library()
 
+
 @register.filter(is_safe=True)
 @stringfilter
 def markdown2html(value):
-    html = markdown.markdown(value)
+    html = markdown.markdown(value, ['markdown.extensions.extra'])
     return mark_safe(html)
+
 
 @register.filter()
 def article_cmt_count(article):
