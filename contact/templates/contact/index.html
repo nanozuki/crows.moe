@@ -25,8 +25,10 @@
     </div>
     {% block pub_msg_form %}
       <section class="well crows-card">
-        <form class="form-horizontal" action="{% url 'contact:postmsg' %}" method="post">
+        <form class="form-horizontal" action="{% url 'contact:postmsg' %}" method="post"
+                id="post-form">
           {% csrf_token %}
+          <a name="post"></a>
           <div class="form-group">
             <label class="col-md-1 control-label align-left" for="name">Name</label>
 
@@ -49,10 +51,11 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="col-md-1 control-label" for="content">评论</label>
+            <label class="col-md-1 control-label" for="content">留言</label>
 
             <div class="col-md-10">
-              <textarea class="form-control" rows="3" id="content" placeholder="评论"
+              <textarea class="form-control" rows="3" id="content" placeholder=
+                      "说点什么吧(点击留言编号或ID可回复，支持markdown格式)"
                         maxlength="300" name="content" required="true"></textarea>
             </div>
           </div>
@@ -60,6 +63,7 @@
       </section>
     {% endblock %}
     {% block pub_msg_display %}
+    {% load blog_filter %}
       <section class="well crows-card">
         {% if pub_msg_list %}
           <ul class="media-list">
@@ -70,10 +74,12 @@
               <li class="media">
                 <div class="media-left"></div>
                 <div class="media-body">
-                  <h5 class="media-heading">{{ msg.name }}
-                    <small>{{ msg.timestamp | date:"Y-m-d H:i:s" }}</small>
+                  <h5 class="media-heading">
+                    <a href="#post" class="message"
+                       id="{{ msg.id }}">#{{ msg.id }} {{ msg.name }}</a>
+                    <small>{{ msg.timestamp | date:"Y-m-d H:i:s"}}</small>
                   </h5>
-                  <p>{{ msg.content }}</p>
+                  <p>{{ msg.content | markdown2html }}</p>
                 </div>
               </li>
               <hr/>
@@ -125,4 +131,15 @@
       </div>
     </section>
   </div>
+  <script type="text/javascript" charset="utf-8">
+    $(".message").click(function () {
+      var msgId = $(this).attr('id');
+      var msg = document.getElementById(msgId).innerHTML;
+      var text = document.getElementById("content");
+      text.value = "    回复 " + msg + " 的留言\n";
+      var formAction = "{% url 'contact:postmsg' %}" + msgId + '/';
+      $('#post-form').attr('action', formAction);
+      self.location.href="#post";
+    });
+  </script>
 {% endblock %}

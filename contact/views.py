@@ -13,16 +13,21 @@ def index(request):
         'pub_msg_list': pub_msg_list})
 
 
-def post_msg(request):
+def post_msg(request, reply_id=None):
     name = request.POST['name']
     email = request.POST['email']
     content = request.POST['content']
+    target = -1
+
     if name == "":
         name = "匿名访客"
+
+    if reply_id is not None:
+        target = reply_id
 
     msg = PublicMessage(name=name,
                         email=email,
                         content=content,
-                        reply_id=-1)
+                        reply_id=target)
     msg.save()
     return HttpResponseRedirect(reverse("contact:index"))
