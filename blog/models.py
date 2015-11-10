@@ -63,5 +63,5 @@ class Article(models.Model):
 
     def add_comment(self, comment):
         self.comments.add(Comment.objects.get(id=comment.id))
-        self.comments_count = self.comments.count()
+        self.comments_count += 1
         self.save()

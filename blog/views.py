@@ -100,7 +100,7 @@ def post_comment(request, article_id, reply_id=None):
     cmt = Comment(name=name,
                   email=email,
                   content=content,
-                  floor=article.comments.count() + 1,
+                  floor=article.comments_count + 1,
                   reply_id=target)
     cmt.save()
     article.add_comment(cmt)
