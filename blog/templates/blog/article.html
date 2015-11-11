@@ -39,7 +39,7 @@
         </ul>
       {% endif %}
     </div>
-    <p class="text-right"><I>{{ article.last_update_time| date:"Y-m-d" }}</I></p>
+    <p class="text-right"><I>{{ article.publish_time | date:"Y-m-d" }}</I></p>
   </section>
   <article class="well crows-card">
     {% load blog_filter %}
