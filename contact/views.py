@@ -10,7 +10,10 @@ def index(request):
     pub_msg_list = PublicMessage.objects.order_by("-timestamp")
     return render(request, 'contact/index.html', {
         'category_list': category_list,
-        'pub_msg_list': pub_msg_list})
+        'pub_msg_list': pub_msg_list,
+        'name': request.session.get('name', ""),
+        'email': request.session.get('email', "")
+    })
 
 
 def post_msg(request, reply_id=None):
@@ -24,6 +27,9 @@ def post_msg(request, reply_id=None):
 
     if reply_id is not None:
         target = reply_id
+
+    request.session['name'] = name
+    request.session['email'] = email
 
     msg = PublicMessage(name=name,
                         email=email,
