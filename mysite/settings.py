@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'blog',
     'contact',
     'aboutme',
+    'users',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -68,6 +69,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries': {
+                'blog_filter': 'blog.templatetags.blog_filter',
+            }
         },
     },
 ]
@@ -105,11 +109,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = '/var/www/crows.moe/'
+
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static/'),
 )
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = '/media/'
 
