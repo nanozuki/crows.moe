@@ -31,19 +31,6 @@ class Tag(models.Model):
         return "{0}({1})".format(self.tag_name, self.category.category_name)
 
 
-class Comment(models.Model):
-    """ Comments of Article """
-    floor = models.IntegerField()
-    name = models.CharField(max_length=30, default="匿名访客")
-    email = models.EmailField(blank=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    content = models.TextField(max_length=300)
-    reply_id = models.IntegerField(default=-1)
-
-    def __str__(self):
-        return self.content
-
-
 class Article(models.Model):
     """ Blog Article """
     title = models.CharField(max_length=100)
@@ -54,7 +41,6 @@ class Article(models.Model):
     last_update_time = models.DateField(auto_now=True)
     abstract = models.TextField(blank=True)
     text = models.TextField()
-    comments = models.ManyToManyField(Comment, blank=True)
     comments_count = models.IntegerField(default=0)
     clicks = models.IntegerField(default=0)
 
@@ -62,6 +48,20 @@ class Article(models.Model):
         return '"{0}({1})"'.format(self.title, self.author)
 
     def add_comment(self, comment):
-        self.comments.add(Comment.objects.get(id=comment.id))
+        self.comment_set.add(Comment.objects.get(id=comment.id))
         self.comments_count += 1
         self.save()
+
+
+class Comment(models.Model):
+    """ Comments of Article """
+    article = models.ForeignKey(Article, default=1)
+    floor = models.IntegerField()
+    name = models.CharField(max_length=30, default="匿名访客")
+    email = models.EmailField(blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    content = models.TextField(max_length=300)
+    reply_id = models.IntegerField(default=-1)
+
+    def __str__(self):
+        return self.content

@@ -52,7 +52,7 @@ def article_view(request, article_id):
     article = get_object_or_404(Article, pk=article_id)
     category_list = Category.objects.all()
     tags_list = article.tags.all()
-    comments_list = article.comments.all()
+    comments_list = article.comment_set.all()
     update_clicks_counter(article)
 
     sbd = SidebarData()

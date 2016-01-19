@@ -17,4 +17,4 @@ def markdown2html(value):
 
 @register.filter()
 def article_cmt_count(article):
-    return article.comments.count()
+    return article.comments_count
