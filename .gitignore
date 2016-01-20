@@ -73,3 +73,7 @@ target/
 # deploy
 mysite_nginx.conf
 uwsgi_params
+
+# Private Settings
+private_settings.py
+
