@@ -30,6 +30,11 @@ class Tag(models.Model):
     def __str__(self):
         return "{0}({1})".format(self.tag_name, self.category.category_name)
 
+class TagsTip(models.Model):
+    """ Tips For tag """
+    tag_name = models.CharField(max_length=30)
+    tip = models.TextField(blank=True)
+
 
 class Article(models.Model):
     """ Blog Article """
