@@ -1,0 +1,10 @@
+{% extends 'common/base_navbar.html' %}
+
+{% load staticfiles %}
+{% block stylesheet %}
+  <link href="{% static 'crows/color-contact.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <h3>Hello!{{ user_name }}</h3>
+{% endblock %}

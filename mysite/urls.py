@@ -24,4 +24,5 @@ urlpatterns = [
     url(r'^blog/', include('blog.urls', namespace='blog')),
     url(r'^aboutme/', include('aboutme.urls', namespace='aboutme')),
     url(r'^contact/', include('contact.urls', namespace='contact')),
+    url(r'^user/', include('users.urls', namespace='users')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

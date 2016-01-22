@@ -49,13 +49,21 @@ def article_view(request, article_id):
     comments_list = article.comment_set.all()
     update_clicks_counter(article)
 
+    name_ph = request.session.get('name', "")
+    email_ph = request.session.get('email', "")
+
+    print("name = %s" % name_ph)
+
     sbd = SidebarData()
     content = sbd.gather_data(article.category)
     choose_color_style(content, article.category.url_name)
     content.update({'article': article,
                     'category_list': category_list,
                     'tags_list': tags_list,
-                    'comments_list': comments_list})
+                    'comments_list': comments_list,
+                    'name_ph': name_ph,
+                    'email_ph': email_ph
+                    })
 
     return render(request, 'blog/article.html', content)
 
@@ -90,6 +98,10 @@ def post_comment(request, article_id, reply_id=None):
 
     if reply_id is not None:
         target = reply_id
+
+    # 保存用户填写的用户名和邮箱
+    request.session['name'] = name
+    request.session['email'] = email
 
     cmt = Comment(name=name,
                   email=email,
