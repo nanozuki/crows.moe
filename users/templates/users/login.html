@@ -2,7 +2,7 @@
 
 {% load staticfiles %}
 {% block stylesheet %}
-  <link href="{% static 'crows/color-contact.css' %}" rel="stylesheet">
+  <link href="{% static 'crows/color-default.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -13,7 +13,7 @@
           <div class="panel-heading crows-panel-heading">登陆/注册</div>
           <div class="panel-body crows-panel-body">
             <form class="form-horizontal" id="login-form" 
-              action="{% url 'users:login-form' %}" method="post">
+              action="{{ login_url }}" method="post">
               {% csrf_token %}
               <div class="form-group">
                 <label class="col-md-2 control-label align-left" for="username">用户名</label>

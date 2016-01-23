@@ -2,9 +2,13 @@
 
 {% load staticfiles %}
 {% block stylesheet %}
-  <link href="{% static 'crows/color-contact.css' %}" rel="stylesheet">
+<link href="{% static 'crows/color-default.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
+<div class="container">
   <h3>Hello!{{ user_name }}</h3>
+  <a class="btn btn-default btn-raised btn-category" role="button"
+     href="{% url 'users:logout' %}">退出</a>
+</div>
 {% endblock %}
