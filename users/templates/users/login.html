@@ -2,42 +2,50 @@
 
 {% load staticfiles %}
 {% block stylesheet %}
-  <link href="{% static 'crows/color-default.css' %}" rel="stylesheet">
+<link href="{% static 'crows/color-default.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-  <div class="container">
-    <div class="row">
-      <div class="col-md-offset-2 col-md-8 col-sm-12">
-        <section class="panel panel-default crows-panel-info">
-          <div class="panel-heading crows-panel-heading">登陆/注册</div>
-          <div class="panel-body crows-panel-body">
-            <form class="form-horizontal" id="login-form" 
-              action="{{ login_url }}" method="post">
-              {% csrf_token %}
-              <div class="form-group">
-                <label class="col-md-2 control-label align-left" for="username">用户名</label>
-                <div class="col-md-6">
-                  <input type="text" class="form-control" id="username"
-                    placeholder="" name="username">
-                </div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-offset-2 col-md-8 col-sm-12">
+      {% if next %}
+        {% if user.is_authenticated %}
+          <p>你无权访问此界面，你可以更换一个有权限的账户</p>
+        {% else %}
+          <p>请在此界面登陆</p>
+        {% endif %}
+      {% endif %}
+      <section class="panel panel-default crows-panel-info">
+        <div class="panel-heading crows-panel-heading">登陆/注册</div>
+        <div class="panel-body crows-panel-body">
+          <form class="form-horizontal" id="login-form"
+                action="{% url 'users:login' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+              <label class="col-md-2 control-label align-left" for="username">用户名</label>
+              <div class="col-md-6">
+                <input type="text" class="form-control" id="username"
+                       placeholder="" name="username">
               </div>
-              <div class="form-group">
-                <label class="col-md-2 control-label align-left" for="password">密码</label>
-                <div class="col-md-6">
-                  <input type="password" class="form-control" id="password"
-                    placeholder="" name="password">
-                </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label align-left" for="password">密码</label>
+              <div class="col-md-6">
+                <input type="password" class="form-control" id="password"
+                       placeholder="" name="password">
               </div>
-              <div class="form-group">
-                <div class="col-md-1 col-md-offset-2 align-left">
-                  <button type="submit" class="btn btn-default btn-raised btn-submit">登录</button>
-                </div>
+            </div>
+            <div class="form-group">
+              <div class="col-md-1 col-md-offset-2 align-left">
+                <button type="submit" class="btn btn-default btn-raised btn-submit">登录</button>
               </div>
-            </form>
-          </div>
-        </section>
-      </div>
+            </div>
+            <input type="hidden" name="next" value="{{ next }}" />
+          </form>
+        </div>
+      </section>
     </div>
   </div>
+</div>
 {% endblock %}

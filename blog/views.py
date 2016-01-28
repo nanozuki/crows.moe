@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
@@ -115,5 +116,6 @@ def post_comment(request, article_id, reply_id=None):
     return HttpResponseRedirect(reverse("blog:article", args=(article_id,)) + "#lastcmt")
 
 
+@login_required
 def post_article(request):
     return render(request, 'blog/post.html')

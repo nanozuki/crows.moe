@@ -2,144 +2,149 @@
 
 {% load staticfiles %}
 {% block stylesheet %}
-  <link href="{% static 'crows/crows.css' %}" rel="stylesheet">
-  <link href="{% static 'crows/color-default.css' %}" rel="stylesheet">
+<link href="{% static 'crows/crows.css' %}" rel="stylesheet">
+<link href="{% static 'crows/color-default.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}留言板{% endblock %}
 
 {% block nav_bar_right %}
-  <li><a href="{% url 'aboutme:index' %}">关于</a></li>
-  <li class="active"><a href="{% url 'contact:index' %}">留言板</a></li>
+{% if request.user.is_authenticated %}
+<li><a href="{% url 'users:profile' request.user.username %}">
+  {{ request.user.username }}</a></li>
+{% else %}
+<li><a href="{% url 'users:login' %}?next={{ request.path }}">登录</a></li>
+{% endif %}
+<li class="active"><a href="{% url 'contact:index' %}">留言板</a></li>
 {% endblock %}
 
 {% block content %}
-  <div class="container">
-    <div class="well crows-card crows-header">
-      <h1 class="crows-header-primary">留言板</h1>
+<div class="container">
+  <div class="well crows-card crows-header">
+    <h1 class="crows-header-primary">留言板</h1>
 
-      <p class="crows-header-minor">说点什么吧~</p>
+    <p class="crows-header-minor">说点什么吧~</p>
 
-      <p class="text-right crows-header-minor">如需私信，请点击
-        <a class="crows-card-text" href="#contact-info">这里</a></p>
-    </div>
-    {% block pub_msg_form %}
-      <section class="well crows-card">
-        <form class="form-horizontal" action="{% url 'contact:postmsg' %}" method="post"
-                id="post-form">
-          {% csrf_token %}
-          <a name="post"></a>
-          <div class="form-group">
-            <label class="col-md-1 control-label align-left" for="name">Name</label>
+    <p class="text-right crows-header-minor">如需私信，请点击
+      <a class="crows-card-text" href="#contact-info">这里</a></p>
+  </div>
+  {% block pub_msg_form %}
+  <section class="well crows-card">
+    <form class="form-horizontal" action="{% url 'contact:postmsg' %}" method="post"
+          id="post-form">
+      {% csrf_token %}
+      <a name="post"></a>
+      <div class="form-group">
+        <label class="col-md-1 control-label align-left" for="name">Name</label>
 
-            <div class="col-md-5">
-              <input type="text" class="form-control" id="name"
-                     placeholder="(可选)留下你的昵称吧" name="name" value="{{ name }}">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-md-1 control-label align-left" for="email">Email</label>
-
-            <div class="col-md-5">
-              <input type="email" class="form-control" id="email"
-                     placeholder="(可选)您的邮箱不会公开" name="email" value="{{ email }}">
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="col-md-1 col-md-offset-1 ali">
-              <button type="submit" class="btn btn-raised btn-submit">提交</button>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-md-1 control-label" for="content">留言</label>
-
-            <div class="col-md-10">
-              <textarea class="form-control" rows="3" id="content" placeholder=
-                      "说点什么吧(点击留言编号或ID可回复，支持markdown格式)"
-                        maxlength="300" name="content" required="true"></textarea>
-            </div>
-          </div>
-        </form>
-      </section>
-    {% endblock %}
-    {% block pub_msg_display %}
-    {% load blog_filter %}
-      <section class="well crows-card">
-        {% if pub_msg_list %}
-          <ul class="media-list">
-            {% for msg in pub_msg_list %}
-              {% if forloop.last %}
-                <a name="lastmsg"></a>
-              {% endif %}
-              <li class="media">
-                <div class="media-left"></div>
-                <div class="media-body">
-                  <h5 class="media-heading">
-                    <a href="#post" class="message"
-                       id="{{ msg.id }}">#{{ msg.id }} {{ msg.name }}</a>
-                    <small>{{ msg.timestamp | date:"Y-m-d H:i:s"}}</small>
-                  </h5>
-                  <p>{{ msg.content | markdown2html }}</p>
-                </div>
-              </li>
-              <hr/>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </section>
-    {% endblock %}
-    <section class="well crows-card">
-      <a name="contact-info"></a>
-
-      <div class="row">
-        <div class="col-md-4">
-          <img src="{% static 'picture/avatar.png' %}"
-               class="img-responsive center-block crows-avatar shadow-z-2">
-
-          <h3 class="text-center">结夜野棠</h3>
-        </div>
-        <div class="col-md-8">
-          <div class="text-center">
-            <a href="https://plus.google.com/u/0/+%E7%BB%93%E5%A4%9C%E9%87%8E%E6%A3%A00/">
-              <img src="{% static 'picture/social/social-google+.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="https://twitter.com/Phoecrow">
-              <img src="{% static 'picture/social/social-twitter.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="http://telegram.me/twhphoenix">
-              <img src="{% static 'picture/social/social-telegram.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="http://weibo.com/julycrows/profile">
-              <img src="{% static 'picture/social/social-weibo.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-          </div>
-          <div class="text-center">
-            <a href="https://instagram.com/twhphoenix/">
-              <img src="{% static 'picture/social/social-instagram.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="https://github.com/CrowsT">
-              <img src="{% static 'picture/social/social-github.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="http://steamcommunity.com/profiles/76561198037511308/">
-              <img src="{% static 'picture/social/social-steam.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="http://tieba.baidu.com/home/main?id=737fbde1d2b9d2b0ccc47d0e">
-              <img src="{% static 'picture/social/social-tieba.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-          </div>
+        <div class="col-md-5">
+          <input type="text" class="form-control" id="name"
+                 placeholder="(可选)留下你的昵称吧" name="name" value="{{ name }}">
         </div>
       </div>
-    </section>
-  </div>
-  <script type="text/javascript" charset="utf-8">
-    $(".message").click(function () {
-      var msgId = $(this).attr('id');
-      var msg = document.getElementById(msgId).innerHTML;
-      var text = document.getElementById("content");
-      text.value = "    回复 " + msg + " 的留言\n";
-      var formAction = "{% url 'contact:postmsg' %}" + msgId + '/';
-      $('#post-form').attr('action', formAction);
-      self.location.href="#post";
-    });
-  </script>
+      <div class="form-group">
+        <label class="col-md-1 control-label align-left" for="email">Email</label>
+
+        <div class="col-md-5">
+          <input type="email" class="form-control" id="email"
+                 placeholder="(可选)您的邮箱不会公开" name="email" value="{{ email }}">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-1 col-md-offset-1 ali">
+          <button type="submit" class="btn btn-raised btn-submit">提交</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-md-1 control-label" for="content">留言</label>
+
+        <div class="col-md-10">
+              <textarea class="form-control" rows="3" id="content" placeholder=
+                  "说点什么吧(点击留言编号或ID可回复，支持markdown格式)"
+                        maxlength="300" name="content" required="true"></textarea>
+        </div>
+      </div>
+    </form>
+  </section>
+  {% endblock %}
+  {% block pub_msg_display %}
+  {% load blog_filter %}
+  <section class="well crows-card">
+    {% if pub_msg_list %}
+    <ul class="media-list">
+      {% for msg in pub_msg_list %}
+      {% if forloop.last %}
+      <a name="lastmsg"></a>
+      {% endif %}
+      <li class="media">
+        <div class="media-left"></div>
+        <div class="media-body">
+          <h5 class="media-heading">
+            <a href="#post" class="message"
+               id="{{ msg.id }}">#{{ msg.id }} {{ msg.name }}</a>
+            <small>{{ msg.timestamp | date:"Y-m-d H:i:s"}}</small>
+          </h5>
+          <p>{{ msg.content | markdown2html }}</p>
+        </div>
+      </li>
+      <hr/>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+  {% endblock %}
+  <section class="well crows-card">
+    <a name="contact-info"></a>
+
+    <div class="row">
+      <div class="col-md-4">
+        <img src="{% static 'picture/avatar.png' %}"
+             class="img-responsive center-block crows-avatar shadow-z-2">
+
+        <h3 class="text-center">结夜野棠</h3>
+      </div>
+      <div class="col-md-8">
+        <div class="text-center">
+          <a href="https://plus.google.com/u/0/+%E7%BB%93%E5%A4%9C%E9%87%8E%E6%A3%A00/">
+            <img src="{% static 'picture/social/social-google+.png' %}"
+                 class="img-responsive social-icon shadow-z-1"></a>
+          <a href="https://twitter.com/Phoecrow">
+            <img src="{% static 'picture/social/social-twitter.png' %}"
+                 class="img-responsive social-icon shadow-z-1"></a>
+          <a href="http://telegram.me/twhphoenix">
+            <img src="{% static 'picture/social/social-telegram.png' %}"
+                 class="img-responsive social-icon shadow-z-1"></a>
+          <a href="http://weibo.com/julycrows/profile">
+            <img src="{% static 'picture/social/social-weibo.png' %}"
+                 class="img-responsive social-icon shadow-z-1"></a>
+        </div>
+        <div class="text-center">
+          <a href="https://instagram.com/twhphoenix/">
+            <img src="{% static 'picture/social/social-instagram.png' %}"
+                 class="img-responsive social-icon shadow-z-1"></a>
+          <a href="https://github.com/CrowsT">
+            <img src="{% static 'picture/social/social-github.png' %}"
+                 class="img-responsive social-icon shadow-z-1"></a>
+          <a href="http://steamcommunity.com/profiles/76561198037511308/">
+            <img src="{% static 'picture/social/social-steam.png' %}"
+                 class="img-responsive social-icon shadow-z-1"></a>
+          <a href="http://tieba.baidu.com/home/main?id=737fbde1d2b9d2b0ccc47d0e">
+            <img src="{% static 'picture/social/social-tieba.png' %}"
+                 class="img-responsive social-icon shadow-z-1"></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<script type="text/javascript" charset="utf-8">
+  $(".message").click(function () {
+    var msgId = $(this).attr('id');
+    var msg = document.getElementById(msgId).innerHTML;
+    var text = document.getElementById("content");
+    text.value = "    回复 " + msg + " 的留言\n";
+    var formAction = "{% url 'contact:postmsg' %}" + msgId + '/';
+    $('#post-form').attr('action', formAction);
+    self.location.href = "#post";
+  });
+</script>
 {% endblock %}
