@@ -40,7 +40,6 @@ INSTALLED_APPS = (
     'homepage',
     'blog',
     'contact',
-    'aboutme',
     'users',
 )
 
@@ -69,6 +68,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries': {
+                'blog_filter': 'blog.templatetags.blog_filter'
+            }
         },
     },
 ]

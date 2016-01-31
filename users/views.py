@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login
 
 
 def index_view(request):
-    return render(request, 'users/login.html')
+    return HttpResponseRedirect(reverse("users:login"))
 
 
 def login_view(request):
