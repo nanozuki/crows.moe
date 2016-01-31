@@ -41,13 +41,10 @@
           {% for article in article_list %}
             <section class="col-sm-6 col-xs-12">
               <div class="panel panel-default crows-panel">
-                <div class="panel-heading crows-panel-heading shadow-z-1">
+                <div class="panel-heading crows-panel-heading">
                   <a href="{% url 'blog:article' article.id %}" class="crows-panel-heading-text">
                     <h2>{{ article.title }}</h2></a>
                 </div>
-                <!--div class="panel-heading crows-panel-heading shadow-z-1">
-                  <h3>{{ article.title }}</h3>
-                </div-->
                 <div class="panel-body crows-panel-body">
                   <p>{{ article.abstract }}</p>
                 </div>

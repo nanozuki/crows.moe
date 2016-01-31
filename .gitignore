@@ -67,9 +67,16 @@ target/
 *sublime*
 .tag*
 
-# OSX
+# OS and editor and merge
 *.DS_Store
+*~
+*.swp
+*.orig
 
 # deploy
 mysite_nginx.conf
 uwsgi_params
+
+# Private Settings
+private_settings.py
+
