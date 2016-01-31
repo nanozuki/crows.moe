@@ -70,3 +70,14 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.content
+
+
+class Draft(models.Model):
+    """ Article Draft """
+    title = models.CharField(max_length=100)
+    author = models.ForeignKey(Author)
+    category = models.ForeignKey(Category)
+    tags = models.ManyToManyField(Tag, blank=True)
+    create_time = models.DateField(auto_now_add=True)
+    abstract = models.TextField(blank=True)
+    text = models.TextField()
