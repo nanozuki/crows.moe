@@ -7,7 +7,17 @@
 
 {% block content %}
 <div class="container">
-  <h3>Hello!{{ user_name }}</h3>
+  <h3>{{ user_name }}</h3>
+  <h4>发表的文章</h4>
+  {% if articles %}
+  <ul>
+    {% for article in articles %}
+    <li><a
+        href="{% url 'users:article_edit' article_type='article' article_id=article.id %}">
+      {{ article.title }}</a></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
   <a class="btn btn-default btn-raised btn-category" role="button"
      href="{% url 'users:logout' %}">退出</a>
 </div>

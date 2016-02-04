@@ -1,0 +1,26 @@
+{% extends 'common/base_navbar.html' %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <!-- 编辑器 -->
+      <form>
+        <input name="title" type="text" placeholder="Title?"/>
+        <textarea name="content" data-provide="markdown" rows="10">
+          {{ article.text }}
+        </textarea>
+        <label class="checkbox">
+          <input name="publish" type="checkbox"> Publish
+        </label>
+        <hr/>
+        <button type="submit" class="btn">Submit</button>
+      </form>
+    </div>
+    <div class="col-md-6">
+      <!-- 预览 -->
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -9,4 +9,6 @@ urlpatterns = [
         {'template_name': 'users/login.html'}, name='login'),
     url(r'^logout/$', views.logout_view, name='logout'),
     url(r'^(?P<user_name>\w+)/$', views.user_view, name='profile'),
+    url(r'^edit/(?P<article_type>\w+)/(?P<article_id>\d+)/$',
+        views.article_edit, name="article_edit")
 ]
