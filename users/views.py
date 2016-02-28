@@ -37,5 +37,11 @@ def article_edit(request, article_type, article_id):
         article = get_object_or_404(Article, id=article_id)
     else:
         article = get_object_or_404(Draft, id=article_id)
+    tags = ["{0}({1})".format(tag.tag_name, tag.category.category_name)
+            for tag in article.tags.all()]
     return render(request, 'users/article_edit.html',
-                  {'article':article})
+                  {'article':article, 'tags':tags})
+
+
+
+

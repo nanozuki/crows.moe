@@ -2,25 +2,67 @@
 
 {% block content %}
 <div class="container">
-  <div class="row">
-    <div class="col-md-6">
-      <!-- 编辑器 -->
-      <form>
-        <input name="title" type="text" placeholder="Title?"/>
-        <textarea name="content" data-provide="markdown" rows="10">
+  <!-- 编辑器 -->
+  <section id="editor">
+    <div class="form-group">
+      <label class="col-md-2 control-label align-" for="title">标题</label>
+      <div class="col-md-10">
+        <input type="text" class="form-control" id="title" name="title" value="{{ article.title }}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-md-2 control-label align-center" for="tags">标签</label>
+      <div class="col-md-10">
+        <input type="text" class="form-control" id="tags" name="tags" value="{{ tags }}">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-md-12">
+        <textarea class="form-control" rows="20" id="content" style="resize: none"
+                  maxlength="300" name="content" required="true" data-provide="markdown">
           {{ article.text }}
         </textarea>
-        <label class="checkbox">
-          <input name="publish" type="checkbox"> Publish
-        </label>
-        <hr/>
-        <button type="submit" class="btn">Submit</button>
-      </form>
+      </div>
     </div>
-    <div class="col-md-6">
-      <!-- 预览 -->
-
+    <div class="form-group">
+      <div>
+        <button id="preview" class="btn btn-default btn-raised btn-submit">预览</button>
+        <button type="save" class="btn btn-default btn-raised btn-submit">保存</button>
+        <button type="publish" class="btn btn-default btn-raised btn-submit">发布</button>
+      </div>
     </div>
-  </div>
+  </section>
 </div>
+<script>
+
+</script>
+{% endblock %}
+
+{% block js %}
+{{ block.super }}
+{% load staticfiles %}
+<script src="{% static 'crows/js.cookie.js' %}"></script>
+<script>
+  var csrftoken = Cookies.get('csrftoken');
+  function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }
+  $.ajaxSetup({
+    beforeSend: function (xhr, settings) {
+      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+      }
+    }
+  });
+
+  $("#search-form").submit(function () {
+    $.post("#",
+        $("#search-form").serialize(), function (data) {
+          $("#search-result").html(JSON.stringify(data));
+        });
+    return false;
+  });
+
+</script>
 {% endblock %}
