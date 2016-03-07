@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from blog.models import Author, Article, Draft
+from .forms import RegisterUserForm
 
 def index_view(request):
     if request.user.is_authenticated():
@@ -18,6 +19,12 @@ def logout_view(request):
     return HttpResponseRedirect(reverse("homepage:index"))
 
 
+def register_view(request):
+    register_form = RegisterUserForm()
+    return render(request, "users/register.html", {
+        'register_form': register_form })
+
+
 @login_required
 def user_view(request, user_name):
     author = get_object_or_404(Author, name="结夜野棠")
@@ -29,9 +36,9 @@ def user_view(request, user_name):
 
 @login_required
 def article_edit(request, article_type, article_id):
-    if request.user.username is not "crowstang":
-        logout(request)
-        HttpResponseRedirect(reverse("users:login"))
+    #if request.user.username is not "crowstang":
+    #    logout(request)
+    #    HttpResponseRedirect(reverse("users:login"))
 
     if article_type == "article":
         article = get_object_or_404(Article, id=article_id)
@@ -41,6 +48,7 @@ def article_edit(request, article_type, article_id):
             for tag in article.tags.all()]
     return render(request, 'users/article_edit.html',
                   {'article':article, 'tags':tags})
+
 
 
 

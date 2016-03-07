@@ -1,0 +1,23 @@
+{% extends 'common/base_navbar.html' %}
+
+{% load staticfiles %}
+{% block stylesheet %}
+<link href="{% static 'crows/color-default.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="well crows-card">
+  <form class="form-horizontal" id="login-form"
+        action="#" method="post">
+    {% for field in register_form %}
+    <div class="form-group">
+      {{ field.errors }}
+      <label class="col-md-2 control-label align-left" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      <div class="col-md-10">
+        {{ field }}
+      </div>
+    </div>
+    {% endfor %}
+  </form>
+</div>
+{% endblock %}
