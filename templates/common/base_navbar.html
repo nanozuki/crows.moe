@@ -24,13 +24,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         {% block nav_bar_right %}
-        {% if user.is_authenticated %}
-          <li><a href="{% url 'users:profile' request.user.username %}">
-            {{ user.username }}</a></li>
-        {% else %}
-          <li><a href="{% url 'users:login' %}?next={{ request.path }}">登录</a></li>
-        {% endif %}
-        <li><a href="{% url 'contact:index' %}">留言板</a></li>
+        <li><a href="{% url 'contact:index' %}">关于|留言</a></li>
         {% endblock %}
         <li><a href="{% url 'blog:feed' %}">RSS</a></li>
       </ul>

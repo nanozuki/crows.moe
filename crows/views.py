@@ -1,0 +1,98 @@
+import datetime
+import pytz
+from django.http import Http404
+from django.shortcuts import render, get_object_or_404
+from django.shortcuts import HttpResponseRedirect
+from django.core.urlresolvers import reverse
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from blog.models import Author, Article, Draft, Category, Tag
+
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect(reverse("homepage:index"))
+
+
+@login_required
+def index_view(request):
+    author = get_object_or_404(Author, name="结夜野棠")
+    articles = author.article_set.all().order_by('-publish_time')
+    drafts = author.draft_set.all().order_by('-create_time')
+    return render(request, 'crows/profile.html',
+                  {'user_name': "结夜野棠", 'articles': articles, 'drafts': drafts})
+
+
+def deal_article_tags(article, tags):
+    tag_list = tags.split()
+    article.tags.clear()
+    for tag_name in tag_list:
+        tag = Tag.object.get(tag_name=tag_name)
+        if tag is None:
+            article.tags.create(tag_name=tag_name)
+        else:
+            article.tags.add(tag)
+
+
+def article_save(request, article_type, article_id):
+    author = Author.objects.get(name='结夜野棠')
+    catagory = Category.objects.get(url_name=request.POST['category'])
+    if article_type == 'new':
+        article = Draft(title=request.POST['title'],
+                        author=author,
+                        category=catagory,
+                        abstract=request.POST['abstract'],
+                        text=request.POST['content'])
+        article.save()
+    else:
+        if article_type == 'article':
+            article = Article.objects.get(id=article_id)
+        else:
+            article = Draft.objects.get(id=article_id)
+        article.title = request.POST['title']
+        article.author = author
+        article.category = catagory
+        article.abstract = request.POST['abstract']
+        article.text = request.POST['content']
+
+    tags = request.POST['tags']
+    deal_article_tags(article, tags)
+
+    if article_type == 'article':
+        article.last_update_time = \
+            datetime.datetime.now(pytz.utc)
+    article.save()
+    if article_type == 'draft':
+        return HttpResponseRedirect(reverse("crows:index"))
+    else:
+        return HttpResponseRedirect(reverse("blog:article", args=(article_id,)))
+
+
+def article_publish(request, article_type, article_id):
+    pass
+
+
+@login_required
+def article_edit(request, article_type, article_id):
+    if request.method == 'POST':
+        action = request.POST['action']
+        if action == 'preview':
+            return render(request, 'crows/preview.html',
+                          {'preview':request.POST['content']})
+        elif action == 'save':
+            return article_save(request, article_type, article_id)
+        elif action == 'publish':
+            return article_publish(request, article_type, article_id)
+        else:
+            raise Http404("Valid Action!")
+    else:
+        if article_type == "article":
+            article = get_object_or_404(Article, id=article_id)
+        else:
+            article = get_object_or_404(Draft, id=article_id)
+        tags = "  ".join("{0}".format(tag.tag_name) for tag in article.tags.all())
+        categorys = Category.objects.all()
+        the_category = article.category.url_name
+        return render(request, 'crows/article_edit.html',
+                      {'article':article, 'tags':tags,
+                       'categorys':categorys, 'the_category':the_category})

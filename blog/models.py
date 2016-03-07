@@ -25,15 +25,10 @@ class Tag(models.Model):
     """ Key word of Article """
     tag_name = models.CharField(max_length=30)
     clicks = models.IntegerField(default=0)
-    category = models.ForeignKey(Category, null=True)
+    tip = models.TextField(blank=True)
 
     def __str__(self):
-        return "{0}({1})".format(self.tag_name, self.category.category_name)
-
-class TagsTip(models.Model):
-    """ Tips For tag """
-    tag_name = models.CharField(max_length=30)
-    tip = models.TextField(blank=True)
+        return "{0}".format(self.tag_name)
 
 
 class Article(models.Model):
@@ -43,7 +38,7 @@ class Article(models.Model):
     category = models.ForeignKey(Category)
     tags = models.ManyToManyField(Tag, blank=True)
     publish_time = models.DateTimeField(auto_now_add=True)
-    last_update_time = models.DateField(auto_now=True)
+    last_update_time = models.DateTimeField(auto_now_add=True)
     abstract = models.TextField(blank=True)
     text = models.TextField()
     comments_count = models.IntegerField(default=0)
@@ -78,6 +73,6 @@ class Draft(models.Model):
     author = models.ForeignKey(Author)
     category = models.ForeignKey(Category)
     tags = models.ManyToManyField(Tag, blank=True)
-    create_time = models.DateField(auto_now_add=True)
+    create_time = models.DateTimeField(auto_now_add=True)
     abstract = models.TextField(blank=True)
     text = models.TextField()

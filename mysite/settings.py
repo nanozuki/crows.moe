@@ -41,7 +41,7 @@ INSTALLED_APPS = (
     'homepage',
     'blog',
     'contact',
-    'users',
+    'crows',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -121,6 +121,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 # Auth Settings
-LOGIN_URL = '/user/login/'
-LOGOUT_URL = '/user/logout/'
+LOGIN_URL = '/crows/login/'
+LOGOUT_URL = '/crows/logout/'
 

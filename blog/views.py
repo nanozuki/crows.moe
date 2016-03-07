@@ -73,11 +73,9 @@ def tag_view(request, tag_id):
     tag = get_object_or_404(Tag, id=tag_id)
     category_list = Category.objects.all()
     sbd = SidebarData()
-    content = sbd.gather_data(tag.category, need_recent_update=False)
+    content = sbd.gather_tag_data(tag, need_recent_update=False)
     tag.clicks += 1
-    tag.category.clicks += 1
     tag.save()
-    tag.category.save()
     article_list = Article.objects.order_by('-publish_time').filter(tags__in=[tag.id])[:]
     choose_color_style(content, 'default')
     content.update({'tag': tag,

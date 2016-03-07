@@ -9,13 +9,7 @@
 {% block title %}留言板{% endblock %}
 
 {% block nav_bar_right %}
-{% if request.user.is_authenticated %}
-<li><a href="{% url 'users:profile' request.user.username %}">
-  {{ request.user.username }}</a></li>
-{% else %}
-<li><a href="{% url 'users:login' %}?next={{ request.path }}">登录</a></li>
-{% endif %}
-<li class="active"><a href="{% url 'contact:index' %}">留言板</a></li>
+<li class="active"><a href="{% url 'contact:index' %}">关于|留言</a></li>
 {% endblock %}
 
 {% block content %}

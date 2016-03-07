@@ -21,7 +21,7 @@
         </div>
         <div class="well crows-card">
           <form class="form-horizontal" id="login-form"
-                action="{% url 'users:login' %}" method="post">
+                action="{% url 'crows:login' %}" method="post">
             {% csrf_token %}
             <div class="form-group">
               <label class="col-md-2 control-label align-left" for="username">用户名</label>
