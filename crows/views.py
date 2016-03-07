@@ -1,6 +1,6 @@
 import datetime
 import pytz
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -27,23 +27,26 @@ def deal_article_tags(article, tags):
     tag_list = tags.split()
     article.tags.clear()
     for tag_name in tag_list:
-        tag = Tag.object.get(tag_name=tag_name)
-        if tag is None:
-            article.tags.create(tag_name=tag_name)
-        else:
+        if Tag.objects.filter(tag_name=tag_name).exists():
+            tag = Tag.objects.get(tag_name=tag_name)
             article.tags.add(tag)
+        else:
+            article.tags.create(tag_name=tag_name)
 
 
 def article_save(request, article_type, article_id):
     author = Author.objects.get(name='结夜野棠')
-    catagory = Category.objects.get(url_name=request.POST['category'])
+    category = Category.objects.get(url_name=request.POST['category'])
     if article_type == 'new':
         article = Draft(title=request.POST['title'],
                         author=author,
-                        category=catagory,
+                        category=category,
                         abstract=request.POST['abstract'],
                         text=request.POST['content'])
+        article_id = article.id
+        print("new draft id={0}".format(article_id))
         article.save()
+        article_type = 'draft'
     else:
         if article_type == 'article':
             article = Article.objects.get(id=article_id)
@@ -51,7 +54,7 @@ def article_save(request, article_type, article_id):
             article = Draft.objects.get(id=article_id)
         article.title = request.POST['title']
         article.author = author
-        article.category = catagory
+        article.category = category
         article.abstract = request.POST['abstract']
         article.text = request.POST['content']
 
@@ -63,13 +66,30 @@ def article_save(request, article_type, article_id):
             datetime.datetime.now(pytz.utc)
     article.save()
     if article_type == 'draft':
-        return HttpResponseRedirect(reverse("crows:index"))
+        return HttpResponse(reverse("crows:index"))
     else:
-        return HttpResponseRedirect(reverse("blog:article", args=(article_id,)))
+        return HttpResponse(reverse("blog:article", args=(article_id,)))
 
 
 def article_publish(request, article_type, article_id):
-    pass
+    author = Author.objects.get(name='结夜野棠')
+    category = Category.objects.get(url_name=request.POST['category'])
+    article = Article(title=request.POST['title'],
+                      author=author,
+                      category=category,
+                      abstract=request.POST['abstract'],
+                      text=request.POST['content'])
+    article.save()
+    if article_type == "draft":
+        Draft.objects.get(id=article_id).delete()
+
+    tags = request.POST['tags']
+    deal_article_tags(article, tags)
+
+    article.last_update_time = article.publish_time
+    article.save()
+
+    return HttpResponse(reverse("blog:article", args=(article.id,)))
 
 
 @login_required
@@ -83,16 +103,30 @@ def article_edit(request, article_type, article_id):
             return article_save(request, article_type, article_id)
         elif action == 'publish':
             return article_publish(request, article_type, article_id)
+        elif action == 'delete':
+            if article_type == "draft":
+                Draft.objects.get(pk=article_id).delete()
+            else:
+                Article.objects.get(pk=article_id).delete()
+            return HttpResponse(reverse("crows:index"))
         else:
             raise Http404("Valid Action!")
     else:
-        if article_type == "article":
+        categorise = Category.objects.all()
+        if article_type == "new":
+            article = None
+            tags = ""
+            the_category = "anime"
+        elif article_type == "article":
             article = get_object_or_404(Article, id=article_id)
-        else:
+            tags = "  ".join("{0}".format(tag.tag_name) for tag in article.tags.all())
+            the_category = article.category.url_name
+        elif article_type == "draft":
             article = get_object_or_404(Draft, id=article_id)
-        tags = "  ".join("{0}".format(tag.tag_name) for tag in article.tags.all())
-        categorys = Category.objects.all()
-        the_category = article.category.url_name
+            tags = "  ".join("{0}".format(tag.tag_name) for tag in article.tags.all())
+            the_category = article.category.url_name
+        else:
+            raise Http404("Valid Action")
         return render(request, 'crows/article_edit.html',
-                      {'article':article, 'tags':tags,
-                       'categorys':categorys, 'the_category':the_category})
+                      {'article': article, 'tags': tags, 'type': article_type,
+                       'categorise': categorise, 'the_category': the_category})

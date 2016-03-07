@@ -23,7 +23,7 @@ class Category(models.Model):
 
 class Tag(models.Model):
     """ Key word of Article """
-    tag_name = models.CharField(max_length=30)
+    tag_name = models.CharField(max_length=30, unique=True)
     clicks = models.IntegerField(default=0)
     tip = models.TextField(blank=True)
 
