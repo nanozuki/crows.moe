@@ -96,3 +96,8 @@ def article_edit(request, article_type, article_id):
         return render(request, 'crows/article_edit.html',
                       {'article':article, 'tags':tags,
                        'categorys':categorys, 'the_category':the_category})
+
+
+def upload_image(request):
+    pass
+

@@ -51,8 +51,17 @@
       </div>
     </form>
   </div>
-  <div class="well crows-card crows-header">
-    <div class="text-center">
+  <div class="well crows-card">
+    <form id="upload-image" class="form-inline" method="post">
+      {% csrf_token %}
+      <div class="from-group">
+        <input type="file" class="form-control" name="image" id="image">
+        <input type="submit" class="btn btn-default btn-raised btn-submit" value="上传文件"/>
+    </form>
+    <div id="images">
+      
+    </div>
+    <div class="alian-left">
       <button id="preview" class="btn btn-default btn-raised btn-submit">预览</button>
       <button id="save" class="btn btn-default btn-raised btn-submit">保存</button>
       <button id="publish" class="btn btn-default btn-raised btn-submit">发布</button>
@@ -96,5 +105,11 @@
       function (data) {});
   });
 
+  $('#upload-image').submit(function () {
+    $.post("{% url 'crows:upload-image' %}", 
+      $("#upload-image").serialize(), function (data) {
+        $("#images").appendChild(data)
+      });
+  });
 </script>
 {% endblock %}
