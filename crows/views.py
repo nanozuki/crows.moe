@@ -1,12 +1,16 @@
+import os
 import datetime
 import pytz
+import time
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+
 from blog.models import Author, Article, Draft, Category, Tag
+from .forms import UploadImageForm
 
 
 def logout_view(request):
@@ -113,6 +117,7 @@ def article_edit(request, article_type, article_id):
             raise Http404("Valid Action!")
     else:
         categorise = Category.objects.all()
+        upload_form = UploadImageForm()
         if article_type == "new":
             article = None
             tags = ""
@@ -129,9 +134,32 @@ def article_edit(request, article_type, article_id):
             raise Http404("Valid Action")
         return render(request, 'crows/article_edit.html',
                       {'article': article, 'tags': tags, 'type': article_type,
-                       'categorise': categorise, 'the_category': the_category})
+                       'categorise': categorise, 'the_category': the_category,
+                       'upload_form': upload_form})
 
 
+def image_upload_handle(image):
+    print("image name is {0}".format(image.name))
+    ex_name = os.path.splitext(image.name)
+    file_name = "{0}.{1}".format(int(time.time()), ex_name)
+    print("filename is {0}".format(file_name))
+    with open(file_name, 'wb+') as dst:
+        for chunk in image.chunks():
+            dst.write(chunk)
+        return file_name
+
+
+@login_required
 def upload_image(request):
-    pass
+    if request.method == 'POST':
+        form = UploadImageForm(request.POST, request.FILES)
+        print("form is {0}".format(form))
+        if form.is_valid():
+            image_url = image_upload_handle(request.FILES['image'])
+            if image_url is not None:
+                return render(request, 'crows/image_preview.html',
+                        {"image_url": image_url})
+        else:
+            print("form is not valid")
+    return HttpResponse("")
 

@@ -54,18 +54,16 @@
   <div class="well crows-card">
     <form id="upload-image" class="form-inline" method="post">
       {% csrf_token %}
-      <div class="from-group">
-        <input type="file" class="form-control" name="image" id="image">
-        <input type="submit" class="btn btn-default btn-raised btn-submit" value="上传文件"/>
+      {{ upload_form }}
     </form>
+    <button id="upload" class="btn btn-default btn-raised">上传图片</button>
     <div id="images">
-      
     </div>
     <div class="alian-left">
-        <button id="preview" class="btn btn-default btn-raised btn-submit">预览</button>
-        <button id="save" class="btn btn-default btn-raised btn-submit">保存</button>
+        <button id="preview" class="btn btn-default btn-raised">预览</button>
+        <button id="save" class="btn btn-default btn-raised">保存</button>
         {% if article_type != 'article' %}
-          <button id="publish" class="btn btn-default btn-raised btn-submit">发布</button>
+          <button id="publish" class="btn btn-default btn-raised">发布</button>
         {% endif %}
         {% if article_type != 'new' %}
           <button id="delete" class="btn btn-warning btn-raised">删除</button>
@@ -117,7 +115,7 @@
     });
 
     $('#delete').click(function () {
-      var sure = confirm("确定要删除吗")
+      var sure = confirm("确定要删除吗");
       if (sure == true)
       {
         $.post('{{ request.path }}', ($('#editor').serialize() + "&action=delete"),
@@ -125,12 +123,12 @@
               window.location.href = data
             });
       }
-    })
+    });
 	
-	$('#upload-image').submit(function () {
-      $.post("{% url 'crows:upload-image' %}", 
+	  $('#upload').click(function () {
+      $.post("{% url 'crows:upload_image' %}",
         $("#upload-image").serialize(), function (data) {
-          $("#images").appendChild(data)
+          $("#images").append(data)
       });
     });
 
