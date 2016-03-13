@@ -19,9 +19,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 
 urlpatterns = [
-    url(r'^$', include('homepage.urls', namespace='homepage')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^blog/', include('blog.urls', namespace='blog')),
-    url(r'^aboutme/', include('aboutme.urls', namespace='aboutme')),
     url(r'^contact/', include('contact.urls', namespace='contact')),
+    url(r'^crows/', include('crows.urls', namespace='crows')),
+    url(r'^captcha/', include('captcha.urls')),
+    url(r'^', include('homepage.urls', namespace='homepage')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

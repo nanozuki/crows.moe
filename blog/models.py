@@ -23,17 +23,12 @@ class Category(models.Model):
 
 class Tag(models.Model):
     """ Key word of Article """
-    tag_name = models.CharField(max_length=30)
+    tag_name = models.CharField(max_length=30, unique=True)
     clicks = models.IntegerField(default=0)
-    category = models.ForeignKey(Category, null=True)
+    tip = models.TextField(blank=True)
 
     def __str__(self):
-        return "{0}({1})".format(self.tag_name, self.category.category_name)
-
-class TagsTip(models.Model):
-    """ Tips For tag """
-    tag_name = models.CharField(max_length=30)
-    tip = models.TextField(blank=True)
+        return "{0}".format(self.tag_name)
 
 
 class Article(models.Model):
@@ -43,7 +38,7 @@ class Article(models.Model):
     category = models.ForeignKey(Category)
     tags = models.ManyToManyField(Tag, blank=True)
     publish_time = models.DateTimeField(auto_now_add=True)
-    last_update_time = models.DateField(auto_now=True)
+    last_update_time = models.DateTimeField(auto_now=True)
     abstract = models.TextField(blank=True)
     text = models.TextField()
     comments_count = models.IntegerField(default=0)
@@ -70,3 +65,14 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.content
+
+
+class Draft(models.Model):
+    """ Article Draft """
+    title = models.CharField(max_length=100)
+    author = models.ForeignKey(Author)
+    category = models.ForeignKey(Category)
+    tags = models.ManyToManyField(Tag, blank=True)
+    create_time = models.DateTimeField(auto_now_add=True)
+    abstract = models.TextField(blank=True)
+    text = models.TextField()

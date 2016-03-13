@@ -1,0 +1,122 @@
+{% extends 'common/base_navbar.html' %}
+
+{% load staticfiles %}
+{% block stylesheet %}
+  <link href="{% static 'crows/color-default.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <!-- 编辑器 -->
+    <div class="well crows-card">
+      <form id="editor" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="control-label" for="title">标题</label>
+          <div>
+            <input type="text" class="form-control" id="title" name="title" value="{{ article.title }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="control-label" for="category">分类</label>
+          <select name="category" id="category" form="editor">
+            {% for category in categorise %}
+              <option value="{{ category.url_name }}"
+                      {% if category.url_name == the_category %}selected="selected"{% endif %}>
+                {{ category.category_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="control-label align-center" for="tags">标签</label>
+          <div>
+            <input type="text" class="form-control" id="tags" name="tags" value="{{ tags }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="control-label" for="abstract">摘要</label>
+          <br>
+        <textarea class="form-control" rows="5" id="abstract" style="resize: none"
+                  name="abstract" required="true" data-provide="markdown">
+          {{ article.abstract }}
+        </textarea>
+        </div>
+        <div class="form-group">
+          <label class="control-label" for="content">正文</label>
+          <br>
+        <textarea class="form-control" rows="20" id="content" style="resize: none"
+                  name="content" required="true" data-provide="markdown">
+          {{ article.text }}
+        </textarea>
+        </div>
+      </form>
+    </div>
+    <div class="well crows-card">
+      <div class="text-center">
+        <button id="preview" class="btn btn-default btn-raised">预览</button>
+        <button id="save" class="btn btn-default btn-raised">保存</button>
+        {% if type != 'article' %}
+          <button id="publish" class="btn btn-default btn-raised">发布</button>
+        {% endif %}
+        {% if type != 'new' %}
+          <button id="delete" class="btn btn-warning btn-raised">删除</button>
+        {% endif %}
+      </div>
+    </div>
+    <div id="display">
+    </div>
+  </div>
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  {% load staticfiles %}
+  <script src="{% static 'crows/js.cookie.js' %}"></script>
+  <script>
+    var csrftoken = Cookies.get('csrftoken');
+    function csrfSafeMethod(method) {
+      // these HTTP methods do not require CSRF protection
+      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+      beforeSend: function (xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+      }
+    });
+
+    $('#preview').click(function () {
+      $.post('{{ request.path }}', ($('#editor').serialize() + "&action=preview"),
+          function (data) {
+            $('#display').html(data);
+            self.location.href="#preview-end";
+          });
+    });
+
+    $('#save').click(function () {
+      $.post('{{ request.path }}', ($('#editor').serialize() + "&action=save"),
+          function (data) {
+            window.location.href = data;
+          });
+    });
+
+    $('#publish').click(function () {
+      $.post('{{ request.path }}', ($('#editor').serialize() + "&action=publish"),
+          function (data) {
+            window.location.href = data;
+          });
+    });
+
+    $('#delete').click(function () {
+      var sure = confirm("确定要删除吗");
+      if (sure == true) {
+        $.post('{{ request.path }}', ($('#editor').serialize() + "&action=delete"),
+            function (data) {
+              window.location.href = data;
+            });
+      }
+    });
+
+  </script>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'common/base_navbar.html' %}
+
+{% load staticfiles %}
+{% block stylesheet %}
+<link href="{% static 'crows/color-default.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+      <div class="col-md-offset-3 col-md-6 col-sm-12">
+      {% if next %}
+        {% if user.is_authenticated %}
+          <p>你无权访问此界面，你可以更换一个有权限的账户</p>
+        {% else %}
+          <p>请在此界面登陆</p>
+        {% endif %}
+      {% endif %}
+        <div class="well crows-card crows-header">
+          <h1 class="crows-header-primary text-center">登陆 | 注册</h1>
+        </div>
+        <div class="well crows-card">
+          <form class="form-horizontal" id="login-form"
+                action="{% url 'crows:login' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+              <label class="col-md-2 control-label align-left" for="username">用户名</label>
+              <div class="col-md-10">
+                <input type="text" class="form-control" id="username"
+                       placeholder="" name="username">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label align-left" for="password">密码</label>
+              <div class="col-md-10">
+                <input type="password" class="form-control" id="password"
+                       placeholder="" name="password">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-md-1 col-md-offset-2 align-left">
+                <button type="submit" class="btn btn-default btn-raised btn-submit">登录</button>
+              </div>
+            </div>
+            <input type="hidden" name="next" value="{{ next }}" />
+          </form>
+        </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

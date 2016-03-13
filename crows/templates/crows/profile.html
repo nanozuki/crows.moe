@@ -1,0 +1,37 @@
+{% extends 'common/base_navbar.html' %}
+
+{% load staticfiles %}
+{% block stylesheet %}
+  <link href="{% static 'crows/color-default.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h3>{{ user_name }}</h3>
+    <a class="btn btn-default btn-raised btn-category" role="button"
+       href="{% url 'crows:article_edit' article_type='new' article_id=0 %}">创建新文章</a>
+    <a class="btn btn-default btn-raised btn-category" role="button"
+       href="{% url 'crows:logout' %}">退出</a>
+    <h4>保存的草稿</h4>
+    {% if drafts %}
+      <ul>
+        {% for draft in drafts %}
+          <li>
+            <a href="{% url 'crows:article_edit' article_type='draft' article_id=draft.id %}">
+              ({{ draft.category }}){{ draft.title }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <h4>发表的文章</h4>
+    {% if articles %}
+      <ul>
+        {% for article in articles %}
+          <li><a
+              href="{% url 'crows:article_edit' article_type='article' article_id=article.id %}">
+            ({{ article.category }}){{ article.title }}</a></li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+{% endblock %}
