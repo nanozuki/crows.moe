@@ -1,9 +1,12 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
+from django.template.loader import render_to_string
+
 from .models import Article, Category, Tag, Comment
 from .sidebar import SidebarData
+from .form import PostCommentForm
 
 
 def update_clicks_counter(article, delta=1):
@@ -53,7 +56,8 @@ def article_view(request, article_id):
     name_ph = request.session.get('name', "")
     email_ph = request.session.get('email', "")
 
-    print("name = %s" % name_ph)
+    comment_form = PostCommentForm(initial={
+        'name': name_ph, 'email': email_ph})
 
     sbd = SidebarData()
     content = sbd.gather_data(article.category)
@@ -62,8 +66,7 @@ def article_view(request, article_id):
                     'category_list': category_list,
                     'tags_list': tags_list,
                     'comments_list': comments_list,
-                    'name_ph': name_ph,
-                    'email_ph': email_ph
+                    'post_comment_form': comment_form,
                     })
 
     return render(request, 'blog/article.html', content)
@@ -86,33 +89,53 @@ def tag_view(request, tag_id):
 
 
 def post_comment(request, article_id, reply_id=None):
-    article = get_object_or_404(Article, pk=article_id)
-    name = request.POST['name']
-    email = request.POST['email']
-    content = request.POST['content']
-    target = -1
+    if request.method == 'POST':
+        form = PostCommentForm(request.POST)
+        if form.is_valid():
+            article = get_object_or_404(Article, pk=article_id)
+            name = request.POST['name']
+            email = request.POST['email']
+            content = request.POST['content']
+            target = -1
 
-    if name == "":
-        name = "匿名访客"
+            if name == "":
+                name = "匿名访客"
 
-    if reply_id is not None:
-        target = reply_id
+            if reply_id is not None:
+                target = reply_id
 
-    # 保存用户填写的用户名和邮箱
-    request.session['name'] = name
-    request.session['email'] = email
+            # 保存用户填写的用户名和邮箱
+            request.session['name'] = name
+            request.session['email'] = email
 
-    cmt = Comment(name=name,
-                  email=email,
-                  content=content,
-                  floor=article.comments_count + 1,
-                  reply_id=target)
-    cmt.save()
-    article.add_comment(cmt)
-    # This is ugly. Will be Repaired in the future.
-    update_clicks_counter(article, -1)
-    return HttpResponseRedirect(reverse("blog:article", args=(article_id,)) + "#lastcmt")
+            cmt = Comment(name=name,
+                          email=email,
+                          content=content,
+                          floor=article.comments_count + 1,
+                          reply_id=target)
+            cmt.save()
+            article.add_comment(cmt)
+            # This is ugly. Will be Repaired in the future.
+            update_clicks_counter(article, -1)
+            return HttpResponseRedirect(reverse("blog:article", args=(article_id,)) + "#lastcmt")
+        else:
+            article = get_object_or_404(Article, pk=article_id)
+            category_list = Category.objects.all()
+            tags_list = article.tags.all()
+            comments_list = article.comment_set.all()
+            update_clicks_counter(article)
 
+            sbd = SidebarData()
+            content = sbd.gather_data(article.category)
+            choose_color_style(content, article.category.url_name)
+            content.update({'article': article,
+                            'category_list': category_list,
+                            'tags_list': tags_list,
+                            'comments_list': comments_list,
+                            'post_comment_form': form})
+            return render(request, 'blog/article.html', content)
+    else:
+        return HttpResponseRedirect(reverse("blog:article", args=(article_id,)))
 
 @login_required
 def post_article(request):

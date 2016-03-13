@@ -45,9 +45,10 @@
     {% load blog_filter %}
     {{ article.text|markdown2html }}
     {% if user.is_authenticated %}
-      <p class="text-right"><small>
-        <a href="{% url 'crows:article_edit' article_type='article' article_id=article.id %}">编辑
-        </a></small>
+      <p class="text-right">
+        <small>
+          <a href="{% url 'crows:article_edit' article_type='article' article_id=article.id %}">编辑
+          </a></small>
       </p>
     {% endif %}
   </article>
@@ -66,7 +67,7 @@
               <div class="media-body">
                 <h5 class="media-heading">
                   <a href="#post" class="comment"
-                    id="{{ comment.floor }}">#{{ comment.floor }} {{ comment.name }}</a>
+                     id="{{ comment.floor }}">#{{ comment.floor }} {{ comment.name }}</a>
                   <small>{{ comment.timestamp | date:"Y-m-d H:i:s" }}</small>
                 </h5>
                 <p>{{ comment.content|markdown2html }}</p>
@@ -87,37 +88,55 @@
       <form class="form-horizontal" id="post-form" action="{% url 'blog:comment' article.id %}" method="post">
         {% csrf_token %}
         <a name="post"></a>
+        {% if post_comment_form.errors %}
+          <div class="alert alert-error">
+            <ul>
+              {% for error in post_comment_form.non_field_errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
         <div class="form-group">
-          <label class="col-md-1 control-label align-left" for="name">Name</label>
-
+          {{ post_comment_form.name.errors }}
+          <label class="col-md-1 control-label" style="text-align: right"
+                 for="{{ post_comment_form.name.id_for_label }}">
+            {{ post_comment_form.name.label }}</label>
           <div class="col-md-5">
-            <input type="text" class="form-control" id="name"
-                   placeholder="(可选)留下你的昵称吧" name="name" value="{{ name_ph }}">
+            {{ post_comment_form.name }}
           </div>
         </div>
         <div class="form-group">
-          <label class="col-md-1 control-label align-left" for="email">Email</label>
-
+          {{ post_comment_form.email.errors }}
+          <label class="col-md-1 control-label" style="text-align: right"
+                 for="{{ post_comment_form.email.id_for_label }}">
+            {{ post_comment_form.email.label }}</label>
           <div class="col-md-5">
-            <input type="email" class="form-control" id="email"
-                   placeholder="(可选)您的邮箱不会公开" name="email" value="{{ email_ph }}">
+            {{ post_comment_form.email }}
           </div>
         </div>
         <div class="form-group">
-          <div class="col-md-1 col-md-offset-1 ali">
-            <button type="submit" class="btn btn-default btn-raised btn-submit">提交</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="col-md-1 control-label" for="content">评论</label>
-
+          {{ post_comment_form.content.errors }}
+          <label class="col-md-1 control-label" style="text-align: right"
+                 for="{{ post_comment_form.content.id_for_label }}">
+            {{ post_comment_form.content.label }}</label>
           <div class="col-md-10">
-        <textarea class="form-control" rows="3" id="content" placeholder="说点什么吧(点击楼层号或ID可回复，支持markdown格式)"
-                  maxlength="300" name="content" required="true"></textarea>
+            {{ post_comment_form.content }}
           </div>
+        </div>
+        <div class="form-group {% if field.errors %}has-error{% endif %}">
+          {{ post_comment_form.captcha.errors }}
+          <label class="control-label" for="{{ post_comment_form.captcha.id_for_label }}"
+                 style="padding: 15px">
+            {{ post_comment_form.captcha.label }}
+          </label>
+          {{ post_comment_form.captcha }}
+          <button class="btn btn-default btn-raised btn-submit"
+                  id="post_comment" type="submit" style="margin: 15px;">提交</button>
         </div>
       </form>
     </div>
+    <p style="display: none;" id="this_url">{{ request.path }}</p>
   {% endblock %}
 {% endblock %}
 
@@ -126,17 +145,22 @@
 {% endblock %}
 
 {% block addition %}
-<script type="text/javascript" charset="utf-8">
+  <script type="text/javascript" charset="utf-8">
 
-  $(".comment").click(function () {
-    var cmtId = $(this).attr('id');
-    var msg = document.getElementById(cmtId).innerHTML;
-    var text = document.getElementById("content");
-    text.value = "    回复 " + msg + " 的评论\n";
-    var formAction = "{% url 'blog:comment' article.id %}" + cmtId + '/';
-    $('#post-form').attr('action', formAction);
-    self.location.href="#post";
-  });
+    this_url = window.location.href;
+    if (this_url.indexOf("article") == -1) {
+      self.location.href = "#post";
+    }
 
-</script>
+    $(".comment").click(function () {
+      var cmtId = $(this).attr('id');
+      var msg = document.getElementById(cmtId).innerHTML;
+      var text = document.getElementById("content");
+      text.value = "    回复 " + msg + " 的评论\n";
+      var formAction = "{% url 'blog:comment' article.id %}" + cmtId + '/';
+      $('#post-form').attr('action', formAction);
+      self.location.href = "#post";
+    });
+
+  </script>
 {% endblock %}

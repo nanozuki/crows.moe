@@ -11,7 +11,7 @@ admin.site.register(Comment)
 
 class ArticleAdmin(admin.ModelAdmin):
     fields = [
-        (None, {'fields': ['title', 'author', 'category', 'tags', 'text']}),
+        (None, {'fields': ['title', 'author', 'category', 'tags', 'text', 'last_update_time']}),
         ('Time Information', {'fields': ['publish_time', 'last_update_time']}),
 
     ]

@@ -38,7 +38,7 @@ class Article(models.Model):
     category = models.ForeignKey(Category)
     tags = models.ManyToManyField(Tag, blank=True)
     publish_time = models.DateTimeField(auto_now_add=True)
-    last_update_time = models.DateTimeField(auto_now_add=True)
+    last_update_time = models.DateTimeField(auto_now=True)
     abstract = models.TextField(blank=True)
     text = models.TextField()
     comments_count = models.IntegerField(default=0)

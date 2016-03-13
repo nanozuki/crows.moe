@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'blog',
     'contact',
     'crows',
+    'captcha',
 )
 
 MIDDLEWARE_CLASSES = (
