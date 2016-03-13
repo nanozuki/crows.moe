@@ -44,6 +44,12 @@
   <article class="well crows-card">
     {% load blog_filter %}
     {{ article.text|markdown2html }}
+    {% if user.is_authenticated %}
+      <p class="text-right"><small>
+        <a href="{% url 'crows:article_edit' article_type='article' article_id=article.id %}">编辑
+        </a></small>
+      </p>
+    {% endif %}
   </article>
   {% block comment_display %}
     <div class="well crows-card">

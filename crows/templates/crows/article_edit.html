@@ -51,21 +51,14 @@
         </div>
       </form>
     </div>
-  <div class="well crows-card">
-    <form id="upload-image" class="form-inline" method="post">
-      {% csrf_token %}
-      {{ upload_form }}
-    </form>
-    <button id="upload" class="btn btn-default btn-raised">上传图片</button>
-    <div id="images">
-    </div>
-    <div class="alian-left">
+    <div class="well crows-card">
+      <div class="text-center">
         <button id="preview" class="btn btn-default btn-raised">预览</button>
         <button id="save" class="btn btn-default btn-raised">保存</button>
-        {% if article_type != 'article' %}
+        {% if type != 'article' %}
           <button id="publish" class="btn btn-default btn-raised">发布</button>
         {% endif %}
-        {% if article_type != 'new' %}
+        {% if type != 'new' %}
           <button id="delete" class="btn btn-warning btn-raised">删除</button>
         {% endif %}
       </div>
@@ -96,7 +89,8 @@
     $('#preview').click(function () {
       $.post('{{ request.path }}', ($('#editor').serialize() + "&action=preview"),
           function (data) {
-            $('#display').html(data)
+            $('#display').html(data);
+            self.location.href="#preview-end";
           });
     });
 
@@ -116,20 +110,12 @@
 
     $('#delete').click(function () {
       var sure = confirm("确定要删除吗");
-      if (sure == true)
-      {
+      if (sure == true) {
         $.post('{{ request.path }}', ($('#editor').serialize() + "&action=delete"),
             function (data) {
-              window.location.href = data
+              window.location.href = data;
             });
       }
-    });
-	
-	  $('#upload').click(function () {
-      $.post("{% url 'crows:upload_image' %}",
-        $("#upload-image").serialize(), function (data) {
-          $("#images").append(data)
-      });
     });
 
   </script>

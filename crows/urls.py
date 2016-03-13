@@ -9,5 +9,5 @@ urlpatterns = [
     url(r'^logout/$', views.logout_view, name='logout'),
     url(r'^edit/(?P<article_type>\w+)/(?P<article_id>\d+)/$',
         views.article_edit, name="article_edit"),
-    url(r'^upload_image/$', views.upload_image, name='upload_image')
+    #url(r'^upload_image/$', views.upload_image, name='upload_image')
 ]
