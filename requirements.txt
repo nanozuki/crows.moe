@@ -1,5 +1,5 @@
 Django==1.9.4
-django-simple-captcha=0.5.1
+django-simple-captcha==0.5.1
 Markdown==2.6.5
 pytz==2015.7
 queuelib==1.4.2
