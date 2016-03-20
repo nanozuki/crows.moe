@@ -79,4 +79,5 @@ uwsgi_params
 
 # Private Settings
 private_settings.py
-
+# Virtual Env
+venv/
