@@ -10,7 +10,7 @@ class PostMessageForm(forms.Form):
     email = forms.EmailField(label='email', max_length=40, required=False,
                              widget=forms.EmailInput(attrs={
                                  'class': 'form-control',
-                                 'placeholder': '您的邮箱不会公开'}))
+                                 'placeholder': '(可选)您的邮箱不会公开'}))
     content = forms.CharField(label='评论', max_length=300,
                               widget=forms.Textarea(attrs={
                                   'class': 'form-control',

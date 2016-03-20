@@ -11,7 +11,7 @@ def index(request):
     pub_msg_list = PublicMessage.objects.order_by("-timestamp")
 
     name_value = request.session.get('name', '')
-    email_value = request.session.get('name', '')
+    email_value = request.session.get('email', '')
 
     form = PostMessageForm(initial={
         'name': name_value, 'email': email_value})
@@ -32,14 +32,14 @@ def post_msg(request, reply_id=None):
             content = request.POST['content']
             target = -1
 
+            request.session['name'] = name
+            request.session['email'] = email
+
             if name == "":
                 name = "匿名访客"
 
             if reply_id is not None:
                 target = reply_id
-
-            request.session['name'] = name
-            request.session['email'] = email
 
             msg = PublicMessage(name=name,
                                 email=email,

@@ -98,15 +98,15 @@ def post_comment(request, article_id, reply_id=None):
             content = request.POST['content']
             target = -1
 
+            # 保存用户填写的用户名和邮箱
+            request.session['name'] = name
+            request.session['email'] = email
+
             if name == "":
                 name = "匿名访客"
 
             if reply_id is not None:
                 target = reply_id
-
-            # 保存用户填写的用户名和邮箱
-            request.session['name'] = name
-            request.session['email'] = email
 
             cmt = Comment(name=name,
                           email=email,
