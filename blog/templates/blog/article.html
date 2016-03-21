@@ -2,50 +2,37 @@
 
 {% block title %}乌鸦的庭院:{{ article.title }}{% endblock %}
 
-{% block nav_var_left %}
-  {% for category_item in category_list %}
-    {% ifequal category_item.id article.category.id %}
-      <li class="active"><a href="{% url 'blog:category' category_item.url_name %}">
-        {{ category_item.category_name }}</a></li>
-    {% else %}
-      <li><a href="{% url 'blog:category' category_item.url_name %}">
-        {{ category_item.category_name }}</a></li>
-    {% endifequal %}
-  {% endfor %}
-{% endblock %}
-
 {% block path_nav %}
-  <ol class="breadcrumb visible-xs">
-    <li><a href="{% url 'homepage:index' %}">Home</a></li>
-    <li><a href="{% url 'blog:index' %}">Blog</a></li>
-    <li><a href="{% url 'blog:category' article.category.url_name %}">{{ article.category.category_name }}</a></li>
-  </ol>
+  <nav class="light-blue lighten-2 hide-on-large-only">
+    <div class="nav-wrapper" style="padding-left: 10px;">
+      <a href="{% url 'homepage:index' %}" class="breadcrumb">Home</a>
+      <a href="{% url 'blog:index' %}" class="breadcrumb">Blog</a>
+      <a href="{% url 'blog:category' article.category.url_name %}"
+         class="breadcrumb">{{ article.category.category_name }}</a>
+    </div>
+  </nav>
 {% endblock %}
 
 {% block main_area %}
-  <section class="well crows-card crows-header">
-    <div>
-      <h1 class="text-center crows-header-primary">{{ article.title }}</h1>
-    </div>
-    <div>
-      {% if tags_list %}
-        <ul class="list-inline">
+  <section>
+    <div class="card light-blue">
+      <div class="card-content white-text">
+        <div class="card-title"><h4>{{ article.title }}</h4></div>
+        <br>
+        {% if tags_list %}
           {% for tag in tags_list %}
-            <li>
-              <a class="label btn btn-xs btn-primary crows-tag"
-                 href="{% url 'blog:tag' tag.id %}"># {{ tag.tag_name }}</a>
-            </li>
+            <span class="chip">{{ tag.tag_name }}</span>
           {% endfor %}
-        </ul>
-      {% endif %}
+        {% endif %}
+        <p class="right-align">{{ article.publish_time | date:"Y-m-d" }}</p>
+      </div>
     </div>
-    <p class="text-right"><I>{{ article.publish_time | date:"Y-m-d" }}</I></p>
   </section>
-  <article class="well crows-card">
+  <article class="card-panel white">
     {% load blog_filter %}
     {{ article.text|markdown2html }}
     {% if user.is_authenticated %}
-      <p class="text-right">
+      <p class="right-align">
         <small>
           <a href="{% url 'crows:article_edit' article_type='article' article_id=article.id %}">编辑
           </a></small>
@@ -53,27 +40,20 @@
     {% endif %}
   </article>
   {% block comment_display %}
-    <div class="well crows-card">
+    <div class="card-panel white">
       {% if comments_list %}
         <p>阅读{{ article.clicks }} 评论{{ comments_list.count }}</p>
-        <ul class="media-list">
+        <ul class="collection">
           {% for comment in comments_list %}
             {% if forloop.last %}
               <a name="lastcmt"></a>
             {% endif %}
-            <li class="media">
-              <div class="media-left">
-              </div>
-              <div class="media-body">
-                <h5 class="media-heading">
-                  <a href="#post" class="comment"
-                     id="{{ comment.floor }}">#{{ comment.floor }} {{ comment.name }}</a>
-                  <small>{{ comment.timestamp | date:"Y-m-d H:i:s" }}</small>
-                </h5>
-                <p>{{ comment.content|markdown2html }}</p>
-              </div>
+            <li class="collection-item">
+              <a href="#post" class="title"
+                 id="{{ comment.floor }}">#{{ comment.floor }} {{ comment.name }}</a>
+              <small>{{ comment.timestamp | date:"Y-m-d H:i:s" }}</small>
+              <p>{{ comment.content|markdown2html }}</p>
             </li>
-            <hr/>
           {% endfor %}
         </ul>
       {% else %}
@@ -84,7 +64,7 @@
   {% endblock %}
 
   {% block comment_form %}
-    <div class="well crows-card">
+    <div class="card-panel">
       <form class="form-horizontal" id="post-form" action="{% url 'blog:comment' article.id %}" method="post">
         {% csrf_token %}
         <a name="post"></a>
@@ -132,7 +112,8 @@
           </label>
           {{ post_comment_form.captcha }}
           <button class="btn btn-default btn-raised btn-submit"
-                  id="post_comment" type="submit" style="margin: 15px;">提交</button>
+                  id="post_comment" type="submit" style="margin: 15px;">提交
+          </button>
         </div>
       </form>
     </div>

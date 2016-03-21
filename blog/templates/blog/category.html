@@ -2,65 +2,39 @@
 
 {% block title %}乌鸦的庭院:{{ category.category_name }}{% endblock %}
 
-{% block nav_var_left %}
-  {% for category_item in category_list %}
-    {% ifequal category_item.id category.id %}
-      <li class="active"><a href="{% url 'blog:category' category_item.url_name %}">
-        {{ category_item.category_name }}</a></li>
-    {% else %}
-      <li><a href="{% url 'blog:category' category_item.url_name %}">
-        {{ category_item.category_name }}</a></li>
-    {% endifequal %}
-  {% endfor %}
-{% endblock %}
-
-{% block path_nav %}
-  <ol class="breadcrumb visible-xs">
-    <li><a href="{% url 'homepage:index' %}">Home</a></li>
-    <li><a href="{% url 'blog:index' %}">Blog</a></li>
-    <li class="active"><a href="{% url 'blog:category' category.url_name %}">
-      {{ category.category_name }}</a></li>
-  </ol>
-{% endblock %}
-
 {% block top_banner %}
-  <div class="well crows-card crows-header">
-    <h1 class="crows-header-primary">乌鸦的庭院</h1>
-
-    <h2 class="crows-header-minor">{{ category.category_name }}</h2>
-
-    <p class="text-right crows-header-minor">{{ category.brief }}</p>
+<section class="col s12">
+  <div class="card light-blue">
+    <div class="card-content white-text">
+      <span class="card-title">乌鸦的庭院</span>
+      <p>{{ category.category_name }}</p>
+      <p class="right-align">{{ category.brief }}</p>
+    </div>
   </div>
+</section>
 {% endblock %}
 
 {% block main_area %}
-  {% block article_list_area %}
-    {% if category %}
-      {% if article_list %}
-        <div class="row">
-          {% for article in article_list %}
-            <section class="col-sm-6 col-xs-12">
-              <div class="panel panel-default crows-panel">
-                <div class="panel-heading crows-panel-heading">
-                  <a href="{% url 'blog:article' article.id %}" class="crows-panel-heading-text">
-                    <h2>{{ article.title }}</h2></a>
-                </div>
-                <div class="panel-body crows-panel-body">
-                  <p>{{ article.abstract }}</p>
-                </div>
-              </div>
-            </section>
-          {% endfor %}
+  {% if category %}
+    {% if article_list %}
+      {% for article in article_list %}
+      <div class="card">
+        <div class="card-content">
+          <a class="card-title" href="{% url 'blog:article' article.id %}"
+            >{{ article.title }}</a>
+          <hr>
+          <p>{{ article.abstract }}</p>
         </div>
-      {% else %}
-        <h4>暂时还没有文章，敬请期待</h4>
-      {% endif %}
+      </div>
+      {% endfor %}
     {% else %}
-      <h1>未找到相应的分类</h1>
+      <h4>暂时还没有文章，敬请期待</h4>
     {% endif %}
-  {% endblock %}
+  {% else %}
+    <h1>未找到相应的分类</h1>
+  {% endif %}
 {% endblock %}
 
 {% block footer %}
-  <p class="text-center">结夜野棠的个人博客</p>
+  <p class="center-align">结夜野棠的个人博客</p>
 {% endblock %}

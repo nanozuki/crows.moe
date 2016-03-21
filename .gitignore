@@ -66,6 +66,7 @@ target/
 .idea/
 *sublime*
 .tag*
+media/
 
 # OS and editor and merge
 *.DS_Store

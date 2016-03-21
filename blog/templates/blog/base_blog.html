@@ -1,94 +1,76 @@
-{% extends 'common/base_navbar.html' %}
+{% extends 'common/base.html' %}
 
 {% load staticfiles %}
-{% block stylesheet %}
-  <link href="{% static 'crows/crows.css' %}" rel="stylesheet">
-  <link href="{{ color_style }}" rel="stylesheet">
-{% endblock %}
+{% block stylesheet %}{% endblock %}
 
 {% block content %}
-  <div class="container">
     {% block path_nav %}
     {% endblock %}
     {% block top_banner %}
     {% endblock %}
     <div class="row">
-      <div class="col-md-9 col-sm-12">
+      <div class="col s12 m12 l8">
         {% block main_area %}
         {% endblock %}
       </div>
-      <div class="col-md-3 col-sm-12">
+      <div class="col s12 m6 l4">
         <div class="row">
           {% block sidebar_right %}
             {% if most_clicks_articles %}
-              <section class="col-md-12 col-sm-6 col-xs-12">
-                <div class="panel panel-default crows-panel-info">
-                  <div class="panel-heading crows-panel-heading">最多点击</div>
-                  <ul class="panel-body list-group crows-panel-body">
-                    {% for article in most_clicks_articles %}
-                      <li class="list-group-item"><a href="{% url 'blog:article' article.id %}">{{ article.title }}</a>
-                        <small>{{ article.clicks }}</small>
-                      </li>
-                    {% endfor %}
-                  </ul>
+              <section class="col s12 m6 l12">
+                <div class="collection z-depth-1">
+                  <p class="collection-item green lighten-2 white-text">最多点击</p>
+                  {% for article in most_clicks_articles %}
+                  <a href="{% url 'blog:article' article.id %}"
+                    class="collection-item green-text lighten-2"
+                    >{{ article.title }} <small>{{ article.clicks }}</small></a>
+                  {% endfor %}
                 </div>
               </section>
             {% endif %}
             {% if most_clicks_tags %}
-              <section class="col-md-12 col-sm-6 col-xs-12">
-                <div class="panel panel-default crows-panel-info">
-                  <div class="panel-heading crows-panel-heading">标签</div>
-                  <ul class="panel-body list-group crows-panel-body">
-                    {% for tag in most_clicks_tags %}
-                      <li class="list-group-item"><a href="{% url 'blog:tag' tag.id %}">{{ tag.tag_name }}</a>
-                        <small>{{ tag.clicks }}</small>
-                      </li>
-                    {% endfor %}
-                  </ul>
+              <section class="col s12 m6 l12">
+                <div class="collection z-depth-1">
+                  <p class="collection-item green lighten-2 white-text">标签</p>
+                  {% for tag in most_clicks_tags %}
+                  <a href="{% url 'blog:tag' tag.id %}"
+                    class="collection-item green-text lighten-2"
+                    >{{ tag.tag_name }} <small>{{ tag.clicks }}</small></a>
+                  {% endfor %}
                 </div>
               </section>
             {% endif %}
             {% if most_commented %}
-              <section class="col-md-12 col-sm-6 col-xs-12">
-                <div class="panel panel-default crows-panel-info">
-                  <div class="panel-heading crows-panel-heading">最多评论</div>
-                  <ul class="panel-body list-group crows-panel-body">
-                    {% for article in most_commented %}
-                      {% load blog_filter %}
-                      <li class="list-group-item">
-                        <a href="{% url 'blog:article' article.id %}">{{ article.title }}</a>
-                        <small>{{ article | article_cmt_count }}</small>
-                      </li>
-                    {% endfor %}
-                  </ul>
+            <section class="col s12 m6 l12">
+              <div class="collection z-depth-1">
+                <p class="collection-item green lighten-2 white-text">最多评论</p>
+                {% for article in most_commented %}
+                {% load blog_filter %}
+                <a href="{% url 'blog:article' article.id %}"
+                  class="collection-item green-text lighten-2"
+                  >{{ article.title }} <small>{{ article | article_cmt_count }}</small></a>
+                {% endfor %}
                 </div>
               </section>
             {% endif %}
             {% block recent_update_area %}
               {% if recent_update %}
-                <section class="col-md-12 col-sm-6 col-xs-12">
-                  <div class="panel panel-default crows-panel-info">
-                    <div class="panel-heading crows-panel-heading">最近发表</div>
-                    <ul class="panel-body list-group crows-panel-body">
-                      {% for article in recent_update %}
-                        {% load blog_filter %}
-                        <li class="list-group-item"><a
-                            href="{% url 'blog:article' article.id %}">{{ article.title }}</a>
-                          <small>{{ article.publish_time | date:"Y-m-d" }}</small>
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                </section>
+              <section class="col s12 m6 l12">
+                <div class="collection z-depth-1">
+                  <p class="collection-item green lighten-2 white-text">最近发表</p>
+                  {% for article in recent_update %}
+                  {% load blog_filter %}
+                  <a href="{% url 'blog:article' article.id %}"
+                    class="collection-item green-text lighten-2"
+                    >{{ article.title }} <small>{{ article.publish_time | date:"Y-m-d" }}</small></a>
+                  {% endfor %}
+                </div>
+              </section>
               {% endif %}
             {% endblock %}
           {% endblock %}
         </div>
       </div>
-    </div>
-    <div>
-      {% block footer %}
-      {% endblock %}
     </div>
   </div>
   {% block addition %}
