@@ -26,7 +26,7 @@
     </li>
     <li class="no-padding">
       <ul class="collapsible collapsible-accordion">
-        <li {% if nav_active == "blog" %}class="active"{% endif %}>
+        <li class="active">
         <a class="collapsible-header active waves-effect waves-teal">个人博客</a>
         <div class="collapsible-body" style="display: block;">
           <ul>
@@ -49,9 +49,12 @@
     <li {% if nav_active == "about" %}class="red"{% endif %}>
       <a {% if nav_active == "about" %}class="white-text"{% endif %} href="{% url 'blog:article' article_id=1 %}">关于</a></li>
     <li {% if nav_active == "contact" %}class="red"{% endif %}>
-      <a {% if nav_active == "about" %}class="white-text"{% endif %} href="{% url 'contact:index' %}">留言</a></li>
+      <a {% if nav_active == "contact" %}class="white-text"{% endif %} href="{% url 'contact:index' %}">留言</a></li>
     <li {% if nav_active == "feed" %}class="red"{% endif %}>
-      <a {% if nav_active == "about" %}class="white-text"{% endif %} href="{% url 'blog:feed' %}">订阅</a></li>
+      <a {% if nav_active == "feed" %}class="white-text"{% endif %} href="{% url 'blog:feed' %}">订阅</a></li>
+    {% if nav_active == "courtyard" %}
+    <li class="red"><a class="white-text" href="{% url 'crows:index' %}">后院</a></li>
+    {% endif %}
   </ul>
 </header>
 <main class="main-page">
@@ -75,12 +78,14 @@
 <!--Import jQuery before materialize.js-->
 <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+{% block jsa %}
 <script>
   $(document).ready(function () {
     $(".button-collapse").sideNav({edge: 'left'});
     $('.collapsible').collapsible();
   })
 </script>
+{% endblock %}
 {% block js %}
 {% endblock %}
 </body>

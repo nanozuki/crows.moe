@@ -22,8 +22,11 @@ def index_view(request):
     author = get_object_or_404(Author, name="结夜野棠")
     articles = author.article_set.all().order_by('-publish_time')
     drafts = author.draft_set.all().order_by('-create_time')
+    category_list = Category.objects.all()
     return render(request, 'crows/profile.html',
-                  {'user_name': "结夜野棠", 'articles': articles, 'drafts': drafts})
+                  {'user_name': "结夜野棠", 'articles': articles,
+                   'drafts': drafts, 'nav_active': 'courtyard',
+                   'category_list': category_list})
 
 
 def deal_article_tags(article, tags):
@@ -108,11 +111,14 @@ def image_upload_handle(image):
 
 @login_required
 def article_edit(request, article_type, article_id):
+    category_list = Category.objects.all()
     if request.method == 'POST':
         action = request.POST['action']
         if action == 'preview':
             return render(request, 'crows/preview.html',
-                          {'preview':request.POST['content']})
+                          {'preview':request.POST['content'],
+                           'nav_active': 'courtyard',
+                           'category_list': category_list})
         elif action == 'save':
             return article_save(request, article_type, article_id)
         elif action == 'publish':
@@ -126,7 +132,6 @@ def article_edit(request, article_type, article_id):
         else:
             raise Http404("Valid Action!")
     else:
-        categorise = Category.objects.all()
         if article_type == "new":
             article = None
             tags = ""
@@ -143,4 +148,5 @@ def article_edit(request, article_type, article_id):
             raise Http404("Valid Action")
         return render(request, 'crows/article_edit.html',
                       {'article': article, 'tags': tags, 'type': article_type,
-                       'categorise': categorise, 'the_category': the_category,})
+                       'categorise': category_list, 'the_category': the_category,
+                       'nav_active': 'courtyard', 'category_list': category_list})
