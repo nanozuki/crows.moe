@@ -1,35 +1,27 @@
 {% extends 'common/base.html' %}
 
 {% load staticfiles %}
+{% block title %}乌鸦的庭院:后院{% endblock %}
 
 {% block content %}
-
-<!-- 编辑器 -->
-
-<div class="card-panel">
+  <!-- 编辑器 -->
   <form id="editor" method="post">
     {% csrf_token %}
-    <div class="row">
-      <div class="input-field col s12">
-        <label for="title">标题</label>
-        <input type="text" class="validate" id="title" name="title" value="{{ article.title }}">
+    <div class="card-panel">
+      <div class="row">
+        <div class="input-field col s12">
+          <label for="title">标题</label>
+          <input type="text" class="validate" id="title" name="title" value="{{ article.title }}">
+        </div>
       </div>
       <div class="input-field col s12">
-        <select>
-          <option value="" disabled selected>Choose your option</option>
-          <option value="1">Option 1</option>
-          <option value="2">Option 2</option>
-          <option value="3">Option 3</option>
-        </select>
-        <label>Materialize Select</label>
-      </div>
-      <div class="input-field col s12">
-        <label for="category">分类</label>
         <select name="category" id="category">
           {% for category in categorise %}
-          <option value="{{ category.url_name }}" {% if category.url_name == the_category %}selected="selected" {% endif %}>{{ category.category_name }}</option>
+            <option value="{{ category.url_name }}"
+                    {% if category.url_name == the_category %}selected="selected" {% endif %}>{{ category.category_name }}</option>
           {% endfor %}
         </select>
+        <label for="category">分类</label>
       </div>
       <div class="input-field col s12">
         <label for="tags">标签</label>
@@ -42,85 +34,67 @@
       </div>
       <div class="input-field col s12">
         <label for="content">正文</label>
-        <textarea class="fmaterialize-textarea" rows="20" id="content" style="resize: none"
+        <textarea class="materialize-textarea" rows="20" id="content" style="resize: none"
                   name="content" required="true" data-provide="markdown">{{ article.text }}</textarea>
       </div>
     </div>
   </form>
-</div>
-<div class="well crows-card">
-  <div class="text-center">
-    <button id="preview" class="btn btn-default btn-raised">预览</button>
-    <button id="save" class="btn btn-default btn-raised">保存</button>
-    {% if type != 'article' %}
-    <button id="publish" class="btn btn-default btn-raised">发布</button>
-    {% endif %}
-    {% if type != 'new' %}
-    <button id="delete" class="btn btn-warning btn-raised">删除</button>
-    {% endif %}
+  <div class="card-panel">
+    <div class="center-align">
+      <button id="preview" class="waves-effect waves-light btn">预览</button>
+      <button id="save" class="waves-effect waves-light btn">保存</button>
+      {% if type != 'article' %}
+        <button id="publish" class="waves-effect waves-light btn">发布</button>
+      {% endif %}
+      {% if type != 'new' %}
+        <button id="delete" class="waves-effect waves-light btn">删除</button>
+      {% endif %}
+    </div>
   </div>
-</div>
-<div id="display">
-</div>
 
+  <div id="display" class="card-panel">
+  </div>
 {% endblock %}
 
-{% block jsa %}
-{% load staticfiles %}
-<script src="{% static 'js/js.cookie.js' %}"></script>
-<script>
+{% block js-inline %}
+  {% load staticfiles %}
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $(".button-collapse").sideNav({edge: 'left'});
+      $('.collapsible').collapsible();
+      $('select').material_select();
+    });
 
-  $(document).ready(function () {
-    $(".button-collapse").sideNav({edge: 'left'});
-    $('.collapsible').collapsible();
-    $('select').material_select();
-  });
+    $("#preview").click(function () {
+      $.post('{{ request.path }}', ($('#editor').serialize() + "&action=preview"),
+          function (data) {
+            $('#display').html(data);
+            self.location.href = "#preview-end";
+          });
+    });
 
-  var csrftoken = Cookies.get('csrftoken');
-
-  function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-  }
-  $.ajaxSetup({
-    beforeSend: function (xhr, settings) {
-      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-      }
-    }
-  });
-
-  $('#preview').click(function () {
-    $.post('{{ request.path }}', ($('#editor').serialize() + "&action=preview"),
-        function (data) {
-          $('#display').html(data);
-          self.location.href = "#preview-end";
-        });
-  });
-
-  $('#save').click(function () {
-    $.post('{{ request.path }}', ($('#editor').serialize() + "&action=save"),
-        function (data) {
-          window.location.href = data;
-        });
-  });
-
-  $('#publish').click(function () {
-    $.post('{{ request.path }}', ($('#editor').serialize() + "&action=publish"),
-        function (data) {
-          window.location.href = data;
-        });
-  });
-
-  $('#delete').click(function () {
-    var sure = confirm("确定要删除吗");
-    if (sure == true) {
-      $.post('{{ request.path }}', ($('#editor').serialize() + "&action=delete"),
+    $('#save').click(function () {
+      $.post('{{ request.path }}', ($('#editor').serialize() + "&action=save"),
           function (data) {
             window.location.href = data;
           });
-    }
-  });
+    });
 
-</script>
+    $('#publish').click(function () {
+      $.post('{{ request.path }}', ($('#editor').serialize() + "&action=publish"),
+          function (data) {
+            window.location.href = data;
+          });
+    });
+
+    $('#delete').click(function () {
+      var sure = confirm("确定要删除吗");
+      if (sure == true) {
+        $.post('{{ request.path }}', ($('#editor').serialize() + "&action=delete"),
+            function (data) {
+              window.location.href = data;
+            });
+      }
+    });
+  </script>
 {% endblock %}

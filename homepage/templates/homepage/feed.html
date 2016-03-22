@@ -1,0 +1,15 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+  <div class="row">
+    <div class="col s12 m6 card">
+      <div class="card-content">
+        <span class="card-title">RSS订阅</span>
+        <p>即使订阅了也要多来看看哦~</p>
+      </div>
+      <div class="card-action">
+        <a href="{% url 'blog:feed' %}">博客RSS</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,38 +1,57 @@
 {% extends 'blog/base_blog.html' %}
 
+{% load staticfiles %}
+{% load blog_filter %}
+
 {% block title %}乌鸦的庭院:Tag:{{ tag.tag_name }}{% endblock %}
 
 {% block top_banner %}
-<div class="col s12">
-  <div class="card light-blue">
-    <div class="card-content white-text">
-      <span class="card-title"># {{ tag.tag_name }}</span>
+  <div class="col s12">
+    <div class="card grey darken-3">
+      <div class="card-content white-text">
+        <span class="card-title"># {{ tag.tag_name }}</span>
+      </div>
     </div>
   </div>
-</div>
 {% endblock %}
 
 {% block main_area %}
-{% if tag %}
-{% if article_list %}
-{% for article in article_list %}
-<div class="card">
-  <div class="card-content">
-    <a class="card-title" href="{% url 'blog:article' article.id %}"
-    >{{ article.title }}</a>
-    <hr>
-    <p>{{ article.abstract }}</p>
-  </div>
-</div>
-{% endfor %}
-{% else %}
-<h4>暂时还没有文章，敬请期待</h4>
-{% endif %}
-{% else %}
-<h1>未找到相应的标签</h1>
-{% endif %}
+  {% if tag %}
+    {% if article_list %}
+      <div class="row flow-list">
+        {% for article in article_list %}
+          <div class="col s12 m6 l6 flow-item">
+            <div class="card">
+              <div class="card-content">
+                <a class="card-title grey-text text-darken-3"
+                   href="{% url 'blog:article' article.id %}">{{ article.title }}</a>
+                <hr>
+                <p>{{ article.text|markdown2html|truncatechars_html:200 }}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <h4>暂时还没有文章，敬请期待</h4>
+    {% endif %}
+  {% else %}
+    <h1>未找到相应的标签</h1>
+  {% endif %}
 {% endblock %}
 
-{% block footer %}
-<p class="text-center">结夜野棠的个人博客</p>
+{% block js %}
+  <script type="text/javascript" src="{% static 'js/masonry.min.js' %}"></script>
+{% endblock %}
+{% block js-inline %}
+  <script>
+    $(document).ready(function () {
+      $(".button-collapse").sideNav({edge: 'left'});
+      $('.collapsible').collapsible();
+    });
+
+    $('.flow-list').masonry({
+      itemSelector: '.flow-item'
+    });
+  </script>
 {% endblock %}

@@ -27,33 +27,34 @@
     <li class="no-padding">
       <ul class="collapsible collapsible-accordion">
         <li class="active">
-        <a class="collapsible-header active waves-effect waves-teal">个人博客</a>
-        <div class="collapsible-body" style="display: block;">
-          <ul>
-            {% for category_item in category_list %}
-            {% ifequal category_item.url_name category_active %}
-            <li class="red">
-              <a href="{% url 'blog:category' category_item.url_name %}"
-                 class="white-text">{{ category_item.category_name }}</a>
-            </li>
-            {% else %}
-            <li><a href="{% url 'blog:category' category_item.url_name %}"
-            >{{ category_item.category_name }}</a></li>
-            {% endifequal %}
-            {% endfor %}
-          </ul>
-        </div>
+          <a class="collapsible-header active waves-effect waves-teal">个人博客</a>
+          <div class="collapsible-body" style="display: block;">
+            <ul>
+              {% for category_item in category_list %}
+                {% ifequal category_item.url_name category_active %}
+                  <li class="grey darken-1">
+                    <a href="{% url 'blog:category' category_item.url_name %}"
+                       class="white-text">{{ category_item.category_name }}</a>
+                  </li>
+                {% else %}
+                  <li><a href="{% url 'blog:category' category_item.url_name %}"
+                  >{{ category_item.category_name }}</a></li>
+                {% endifequal %}
+              {% endfor %}
+            </ul>
+          </div>
         </li>
       </ul>
     </li>
-    <li {% if nav_active == "about" %}class="red"{% endif %}>
-      <a {% if nav_active == "about" %}class="white-text"{% endif %} href="{% url 'blog:article' article_id=1 %}">关于</a></li>
-    <li {% if nav_active == "contact" %}class="red"{% endif %}>
+    <li {% if nav_active == "about" %}class="grey darken-1"{% endif %}>
+      <a {% if nav_active == "about" %}class="white-text"{% endif %} href="{% url 'blog:article' article_id=1 %}">关于</a>
+    </li>
+    <li {% if nav_active == "contact" %}class="grey darken-1"{% endif %}>
       <a {% if nav_active == "contact" %}class="white-text"{% endif %} href="{% url 'contact:index' %}">留言</a></li>
-    <li {% if nav_active == "feed" %}class="red"{% endif %}>
-      <a {% if nav_active == "feed" %}class="white-text"{% endif %} href="{% url 'blog:feed' %}">订阅</a></li>
+    <li {% if nav_active == "feed" %}class="grey darken-1"{% endif %}>
+      <a {% if nav_active == "feed" %}class="white-text"{% endif %} href="{% url 'homepage:feed' %}">订阅</a></li>
     {% if nav_active == "courtyard" %}
-    <li class="red"><a class="white-text" href="{% url 'crows:index' %}">后院</a></li>
+      <li class="grey darken-1"><a class="white-text" href="{% url 'crows:index' %}">后院</a></li>
     {% endif %}
   </ul>
 </header>
@@ -71,22 +72,22 @@
     {% endblock %}
   </div>
 </main>
-<footer class="page-footer">
+<footer>
   {% block footer %}
   {% endblock %}
 </footer>
 <!--Import jQuery before materialize.js-->
 <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
-{% block jsa %}
-<script>
-  $(document).ready(function () {
-    $(".button-collapse").sideNav({edge: 'left'});
-    $('.collapsible').collapsible();
-  })
-</script>
-{% endblock %}
 {% block js %}
+{% endblock %}
+{% block js-inline %}
+  <script>
+    $(document).ready(function () {
+      $(".button-collapse").sideNav({edge: 'left'});
+      $('.collapsible').collapsible();
+    })
+  </script>
 {% endblock %}
 </body>
 </html>

@@ -20,7 +20,7 @@
       <ul class="collection">
         {% for draft in drafts %}
         <li class="collection-item">
-          <a href="{% url 'crows:article_edit' article_type='draft' article_id=draft.id %}">
+          <a class="grey-text text-darken-3" href="{% url 'crows:article_edit' article_type='draft' article_id=draft.id %}">
             ({{ draft.category }}){{ draft.title }}</a>
         </li>
         {% endfor %}
@@ -33,7 +33,7 @@
       <ul class="collection">
         {% for article in articles %}
         <li class="collection-item">
-          <a href="{% url 'crows:article_edit' article_type='article' article_id=article.id %}">
+          <a class="grey-text text-darken-3" href="{% url 'crows:article_edit' article_type='article' article_id=article.id %}">
           ({{ article.category }}){{ article.title }}</a>
         </li>
         {% endfor %}

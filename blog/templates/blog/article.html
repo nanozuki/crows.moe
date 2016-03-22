@@ -2,28 +2,16 @@
 
 {% block title %}乌鸦的庭院:{{ article.title }}{% endblock %}
 
-{% block path_nav %}
-<nav class="light-blue lighten-2 hide-on-large-only">
-  <div class="nav-wrapper" style="padding-left: 10px;">
-    <a href="{% url 'homepage:index' %}" class="breadcrumb">Home</a>
-    <a href="{% url 'blog:index' %}" class="breadcrumb">Blog</a>
-    <a href="{% url 'blog:category' article.category.url_name %}"
-       class="breadcrumb">{{ article.category.category_name }}</a>
-  </div>
-</nav>
-{% endblock %}
-
 {% block main_area %}
 <section>
-  <div class="card light-blue">
+  <div class="card grey darken-3">
     <div class="card-content white-text">
       <div class="card-title"><h4>{{ article.title }}</h4></div>
       <br>
       {% if tags_list %}
       {% for tag in tags_list %}
-            <span class="chip light-blue darken-1">
-              <a style="color: white;"
-                 href="{% url 'blog:tag' tag.id %}">#{{ tag.tag_name }}</a>
+            <span class="chip grey darken-4">
+              <a style="color: white;" href="{% url 'blog:tag' tag.id %}">#{{ tag.tag_name }}</a>
             </span>
       {% endfor %}
       {% endif %}
@@ -101,13 +89,13 @@
         <div class="col s12 red-text">
           {{ post_comment_form.captcha.errors }}
         </div>
-        <div id="captcha-img" class="col s2 valign-wrapper" style="margin-top: 15px;"></div>
-        <div id="captcha-contect" class="input-field col s3" style="margin-top: 3px;">
+        <div id="captcha-img" class="col s6 m3 l2" style="margin-top: 15px;"></div>
+        <div id="captcha-contect" class="input-field col s6 m3" style="margin-top: 3px;">
           <label for="{{ post_comment_form.content.id_for_label }}">{{ post_comment_form.captcha.label }}</label>
           {{ post_comment_form.captcha }}
         </div>
-        <div id="post_form_submit" class="col s3">
-          <button class="waves-effect waves-light btn"
+        <div id="post_form_submit" class="col s6 m3">
+          <button class="waves-effect waves-light orange accent-3 btn"
                   id="post_comment" type="submit" style="margin: 15px;">提交
           </button>
         </div>
@@ -119,7 +107,6 @@
 {% endblock %}
 
 {% block footer %}
-<p class="text-center">结夜野棠的个人博客</p>
 {% endblock %}
 
 {% block js %}

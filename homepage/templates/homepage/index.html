@@ -1,79 +1,50 @@
 {% extends 'common/base.html' %}
+{% load staticfiles %}
+{% load blog_filter %}
+
 {% block title %}{{ site_title }}{% endblock %}
 
-
-{% load staticfiles %}
 {% block stylesheet %}
   <link href="{% static 'crows/homepage.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-  <div class="container">
-    <section class="jumbotron" id="home-page-1">
-      <div class="row">
-        <div class="col-md-4 col-md-offset-7 col-sm-6 col-sm-offset-5 col-xs-12">
-          <img src="{% static 'picture/title-only.png' %}" class="img-responsive" id="title-img">
-
-          <div class="btn-group btn-group-justified" role="group" aria-label="category">
-            <a class="btn btn-default btn-raised btn-category" role="button"
-               href="{% url 'blog:category' 'anime' %}">动画</a>
-            <a class="btn btn-default btn-raised btn-category" role="button"
-               href="{% url 'blog:category' 'games' %}">游戏</a>
-            <a class="btn btn-default btn-raised btn-category" role="button"
-               href="{% url 'blog:category' 'progr' %}">编程</a>
-            <a class="btn btn-default btn-raised btn-category" role="button"
-               href="{% url 'blog:category' 'gossip' %}">闲语</a>
+  <div class="card black">
+    <div class="card-content white-text">
+      <span class="card-title">乌鸦的庭院</span>
+      <p>结夜野棠的个人博客</p>
+    </div>
+  </div>
+  <div class="row flow-list">
+    {% for article in article_list %}
+      <div class="flow-item col s12 m6 l4">
+        <div class="card">
+          <div class="card-content">
+            <a class="card-title grey-text text-darken-3" href="{% url 'blog:article' article.id %}"><h4>{{ article.title }}</h4></a>
+            <p class="right-align grey-text text-darken-3"><small>{{ article.publish_time|date:"Y-m-d" }}</small></p>
+            <hr>
+            <p>{{ article.text|markdown2html|truncatechars_html:300 }}</p>
           </div>
         </div>
       </div>
-    </section>
-
-    <section id="home-page-2" class="crows-card crows-card-light shadow-z-1">
-      <div class="row">
-        <div class="col-md-4 col-sm-12">
-          <img src="{% static 'picture/avatar.png' %}"
-               class="img-responsive center-block crows-avatar shadow-z-2">
-
-          <!--h3 class="text-center">结夜野棠</h3-->
-
-          <div class="text-center">
-            <a href="https://plus.google.com/u/0/+%E7%BB%93%E5%A4%9C%E9%87%8E%E6%A3%A00/">
-              <img src="{% static 'picture/social/social-google+.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="https://twitter.com/Phoecrow">
-              <img src="{% static 'picture/social/social-twitter.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="http://telegram.me/twhphoenix">
-              <img src="{% static 'picture/social/social-telegram.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="http://weibo.com/julycrows/profile">
-              <img src="{% static 'picture/social/social-weibo.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="https://instagram.com/twhphoenix/">
-              <img src="{% static 'picture/social/social-instagram.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="https://github.com/CrowsT">
-              <img src="{% static 'picture/social/social-github.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="http://steamcommunity.com/profiles/76561198037511308/">
-              <img src="{% static 'picture/social/social-steam.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="http://tieba.baidu.com/home/main?id=737fbde1d2b9d2b0ccc47d0e">
-              <img src="{% static 'picture/social/social-tieba.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-          </div>
-        </div>
-        <div class="col-md-8 col-sm-12">
-          <h2 class="text-center">关于</h2>
-          <a name="about"></a>
-          {% if article %}
-            {% load blog_filter %}
-            {{ article.text|markdown2html }}
-          {% endif %}
-        </div>
-      </div>
-    </section>
+    {% endfor %}
   </div>
   <p class="text-center">结夜野棠的个人网站</p>
 
+{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{% static 'js/masonry.min.js' %}"></script>
+{% endblock %}
+{% block js-inline %}
+  <script>
+    $(document).ready(function () {
+      $(".button-collapse").sideNav({edge: 'left'});
+      $('.collapsible').collapsible();
+    });
+
+    $('.flow-list').masonry({
+      itemSelector: '.flow-item'
+    });
+  </script>
 {% endblock %}
