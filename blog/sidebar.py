@@ -18,7 +18,8 @@ class SidebarData:
                     most_clicks_tags_cnt=5,
                     most_commented_cnt=5,
                     recent_update_cnt=5):
-        content = {}
+        content = {'nav_active':'blog',
+                   'category_active': category.url_name}
         if need_most_clicks_articles is True:
             self.most_clicks_articles = Article.objects.order_by('-clicks').filter(
                 category=category)[:most_clicks_articles_cnt]

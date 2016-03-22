@@ -38,3 +38,32 @@ header li.logo:hover {
 header .logo-img {
   width: 100%;
 }
+
+span.title {
+  font-family: Roboto Condensed;
+  font-size: 32px;
+}
+
+.title.first {
+  font-weight: bold;
+}
+
+.title.last {
+  font-weight: lighter;
+}
+
+.crows-avatar {
+    height: 150px;
+    -webkit-border-radius: 75px;
+    -moz-border-radius: 75px;
+    border-radius: 75px;
+}
+
+.social-icon {
+    height: 60px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    display: inline;
+    margin: 10px;
+}

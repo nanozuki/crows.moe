@@ -20,6 +20,7 @@ def index(request):
         'category_list': category_list,
         'pub_msg_list': pub_msg_list,
         'post_msg_form': form,
+        'nav_active': 'contact',
     })
 
 

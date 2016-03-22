@@ -2,52 +2,37 @@
 
 {% block title %}乌鸦的庭院:Tag:{{ tag.tag_name }}{% endblock %}
 
-{% block nav_var_left %}
-  {% for category_item in category_list %}
-    {% ifequal category_item.id category.id %}
-      <li class="active"><a href="{% url 'blog:category' category_item.url_name %}">
-        {{ category_item.category_name }}</a></li>
-    {% else %}
-      <li><a href="{% url 'blog:category' category_item.url_name %}">
-        {{ category_item.category_name }}</a></li>
-    {% endifequal %}
-  {% endfor %}
-{% endblock %}
-
 {% block top_banner %}
-  <div class="well crows-card crows-header">
-    <h1># {{ tag.tag_name }}</h1>
+<div class="col s12">
+  <div class="card light-blue">
+    <div class="card-content white-text">
+      <span class="card-title"># {{ tag.tag_name }}</span>
+    </div>
   </div>
+</div>
 {% endblock %}
 
 {% block main_area %}
-  {% block article_list_area %}
-    {% if tag %}
-      {% if article_list %}
-        <div class="row">
-          {% for article in article_list %}
-            <section class="col-sm-6 col-xs-12">
-              <div class="panel panel-default crows-panel">
-                <div class="panel-heading crows-panel-heading">
-                  <a href="{% url 'blog:article' article.id %}" class="crows-panel-heading-text">
-                    <h2>{{ article.title }}</h2></a>
-                </div>
-                <div class="panel-body crows-panel-body">
-                  <p>{{ article.abstract }}</p>
-                </div>
-              </div>
-            </section>
-          {% endfor %}
-        </div>
-      {% else %}
-        <h4>暂时还没有文章，敬请期待</h4>
-      {% endif %}
-    {% else %}
-      <h1>未找到相应的分类</h1>
-    {% endif %}
-  {% endblock %}
+{% if tag %}
+{% if article_list %}
+{% for article in article_list %}
+<div class="card">
+  <div class="card-content">
+    <a class="card-title" href="{% url 'blog:article' article.id %}"
+    >{{ article.title }}</a>
+    <hr>
+    <p>{{ article.abstract }}</p>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<h4>暂时还没有文章，敬请期待</h4>
+{% endif %}
+{% else %}
+<h1>未找到相应的标签</h1>
+{% endif %}
 {% endblock %}
 
 {% block footer %}
-  <p class="text-center">结夜野棠的个人博客</p>
+<p class="text-center">结夜野棠的个人博客</p>
 {% endblock %}

@@ -15,26 +15,30 @@
 {% endblock %}
 
 {% block main_area %}
-  {% if category %}
-    {% if article_list %}
-      {% for article in article_list %}
-      <div class="card">
-        <div class="card-content">
-          <a class="card-title" href="{% url 'blog:article' article.id %}"
-            >{{ article.title }}</a>
-          <hr>
-          <p>{{ article.abstract }}</p>
-        </div>
-      </div>
-      {% endfor %}
-    {% else %}
-      <h4>暂时还没有文章，敬请期待</h4>
-    {% endif %}
-  {% else %}
-    <h1>未找到相应的分类</h1>
-  {% endif %}
+{% if category %}
+{% if article_list %}
+{% for article in article_list %}
+<div class="card">
+  <div class="card-content">
+    <a class="card-title" href="{% url 'blog:article' article.id %}"
+    >{{ article.title }}</a>
+    <hr>
+    <p>{{ article.abstract }}</p>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="card">
+  <div class="card-content">
+    <p class="card-title">暂时还没有文章，敬请期待</p>
+  </div>
+</div>
+{% endif %}
+{% else %}
+<h1>未找到相应的分类</h1>
+{% endif %}
 {% endblock %}
 
 {% block footer %}
-  <p class="center-align">结夜野棠的个人博客</p>
+<p class="center-align">结夜野棠的个人博客</p>
 {% endblock %}

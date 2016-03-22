@@ -25,11 +25,6 @@ def choose_color_style(content, color_scheme):
 
 
 def index_view(request):
-    # category_list = Category.objects.all()
-    # site_title = "烏鴉的庭院"
-    # return render(request, 'blog/index.html',
-    #              {'category_list': category_list,
-    #               'site_title': site_title})
     return HttpResponseRedirect(reverse("homepage:index"))
 
 
@@ -41,8 +36,10 @@ def category_view(request, category_url_name):
     _category.clicks += 1
     _category.save()
     article_list = Article.objects.order_by('-publish_time').filter(category=_category)
-    choose_color_style(content, _category.url_name)
-    content.update({'category': _category, 'category_list': category_list, 'article_list': article_list})
+    # choose_color_style(content, _category.url_name)
+    content.update({'category': _category,
+                    'category_list': category_list,
+                    'article_list': article_list})
     return render(request, 'blog/category.html', content)
 
 
@@ -61,14 +58,17 @@ def article_view(request, article_id):
 
     sbd = SidebarData()
     content = sbd.gather_data(article.category)
-    choose_color_style(content, article.category.url_name)
+    print(article.id)
+    if article.id == 1:
+        content.update({'category_active': "",
+                        'nav_active':"about"})
     content.update({'article': article,
                     'category_list': category_list,
                     'tags_list': tags_list,
                     'comments_list': comments_list,
                     'post_comment_form': comment_form,
                     })
-
+    print(content)
     return render(request, 'blog/article.html', content)
 
 
@@ -136,7 +136,3 @@ def post_comment(request, article_id, reply_id=None):
             return render(request, 'blog/article.html', content)
     else:
         return HttpResponseRedirect(reverse("blog:article", args=(article_id,)))
-
-@login_required
-def post_article(request):
-    return render(request, 'blog/post.html')

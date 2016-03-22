@@ -10,7 +10,7 @@ def index(request):
     return render(request, 'homepage/index.html', {
         'site_title': "乌鸦的庭院",
         'article': article,
-        'category_list': category_list
+        'category_list': category_list,
     })
 
 

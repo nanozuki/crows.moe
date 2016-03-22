@@ -1,160 +1,140 @@
-{% extends 'common/base_navbar.html' %}
+{% extends 'common/base.html' %}
 
 {% load staticfiles %}
 {% block stylesheet %}
-  <link href="{% static 'crows/crows.css' %}" rel="stylesheet">
-  <link href="{% static 'crows/color-default.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}留言板{% endblock %}
 
-{% block nav_bar_right %}
-  <li class="active"><a href="{% url 'contact:index' %}">关于|留言</a></li>
-{% endblock %}
-
 {% block content %}
-  <div class="container">
-    <div class="well crows-card crows-header">
-      <h1 class="crows-header-primary">留言板</h1>
-
-      <p class="crows-header-minor">说点什么吧~</p>
-
-      <p class="text-right crows-header-minor">如需私信，请点击
-        <a class="crows-card-text" href="#contact-info">这里</a></p>
+<div class="container">
+  <section class="col s12">
+    <div class="card light-blue">
+      <div class="card-content white-text">
+        <span class="card-title">留言板</span>
+        <p>说点什么吧</p>
+        <p class="right-align">如需私信或使用社交网络，请点击<a class="white-text" href="#contact-info">→这里←</a></p>
+      </div>
     </div>
-    {% block pub_msg_form %}
-      <section class="well crows-card">
-        <form class="form-horizontal" id="post-form" action="{% url 'contact:postmsg' %}" method="post">
-          {% csrf_token %}
-          <a name="post"></a>
-          {% if post_msg_form.errors %}
-            <div class="alert alert-error">
-              <ul>
-                {% for error in post_msg_form.non_field_errors %}
-                  <li>{{ error }}</li>
-                {% endfor %}
-              </ul>
-            </div>
-          {% endif %}
-          <div class="form-group">
+  </section>
+  {% block pub_msg_form %}
+  <section class="card-panel">
+    <div class="row">
+      <form class="col s12" id="post-form" action="{% url 'contact:postmsg' %}" method="post">
+        {% csrf_token %}
+        <a name="post"></a>
+        <div class="row">
+          <div class="input-field col s12 m6">
             {{ post_msg_form.name.errors }}
-            <label class="col-md-1 control-label" style="text-align: right"
-                   for="{{ post_msg_form.name.id_for_label }}">
-              {{ post_msg_form.name.label }}</label>
-            <div class="col-md-5">
-              {{ post_msg_form.name }}
-            </div>
+            {{ post_msg_form.name }}
+            <label for="{{ post_msg_form.name.id_for_label }}">{{ post_msg_form.name.label }}</label>
           </div>
-          <div class="form-group">
+          <div class="input-field col s12 m6">
             {{ post_msg_form.email.errors }}
-            <label class="col-md-1 control-label" style="text-align: right"
-                   for="{{ post_msg_form.email.id_for_label }}">
-              {{ post_msg_form.email.label }}</label>
-            <div class="col-md-5">
-              {{ post_msg_form.email }}
-            </div>
+            {{ post_msg_form.email }}
+            <label for="{{ post_msg_form.email.id_for_label }}">{{ post_msg_form.email.label }}</label>
           </div>
-          <div class="form-group">
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
             {{ post_msg_form.content.errors }}
-            <label class="col-md-1 control-label" style="text-align: right"
-                   for="{{ post_msg_form.content.id_for_label }}">
-              {{ post_msg_form.content.label }}</label>
-            <div class="col-md-10">
-              {{ post_msg_form.content }}
-            </div>
+            {{ post_msg_form.content }}
+            <label for="{{ post_msg_form.content.id_for_label }}">{{ post_msg_form.content.label }}</label>
           </div>
-          <div class="form-group {% if field.errors %}has-error{% endif %}">
+        </div>
+        <div class="row">
+          <div class="col s12 red-text">
             {{ post_msg_form.captcha.errors }}
-            <label class="control-label" for="{{ post_msg_form.captcha.id_for_label }}"
-                   style="padding: 15px">
-              {{ post_msg_form.captcha.label }}
-            </label>
+          </div>
+          <div id="captcha-img" class="col s2" style="margin-top: 15px;"></div>
+          <div id="captcha-content" class="input-field col s3" style="margin-top: 3px;">
+            <label for="{{ post_msg_form.captcha.id_for_label }}">{{ post_msg_form.captcha.label }}</label>
             {{ post_msg_form.captcha }}
-            <button class="btn btn-default btn-raised btn-submit"
+          </div>
+          <div id="post_form_submit" class="col s3">
+            <button class="waves-effect waves-light btn"
                     id="post_comment" type="submit" style="margin: 15px;">提交
             </button>
           </div>
-        </form>
-      </section>
-    {% endblock %}
-    {% block pub_msg_display %}
-      {% load blog_filter %}
-      <section class="well crows-card">
-        {% if pub_msg_list %}
-          <ul class="media-list">
-            {% for msg in pub_msg_list %}
-              {% if forloop.last %}
-                <a name="lastmsg"></a>
-              {% endif %}
-              <li class="media">
-                <div class="media-left"></div>
-                <div class="media-body">
-                  <h5 class="media-heading">
-                    <a href="#post" class="message"
-                       id="{{ msg.id }}">#{{ msg.id }} {{ msg.name }}</a>
-                    <small>{{ msg.timestamp | date:"Y-m-d H:i:s" }}</small>
-                  </h5>
-                  <p>{{ msg.content | markdown2html }}</p>
-                </div>
-              </li>
-              <hr/>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </section>
-    {% endblock %}
-    <section class="well crows-card">
-      <a name="contact-info"></a>
-
-      <div class="row">
-        <div class="col-md-4">
-          <img src="{% static 'picture/avatar.png' %}"
-               class="img-responsive center-block crows-avatar shadow-z-2">
-
-          <h3 class="text-center">结夜野棠</h3>
         </div>
-        <div class="col-md-8">
-          <div class="text-center">
-            <a href="https://plus.google.com/u/0/+%E7%BB%93%E5%A4%9C%E9%87%8E%E6%A3%A00/">
-              <img src="{% static 'picture/social/social-google+.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="https://twitter.com/Phoecrow">
-              <img src="{% static 'picture/social/social-twitter.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="http://telegram.me/twhphoenix">
-              <img src="{% static 'picture/social/social-telegram.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="http://weibo.com/julycrows/profile">
-              <img src="{% static 'picture/social/social-weibo.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-          </div>
-          <div class="text-center">
-            <a href="https://instagram.com/twhphoenix/">
-              <img src="{% static 'picture/social/social-instagram.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="https://github.com/CrowsT">
-              <img src="{% static 'picture/social/social-github.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="http://steamcommunity.com/profiles/76561198037511308/">
-              <img src="{% static 'picture/social/social-steam.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-            <a href="http://tieba.baidu.com/home/main?id=737fbde1d2b9d2b0ccc47d0e">
-              <img src="{% static 'picture/social/social-tieba.png' %}"
-                   class="img-responsive social-icon shadow-z-1"></a>
-          </div>
+      </form>
+    </div>
+  </section>
+  {% endblock %}
+  {% block pub_msg_display %}
+  {% load blog_filter %}
+  <ul class="collection z-depth-1">
+    {% for msg in pub_msg_list %}
+    {% if forloop.last %}
+    <a name="lastmsg"></a>
+    {% endif %}
+    <li class="collection-item">
+      <a href="#post" class="title"
+         id="{{ msg.id }}">#{{ msg.id }} {{ msg.name }}</a>
+      <small>{{ msg.timestamp | date:"Y-m-d H:i:s" }}</small>
+      <p>{{ msg.content | markdown2html }}</p>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endblock %}
+  <section class="card-panel">
+    <a name="contact-info"></a>
+    <div class="row">
+      <div class="col m4">
+        <img src="{% static 'image/avatar.png' %}"
+             class="center-block crows-avatar shadow-z-2">
+        <h5 class="center-align">结夜野棠</h5>
+      </div>
+      <div class="col m8">
+        <div class="center-align">
+          <a href="https://plus.google.com/u/0/+%E7%BB%93%E5%A4%9C%E9%87%8E%E6%A3%A00/">
+            <img src="{% static 'image/social/social-google+.png' %}"
+                 class="social-icon shadow-z-1"></a>
+          <a href="https://twitter.com/Phoecrow">
+            <img src="{% static 'image/social/social-twitter.png' %}"
+                 class="social-icon shadow-z-1"></a>
+          <a href="http://telegram.me/twhphoenix">
+            <img src="{% static 'image/social/social-telegram.png' %}"
+                 class="social-icon shadow-z-1"></a>
+          <a href="http://weibo.com/julycrows/profile">
+            <img src="{% static 'image/social/social-weibo.png' %}"
+                 class="social-icon shadow-z-1"></a>
+        </div>
+        <div class="center-align">
+          <a href="https://instagram.com/twhphoenix/">
+            <img src="{% static 'image/social/social-instagram.png' %}"
+                 class="social-icon shadow-z-1"></a>
+          <a href="https://github.com/CrowsT">
+            <img src="{% static 'image/social/social-github.png' %}"
+                 class="social-icon shadow-z-1"></a>
+          <a href="http://steamcommunity.com/profiles/76561198037511308/">
+            <img src="{% static 'image/social/social-steam.png' %}"
+                 class="social-icon shadow-z-1"></a>
+          <a href="http://tieba.baidu.com/home/main?id=737fbde1d2b9d2b0ccc47d0e">
+            <img src="{% static 'image/social/social-tieba.png' %}"
+                 class="social-icon shadow-z-1"></a>
         </div>
       </div>
-    </section>
-  </div>
-  <script type="text/javascript" charset="utf-8">
-    $(".message").click(function () {
-      var msgId = $(this).attr('id');
-      var msg = document.getElementById(msgId).innerHTML;
-      var text = document.getElementById("content");
-      text.value = "    回复 " + msg + " 的留言\n";
-      var formAction = "{% url 'contact:postmsg' %}" + msgId + '/';
-      $('#post-form').attr('action', formAction);
-      self.location.href = "#post";
-    });
-  </script>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" charset="utf-8">
+
+  //$(document).ready(function () {
+  $("#captcha-img").html($("#captcha-image").detach());
+  //});
+
+  $(".message").click(function () {
+    var msgId = $(this).attr('id');
+    var msg = document.getElementById(msgId).innerHTML;
+    var text = document.getElementById("content");
+    text.value = "    回复 " + msg + " 的留言\n";
+    var formAction = "{% url 'contact:postmsg' %}" + msgId + '/';
+    $('#post-form').attr('action', formAction);
+    self.location.href = "#post";
+  });
+</script>
 {% endblock %}

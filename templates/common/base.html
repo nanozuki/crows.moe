@@ -3,7 +3,8 @@
 <head>
   {% load staticfiles %}
   <!--Import Google Icon Font-->
-  <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.lug.ustc.edu.cn/icon?family=Material+Icons" rel="stylesheet">
+  <link href='https://fonts.lug.ustc.edu.cn/css?family=Roboto+Condensed:700,300' rel='stylesheet' type='text/css'>
   <!--Import materialize.css-->
   <link type="text/css" rel="stylesheet" href="{% static 'css/materialize.min.css' %}" media="screen,projection"/>
   <link type="text/css" rel="stylesheet" href="{% static 'css/crows.css' %}"/>
@@ -18,35 +19,39 @@
 <header>
   <ul id="slide-out" class="side-nav fixed">
     <li class="logo">
-      <a href="{% url 'homepage:index' %}">
-        <img class="logo-img" src="{% static 'image/main-title.png' %}">
+      <a href="{% url 'homepage:index' %}" class="center-align" style="padding: 0px;">
+        <!--img class="logo-img" src="{% static 'image/main-title.png' %}"-->
+        <span class="title first">CROWS</span><span class="title last">Courtyard</span>
       </a>
     </li>
     <li class="no-padding">
       <ul class="collapsible collapsible-accordion">
-        <li class="active"><a
-          class="collapsible-header active waves-effect waves-teal">个人博客</a>
-          <div class="collapsible-body" style="display: block;">
-            <ul>
-              {% for category_item in category_list %}
-              {% ifequal category_item.id category.id %}
-              <li class="red">
-                <a href="{% url 'blog:category' category_item.url_name %}"
-                class="white-text">{{ category_item.category_name }}</a>
-              </li>
-              {% else %}
-              <li><a href="{% url 'blog:category' category_item.url_name %}"
-                >{{ category_item.category_name }}</a></li>
-              {% endifequal %}
-              {% endfor %}
-            </ul>
-          </div>
+        <li {% if nav_active == "blog" %}class="active"{% endif %}>
+        <a class="collapsible-header active waves-effect waves-teal">个人博客</a>
+        <div class="collapsible-body" style="display: block;">
+          <ul>
+            {% for category_item in category_list %}
+            {% ifequal category_item.url_name category_active %}
+            <li class="red">
+              <a href="{% url 'blog:category' category_item.url_name %}"
+                 class="white-text">{{ category_item.category_name }}</a>
+            </li>
+            {% else %}
+            <li><a href="{% url 'blog:category' category_item.url_name %}"
+            >{{ category_item.category_name }}</a></li>
+            {% endifequal %}
+            {% endfor %}
+          </ul>
+        </div>
         </li>
       </ul>
     </li>
-    <li><a href="{% url 'blog:article' article_id=1 %}">关于</a></li>
-    <li><a href="{% url 'contact:index' %}">留言</a></li>
-    <li><a href="{% url 'blog:feed' %}">订阅</a></li>
+    <li {% if nav_active == "about" %}class="red"{% endif %}>
+      <a {% if nav_active == "about" %}class="white-text"{% endif %} href="{% url 'blog:article' article_id=1 %}">关于</a></li>
+    <li {% if nav_active == "contact" %}class="red"{% endif %}>
+      <a {% if nav_active == "about" %}class="white-text"{% endif %} href="{% url 'contact:index' %}">留言</a></li>
+    <li {% if nav_active == "feed" %}class="red"{% endif %}>
+      <a {% if nav_active == "about" %}class="white-text"{% endif %} href="{% url 'blog:feed' %}">订阅</a></li>
   </ul>
 </header>
 <main class="main-page">
@@ -63,9 +68,9 @@
     {% endblock %}
   </div>
 </main>
-<footer >
-{% block footer %}
-{% endblock %}
+<footer class="page-footer">
+  {% block footer %}
+  {% endblock %}
 </footer>
 <!--Import jQuery before materialize.js-->
 <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
