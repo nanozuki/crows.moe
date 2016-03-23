@@ -18,6 +18,8 @@ def index(request):
 
 
 def feed(request):
+    category_list = Category.objects.all()
     return render(request, 'homepage/feed.html', {
+        'category_list': category_list,
         'nav_active': 'feed'
     })
