@@ -86,6 +86,18 @@ def tag_view(request, tag_id):
     return render(request, 'blog/tag.html', content)
 
 
+def comment_format(article, content, reply_id, target):
+    if reply_id is not None:
+        target = reply_id
+        try:
+            reply_cmt = article.comment_set.get(floor=target)
+            content = ">回复 #{0} {1} 的评论\n\n{2}".format(
+                reply_cmt.name, reply_id, content)
+        except:
+            pass
+    return content, target
+
+
 def post_comment(request, article_id, reply_id=None):
     if request.method == 'POST':
         form = PostCommentForm(request.POST)
@@ -103,8 +115,8 @@ def post_comment(request, article_id, reply_id=None):
             if name == "":
                 name = "匿名访客"
 
-            if reply_id is not None:
-                target = reply_id
+            content, target = comment_format(
+                article, content, reply_id, target)
 
             cmt = Comment(name=name,
                           email=email,

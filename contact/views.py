@@ -24,6 +24,18 @@ def index(request):
     })
 
 
+def msg_format(content, reply_id, target):
+    if reply_id is not None:
+        target = reply_id
+        try:
+            reply_msg = PublicMessage.objects.get(id=target)
+            content = ">回复 #{0} {1} 的留言\n\n{2}".format(
+                reply_msg.name, reply_id, content)
+        except:
+            pass
+    return content, target
+
+
 def post_msg(request, reply_id=None):
     if request.method == 'POST':
         form = PostMessageForm(request.POST)
@@ -39,8 +51,7 @@ def post_msg(request, reply_id=None):
             if name == "":
                 name = "匿名访客"
 
-            if reply_id is not None:
-                target = reply_id
+            content, target = msg_format(content, reply_id, target)
 
             msg = PublicMessage(name=name,
                                 email=email,
