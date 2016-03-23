@@ -125,7 +125,7 @@
     var cmtId = $(this).attr('id');
     var msg = document.getElementById(cmtId).innerHTML;
     var text = document.getElementById("content");
-    text.value = "    回复 " + msg + " 的评论\n";
+    text.value = ">回复 " + msg + " 的评论\n";
     var formAction = "{% url 'blog:comment' article.id %}" + cmtId + '/';
     $('#post-form').attr('action', formAction);
     self.location.href = "#post";

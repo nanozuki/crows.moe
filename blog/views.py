@@ -58,7 +58,6 @@ def article_view(request, article_id):
 
     sbd = SidebarData()
     content = sbd.gather_data(article.category)
-    print(article.id)
     if article.id == 1:
         content.update({'category_active': "",
                         'nav_active':"about"})
@@ -68,7 +67,6 @@ def article_view(request, article_id):
                     'comments_list': comments_list,
                     'post_comment_form': comment_form,
                     })
-    print(content)
     return render(request, 'blog/article.html', content)
 
 
