@@ -82,3 +82,5 @@ uwsgi_params
 private_settings.py
 # Virtual Env
 venv/
+# sass cache
+.sass-cache/
