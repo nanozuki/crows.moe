@@ -16,7 +16,7 @@
       <div class="flow-item col s12 m6 l4">
         <div class="card">
           <div class="card-content">
-            <a class="card-title grey-text text-darken-3" href="{% url 'blog:article' article.id %}">{{ article.title }}</a>
+            <span class="card-title"><a class="grey-text text-darken-3" href="{% url 'blog:article' article.id %}">{{ article.title }}</a></span>
             <p class="right-align grey-text text-darken-3"><small>{{ article.publish_time|date:"Y-m-d" }}</small></p>
             <hr>
             <p>{{ article.text|markdown2html|truncatechars_html:300 }}</p>

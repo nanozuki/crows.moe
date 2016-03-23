@@ -16,17 +16,6 @@
       <div class="col s12 m12 l3">
         <div class="row">
           {% block sidebar_right %}
-            {% if most_clicks_articles %}
-              <section class="col s12 m6 l12">
-                <div class="collection z-depth-1">
-                  <p class="collection-item grey lighten-1 grey-text text-darken-3">最多点击</p>
-                  {% for article in most_clicks_articles %}
-                  <a href="{% url 'blog:article' article.id %}"
-                    class="collection-item grey-text text-darken-3">{{ article.title }} <small>{{ article.clicks }}</small></a>
-                  {% endfor %}
-                </div>
-              </section>
-            {% endif %}
             {% if most_clicks_tags %}
               <section class="col s12 m6 l12">
                 <div class="collection z-depth-1">
@@ -34,6 +23,17 @@
                   {% for tag in most_clicks_tags %}
                   <a href="{% url 'blog:tag' tag.id %}"
                     class="collection-item grey-text text-darken-3">{{ tag.tag_name }} <small>{{ tag.clicks }}</small></a>
+                  {% endfor %}
+                </div>
+              </section>
+            {% endif %}
+            {% if most_clicks_articles %}
+              <section class="col s12 m6 l12">
+                <div class="collection z-depth-1">
+                  <p class="collection-item grey lighten-1 grey-text text-darken-3">最多点击</p>
+                  {% for article in most_clicks_articles %}
+                  <a href="{% url 'blog:article' article.id %}"
+                    class="collection-item grey-text text-darken-3">{{ article.title }} <small>{{ article.clicks }}</small></a>
                   {% endfor %}
                 </div>
               </section>
