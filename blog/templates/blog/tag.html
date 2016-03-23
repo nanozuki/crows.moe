@@ -26,7 +26,7 @@
                 <a class="card-title grey-text text-darken-3"
                    href="{% url 'blog:article' article.id %}">{{ article.title }}</a>
                 <hr>
-                <p>{{ article.text|markdown2html|truncatechars_html:200 }}</p>
+                <p>{{ article.text|markdown2html|truncatechars_html:300 }}</p>
               </div>
             </div>
           </div>
