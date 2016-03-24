@@ -1,11 +1,5 @@
 @charset "utf-8";
 
-/* 内外边距通常让各个浏览器样式的表现位置不同 */
-.typo dl, .typo dt .typo dd .typo ul .typo ol .typo li .typo h1 .typo h2 .typo h3 .typo h4 .typo h5 .typo h6 .typo pre .typo code .typo fieldset .typo legend .typo p .typo blockquote .typo th .typo td .typo hr .typo article .typo aside .typo details .typo figcaption .typo figure {
-  margin: 0;
-  padding: 0;
-}
-
 .typo address, .typo caption, .typo cite, .typo code, .typo dfn, .typo em, .typo th, .typo var {
   font-style: normal;
   font-weight: 400;
@@ -31,47 +25,15 @@
 
 /* 在文章中，应该还原 ul 和 ol 的样式 */
 .typo ul, .typo-ul {
-  margin-left: 1.3rem;
   list-style: disc;
 }
 
 .typo ol, .typo-ol {
   list-style: decimal;
-  margin-left: 1.9rem;
-}
-
-.typo li ul, .typo li ol, .typo-ul ul, .typo-ul ol, .typo-ol ul, .typo-ol ol {
-  margin-bottom: 0.8rem;
-  margin-left: 2rem;
 }
 
 .typo li ul, .typo-ul ul, .typo-ol ul {
   list-style: circle;
-}
-
-/* 同 ul/ol，在文章中应用 table 基本格式 */
-.typo table th, .typo table td, .typo-table th, .typo-table td, .typo table caption {
-  border: 1px solid #ddd;
-  padding: 0.5rem 1rem;
-  color: #666;
-}
-
-.typo table th, .typo-table th {
-  background: #fbfbfb;
-}
-
-.typo table thead th, .typo-table thead th {
-  background: #f1f1f1;
-}
-
-.typo table caption {
-  border-bottom: none;
-}
-
-/* 去除 webkit 中 input 和 textarea 的默认样式  */
-.typo-input, .typo-textarea {
-  -webkit-appearance: none;
-  border-radius: 0;
 }
 
 .typo-em, .typo em, legend, caption {
