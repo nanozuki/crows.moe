@@ -19,7 +19,7 @@
       </div>
     </div>
   </section>
-  <article class="card-panel white">
+  <article class="card-panel white typo">
     {% load blog_filter %}
     {{ article.text|markdown2html }}
     {% if user.is_authenticated %}
