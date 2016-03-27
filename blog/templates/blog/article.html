@@ -6,7 +6,7 @@
   <section>
     <div class="card grey darken-3">
       <div class="card-content white-text">
-        <div class="card-title"><h4>{{ article.title }}</h4></div>
+        <div class="card-title"><p>{{ article.title }}</p></div>
         <br>
         {% if tags_list %}
           {% for tag in tags_list %}
@@ -19,7 +19,7 @@
       </div>
     </div>
   </section>
-  <article class="card-panel white typo">
+  <article class="card-panel white">
     {% load blog_filter %}
     {{ article.text|markdown2html }}
     {% if user.is_authenticated %}

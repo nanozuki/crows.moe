@@ -7,8 +7,6 @@
   <link href='https://fonts.lug.ustc.edu.cn/css?family=Roboto+Condensed:700,300' rel='stylesheet' type='text/css'>
   <!--Import materialize.css-->
   <link type="text/css" rel="stylesheet" href="{% static 'css/materialize.min.css' %}" media="screen,projection"/>
-  <link type="text/css" rel="stylesheet" href="{% static 'css/crows.css' %}"/>
-  <link type="text/css" rel="stylesheet" href="{% static 'css/typo.css' %}"/>
   {% block stylesheet %}
   {% endblock %}
 
@@ -26,8 +24,8 @@
     </li>
     <li class="no-padding">
       <ul class="collapsible collapsible-accordion">
-        <li class="active">
-          <a class="collapsible-header active waves-effect waves-teal">个人博客</a>
+        <li class="grey lighten-2{% if nav_active == "blog" %} active{% endif %}">
+          <a class="collapsible-header waves-effect waves-grey{% if nav_active == "blog" %} active{% endif %}">个人博客</a>
           <div class="collapsible-body" style="display: block;">
             <ul>
               {% for category_item in category_list %}
@@ -37,8 +35,7 @@
                        class="white-text">{{ category_item.category_name }}</a>
                   </li>
                 {% else %}
-                  <li><a href="{% url 'blog:category' category_item.url_name %}"
-                  >{{ category_item.category_name }}</a></li>
+                  <li><a href="{% url 'blog:category' category_item.url_name %}">{{ category_item.category_name }}</a></li>
                 {% endifequal %}
               {% endfor %}
             </ul>
@@ -47,14 +44,14 @@
       </ul>
     </li>
     <li {% if nav_active == "about" %}class="grey darken-1"{% endif %}>
-      <a {% if nav_active == "about" %}class="white-text"{% endif %} href="{% url 'blog:article' article_id=1 %}">关于</a>
+      <a class="waves-effect waves-grey{% if nav_active == "about" %} white-text{% endif %}"href="{% url 'blog:article' article_id=1 %}">关于</a>
     </li>
     <li {% if nav_active == "contact" %}class="grey darken-1"{% endif %}>
-      <a {% if nav_active == "contact" %}class="white-text"{% endif %} href="{% url 'contact:index' %}">留言</a></li>
+      <a class="waves-effect waves-grey{% if nav_active == "contact" %} white-text{% endif %}" href="{% url 'contact:index' %}">留言</a></li>
     <li {% if nav_active == "feed" %}class="grey darken-1"{% endif %}>
-      <a {% if nav_active == "feed" %}class="white-text"{% endif %} href="{% url 'homepage:feed' %}">订阅</a></li>
+      <a class="waves-effect waves-grey{% if nav_active == "feed" %} white-text{% endif %}" href="{% url 'homepage:feed' %}">订阅</a></li>
     {% if nav_active == "courtyard" %}
-      <li class="grey darken-1"><a class="white-text" href="{% url 'crows:index' %}">后院</a></li>
+      <li class="grey darken-1"><a class="waves-effect waves-grey hite-text" href="{% url 'crows:index' %}">后院</a></li>
     {% endif %}
   </ul>
 </header>
