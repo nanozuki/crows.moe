@@ -1,4 +1,4 @@
-Django==1.9.4
+Django==1.11.28
 django-simple-captcha==0.5.1
 Markdown==2.6.5
 pytz==2015.7
