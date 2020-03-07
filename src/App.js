@@ -1,10 +1,11 @@
 import React from 'react';
-// import { styled } from 'linaria/react';
+import { hot } from 'react-hot-loader/root';
+import { styled } from 'linaria/react';
 
-// const Title = styled.h1`
-//   font-size: 24px;
-//   text-align: center;
-// `;
+const Title = styled.h1`
+  font-size: 24px;
+  text-align: center;
+`;
 
 const App = () => (
   <div>
@@ -13,4 +14,4 @@ const App = () => (
   </div>
 );
 
-export default App;
+export default hot(App);

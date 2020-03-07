@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "webpack",
-    "start": "webpack-dev-server --mode development --hot"
+    "start": "NODE_ENV=development webpack-dev-server --hot"
   },
   "browserslist": [
     "cover 90%"
