@@ -17,10 +17,10 @@ module.exports = {
         exclude: /node_modules/,
         use: [
           { loader: 'babel-loader' },
-          {
-            loader: 'linaria/loader',
-            options: { sourceMap: dev },
-          },
+          // {
+          //   loader: 'linaria/loader',
+          //   options: { sourceMap: dev },
+          // },
         ],
       },
       {
@@ -59,25 +59,24 @@ module.exports = {
     extensions: ['*', '.js', '.jsx'],
     alias: {
       '~': path.resolve(__dirname, 'src/'),
-      'react-dom': '@hot-loader/react-dom',
+      // 'react-dom': '@hot-loader/react-dom',
     },
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '.',
+    publicPath: '/',
     filename: '[name].bundle.js',
   },
   devServer: {
-    contentBase: path.join(__dirname, 'public'),
+    // contentBase: path.join(__dirname, 'public'),
     port: 9000,
     host: 'localhost',
     hotOnly: true,
     historyApiFallback: true,
   },
   plugins: [
-    new HtmlWebpackPlugin({ template: 'index.html' }),
+    new HtmlWebpackPlugin(),
     new MiniCssExtractPlugin({ filename: 'styles.css' }),
-    new webpack.HotModuleReplacementPlugin(),
     new Dotenv(),
   ],
 };
