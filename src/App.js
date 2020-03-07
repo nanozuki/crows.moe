@@ -1,14 +1,14 @@
 import React from 'react';
-import { styled } from 'linaria/react';
+// import { styled } from 'linaria/react';
 
-const Title = styled.h1`
-  font-size: 24px;
-  text-align: center;
-`;
+// const Title = styled.h1`
+//   font-size: 24px;
+//   text-align: center;
+// `;
 
 const App = () => (
   <div>
-    <Title>Nanozuki Web App</Title>
+    <h1>Nanozuki Web App</h1>
     <p>text...</p>
   </div>
 );
