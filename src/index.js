@@ -7,12 +7,8 @@ const appElement = document.createElement('div');
 appElement.id = 'root';
 document.body.append(appElement);
 
-if (module.hot) {
-  module.hot.accept();
-}
-
 const Root = () => (
   <App />
 );
 
-ReactDOM.render(<Root />, document.getElementById('root'));
+ReactDOM.render(<Root />, appElement);
