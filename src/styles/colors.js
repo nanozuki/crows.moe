@@ -154,25 +154,12 @@ const darkMode = {
   orangeHard: palette.bright_orange,
 };
 
-let isLight = true;
+const fgColor = (token) => (props) => `color: ${props.theme[token]};
+transition: color 1s ease-in-out;`;
 
-const setMode = (mode) => {
-  if (mode === 'light') {
-    isLight = true;
-  } else if (mode === 'dark') {
-    isLight = false;
-  }
-  console.log(`set mode: ${mode}`);
-};
-
-const getColor = (token) => (isLight ? lightMode[token] : darkMode[token]);
-
-const fgColor = (token) => `color: ${getColor(token)};
-transitions: color 0.5s ease-in-out;`;
-
-const bgColor = (token) => `background-color: ${getColor(token)};
-transitions: background-color 0.5s ease-in-out;`;
+const bgColor = (token) => (props) => `background-color: ${props.theme[token]};
+transition: background-color 1s ease-in-out;`;
 
 export {
-  fgColor, bgColor, Token, setMode,
+  fgColor, bgColor, Token, lightMode, darkMode,
 };

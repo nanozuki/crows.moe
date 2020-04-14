@@ -9,8 +9,11 @@
   "private": false,
   "dependencies": {
     "modern-normalize": "^0.6.0",
+    "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-markdown": "^4.3.1",
+    "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
     "styled-components": "^5.1.0"
   },
