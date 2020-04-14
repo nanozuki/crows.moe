@@ -25,6 +25,14 @@ module.exports = {
       'import/no-default-export': 'error',
       'import/prefer-default-export': 'off',
       'no-use-before-define': ['off', {}],
+      'react/jsx-filename-extension': [1, { "extensions": [".js", ".jsx"] }],
     },
     "ignorePatterns": ['dist', 'node_modules'],
+    "settings": {
+    "import/resolver": {
+      "node": {
+        "paths": ["src"]
+        },
+      },
+    },
 };
