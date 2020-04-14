@@ -1,16 +1,35 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Title = styled.h1`
-  color: red;
+import {
+  fgColor, bgColor, Token, setMode,
+} from 'styles/colors';
+
+const AppWrapper = styled.div`
+  body {
+    ${fgColor(Token.fg)}
+    ${bgColor(Token.bg)}
+  }
 `;
+
+const HeaderWrapper = styled.div`
+  ${fgColor(Token.fg)}
+  ${bgColor(Token.bg)}
+`;
+
+const Header = () => (
+  <HeaderWrapper>
+    <p>Title</p>
+    <button onClick={() => setMode('dark')} type="button">dark mode!</button>
+  </HeaderWrapper>
+);
 
 function App() {
   return (
-    <div>
-      <Title>Crows.Moe</Title>
+    <AppWrapper>
+      <Header />
       <p>@Nanozuki personal website</p>
-    </div>
+    </AppWrapper>
   );
 }
 
