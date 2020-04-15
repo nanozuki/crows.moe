@@ -1,6 +1,8 @@
 ---
-layout: post
-title: Blogging Like a Hacker
+title: 示例文章
+create: 2020-04-14 12:00
+publish: 2020-04-15 12:00
+tags: demo,,test
 ---
 
 # 示例文章
