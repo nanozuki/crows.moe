@@ -8,35 +8,38 @@ import {
 
 import { Article } from 'components/Article';
 import { ArticleList } from 'components/ArticleList';
+import { Nav } from 'components/Nav';
 
 import {
   fgColor, bgColor, Token, lightMode, darkMode,
 } from 'styles/colors';
 
+const PageWrapper = styled.div`
+  width: 100%;
+  min-height: 100%;
+  ${bgColor(Token.bg)}
+`;
+
+const OutterWrapper = styled.div`
+  max-width: 42rem;
+  margin: 0 auto;
+`;
+
 const AppWrapper = styled.div`
   ${fgColor(Token.fg)}
-  max-width: 45rem;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 1rem;
+  margin-right: 1rem;
 `;
 
 const GlobalStyle = createGlobalStyle`
+  html, body, #root {
+    width: 100%;
+    height: 100%;
+  }
   body {
-    ${bgColor(Token.bg)}
+    overflow-y: scroll;
   }
 `;
-
-const HeaderWrapper = styled.div`
-  font-size: 2.5rem;
-  font-family: serif;
-  margin: 0.5rem 0;
-`;
-
-const Header = () => (
-  <HeaderWrapper>
-    <p>crows.moe</p>
-  </HeaderWrapper>
-);
 
 const Home = () => (
   <div>
@@ -47,21 +50,25 @@ const Home = () => (
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
   return (
     <ThemeProvider theme={isDarkMode ? darkMode : lightMode}>
       <GlobalStyle />
-      <AppWrapper>
-        <Header />
-        <Router>
-          <Switch>
-            <Route path="/" exact><Home /></Route>
-            <Route path="/a/:file" exact><Article /></Route>
-          </Switch>
-        </Router>
-        <div>
-          <button onClick={() => setIsDarkMode(!isDarkMode)} type="button">dark mode!</button>
-        </div>
-      </AppWrapper>
+      <Router>
+        <PageWrapper>
+          <OutterWrapper>
+            <AppWrapper>
+              <Nav isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+              <Switch>
+                <Route path="/" exact><Home /></Route>
+                <Route path="/a/:file" exact><Article /></Route>
+              </Switch>
+            </AppWrapper>
+          </OutterWrapper>
+        </PageWrapper>
+      </Router>
     </ThemeProvider>
   );
 }

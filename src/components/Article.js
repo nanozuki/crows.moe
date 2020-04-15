@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import styled from 'styled-components';
+import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 
@@ -31,16 +31,18 @@ const useArticleFilename = (filename) => {
   return article;
 }
 
+const ArticleStyle = styled.article`
+  padding: 1px;
+`;
+
 
 const Article = () => {
   const { file } = useParams('file');
-  const content = `file: ${file}`;
   const article = useArticleFilename(file);
   return (
-    <div>
-      <p>{content}</p>
+    <ArticleStyle>
       <ReactMarkdown source={article} />
-    </div>
+    </ArticleStyle>
   );
 };
 
