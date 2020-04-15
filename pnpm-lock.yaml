@@ -8,6 +8,7 @@ dependencies:
   react-scripts: 3.4.1
   styled-components: 5.1.0_e0769e62e3c98bcdfe1795b4a7453784
 devDependencies:
+  babel-eslint: 10.1.0_eslint@6.8.0
   eslint: 6.8.0
   eslint-config-airbnb: 18.1.0_93d707b3c4a28e806b96154710814f94
   eslint-plugin-import: 2.20.2_eslint@6.8.0
@@ -58,7 +59,6 @@ packages:
       jsesc: 2.5.2
       lodash: 4.17.15
       source-map: 0.5.7
-    dev: false
     resolution:
       integrity: sha512-GbNIxVB3ZJe3tLeDm1HSn2AhuD/mVcyLDpgtLXa5tplmWrJdF/elxB56XNqCuD6szyNkDi6wuoKXln3QeBmCHQ==
   /@babel/helper-annotate-as-pure/7.8.3:
@@ -147,13 +147,11 @@ packages:
       '@babel/helper-get-function-arity': 7.8.3
       '@babel/template': 7.8.6
       '@babel/types': 7.9.5
-    dev: false
     resolution:
       integrity: sha512-JVcQZeXM59Cd1qanDUxv9fgJpt3NeKUaqBqUEvfmQ+BCOKq2xUgaWZW2hr0dkbyJgezYuplEoh5knmrnS68efw==
   /@babel/helper-get-function-arity/7.8.3:
     dependencies:
       '@babel/types': 7.9.5
-    dev: false
     resolution:
       integrity: sha512-FVDR+Gd9iLjUMY1fzE2SR0IuaJToR4RkCDARVfsBBPSP53GEqSFjD8gNyxg246VUyc/ALRxFaAK8rVG7UT7xRA==
   /@babel/helper-hoist-variables/7.8.3:
@@ -231,7 +229,6 @@ packages:
   /@babel/helper-split-export-declaration/7.8.3:
     dependencies:
       '@babel/types': 7.9.5
-    dev: false
     resolution:
       integrity: sha512-3x3yOeyBhW851hroze7ElzdkeRXQYQbFIb7gLK1WQYsw2GWDay5gAJNw1sWJ0VFP6z5J1whqeXH/WCdCjZv6dA==
   /@babel/helper-validator-identifier/7.9.5:
@@ -262,7 +259,6 @@ packages:
     resolution:
       integrity: sha512-lJZPilxX7Op3Nv/2cvFdnlepPXDxi29wxteT57Q965oc5R9v86ztx0jfxVrTcBk8C2kcPkkDa2Z4T3ZsPPVWsQ==
   /@babel/parser/7.9.4:
-    dev: false
     engines:
       node: '>=6.0.0'
     hasBin: true
@@ -1109,7 +1105,6 @@ packages:
       '@babel/code-frame': 7.8.3
       '@babel/parser': 7.9.4
       '@babel/types': 7.9.5
-    dev: false
     resolution:
       integrity: sha512-zbMsPMy/v0PWFZEhQJ66bqjhH+z0JgMoBWuikXybgG3Gkd/3t5oQ1Rw2WQhnSrsOmsKXnZOx15tkC4qON/+JPg==
   /@babel/traverse/7.9.5:
@@ -1123,7 +1118,6 @@ packages:
       debug: 4.1.1
       globals: 11.12.0
       lodash: 4.17.15
-    dev: false
     resolution:
       integrity: sha512-c4gH3jsvSuGUezlP6rzSJ6jf8fYjLj3hsMZRx/nX0h+fmHN0w+ekubRrHPqnMec0meycA2nwCsJ7dC8IPem2FQ==
   /@babel/types/7.9.5:
@@ -1131,7 +1125,6 @@ packages:
       '@babel/helper-validator-identifier': 7.9.5
       lodash: 4.17.15
       to-fast-properties: 2.0.0
-    dev: false
     resolution:
       integrity: sha512-XjnvNqenk818r5zMaba+sLQjnbda31UfUURv3ei0qPQw4u+j2jMyJ5b11y8ZHYTRSI3NnInQkkkRT4fLqqPdHg==
   /@cnakazawa/watch/1.0.4:
@@ -2196,8 +2189,7 @@ packages:
       '@babel/types': 7.9.5
       eslint: 6.8.0
       eslint-visitor-keys: 1.1.0
-      resolve: 1.15.0
-    dev: false
+      resolve: 1.15.1
     engines:
       node: '>=6'
     peerDependencies:
@@ -4980,7 +4972,6 @@ packages:
     resolution:
       integrity: sha512-awConJSVCHVGND6x3tmMaKcQvwXLhjdkmomy2W+Goaui8YPgYgXJZewhg3fWC+DlfqqQuWg8AwqjGTD2nAPVWg==
   /globals/11.12.0:
-    dev: false
     engines:
       node: '>=4'
     resolution:
@@ -6518,7 +6509,6 @@ packages:
     resolution:
       integrity: sha1-597mbjXW/Bb3EP6R1c9p9w8IkR0=
   /jsesc/2.5.2:
-    dev: false
     engines:
       node: '>=4'
     hasBin: true
@@ -9983,7 +9973,6 @@ packages:
     resolution:
       integrity: sha1-PpNdfd1zYxuXZZlW1VEo6HtQhKM=
   /source-map/0.5.7:
-    dev: false
     engines:
       node: '>=0.10.0'
     resolution:
@@ -10550,7 +10539,6 @@ packages:
     resolution:
       integrity: sha1-fSKbH8xjfkZsoIEYCDanqr/4P0M=
   /to-fast-properties/2.0.0:
-    dev: false
     engines:
       node: '>=4'
     resolution:
@@ -11499,6 +11487,7 @@ packages:
     resolution:
       integrity: sha512-AX3Zw5iPruN5ie6xGRIDgqkT+ZhnRlZMLMHAs8tg7nRruy2Nb+i5o9bwghAogtM08q1dpr2LVoS8KSTMYpWXUw==
 specifiers:
+  babel-eslint: ^10.1.0
   eslint: ^6.8.0
   eslint-config-airbnb: ^18.1.0
   eslint-plugin-import: ^2.20.1
