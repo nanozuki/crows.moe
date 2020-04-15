@@ -7,7 +7,7 @@ import { metas } from 'articles/metas';
 
 const ArticleItem = ({ title, file }) => {
   const endpoint = `/a/${file.split('.')[0]}`;
-  return <Link to={endpoint}>{title}</Link>;
+  return <Link key={file} to={endpoint}>{title}</Link>;
 };
 ArticleItem.propTypes = {
   title: PropTypes.string.isRequired,

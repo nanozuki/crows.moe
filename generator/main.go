@@ -45,6 +45,7 @@ func main() {
 }
 
 type Meta struct {
+	File    string    `json:"file"`
 	Title   string    `json:"title"`   // title: <title>
 	Create  time.Time `json:"create"`  // create: 2006-01-02 15:04
 	Publish time.Time `json:"publish"` // publish: 2006-01-02 15:04
@@ -72,6 +73,8 @@ func extrctFile(filename string) (*Meta, error) {
 		case !isStart && text != boundary:
 			return nil, nil
 		case isStart && text == boundary && anyMeta:
+			_, pureName := filepath.Split(filename)
+			meta.File = pureName
 			return meta, nil
 		case isStart && text == boundary && !anyMeta:
 			return nil, nil
