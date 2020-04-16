@@ -1,21 +1,25 @@
 import React from 'react';
-// import styled from 'styled-components';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+// import PropTypes from 'prop-types';
+// import { useHistory } from 'react-router-dom';
 
 import { metas } from 'articles/metas';
+// import { bgColor, Token } from 'styles/colors';
+import { ArticleItem } from 'components/ArticleItem';
 
-const ArticleItem = ({ title, file }) => {
-  const endpoint = `/a/${file.split('.')[0]}`;
-  return <Link key={file} to={endpoint}>{title}</Link>;
-};
-ArticleItem.propTypes = {
-  title: PropTypes.string.isRequired,
-  file: PropTypes.string.isRequired,
-};
 
-const ArticleList = () => metas.map(({ title, file }) => (
-  <ArticleItem title={title} file={file} />
-));
+const Wrapper = styled.div`
+  padding: 2rem 0 1rem;
+`;
+
+const ArticleList = () => (
+  <Wrapper>
+    {metas.map(({
+      title, publish, tags, file,
+    }) => (
+      <ArticleItem key={file} title={title} publish={publish} tags={tags} file={file} />
+    ))}
+  </Wrapper>
+);
 
 export { ArticleList };
