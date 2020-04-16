@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 
 import { metas } from 'articles/metas';
+import { ArticleItem } from 'components/ArticleItem';
 import { bgColor, fgColor, Token } from 'styles/colors';
 import { serif } from 'styles/type';
 
@@ -35,46 +36,69 @@ const useArticleFilename = (filename) => {
   return article;
 }
 
+const Wrapper = styled.div`
+  padding: 2rem 0;
+`;
+
 const ArticleStyle = styled.article`
-  margin-top: 1rem;
-  padding: 1px;
-`;
+  margin: 3rem 0 2rem 0;
+  img {
+    display: block;
+    width: 100%;
+    margin: 1rem 0;
+  }
 
-// TODO: same as ArticleItem/Title
-const Title = styled.h1`
-  font-size: 2rem;
-  ${fgColor(Token.fg0Hard)}
-  ${serif}
-  margin: 0.5rem 0;
-`;
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    ${serif};
+  }
 
-// TODO: same as ArticleItem/TagBar
-const TagBar = styled.div`
-  display: flex;
-  div:first-child {
-    ${bgColor(Token.orange)}
-    ${fgColor(Token.bg)}
+  h1, h2, h3, h4, h5, h6, p {
+    margin: 1rem 0;
+    line-height: 1.5;
+    :first-child {
+      margin-top: 0;
+    }
+    :last-child {
+      margin-bottom: 0;
+    }
+    hyphens: auto;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+  }
+  h3 {
+    font-size: 1.25rem;
+  }
+  h4, h5 {
+    font-size: 1rem;
+  }
+
+  li {
+    line-height: 1.5;
+  }
+
+  pre {
+    max-width: 100%;
+    overflow-x: auto;
   }
 `;
-
-// TODO: same as ArticleItem/TagBadge
-const TagBadge = styled.div`
-  ${bgColor(Token.bg2)};
-  margin-right: 0.5em;
-  padding: 0.25rem 0.5rem;
-`;
-
 
 const Article = () => {
   const { file } = useParams('file');
   const meta = metas.find(m => m.file === `${file}.md`);
   const article = useArticleFilename(file);
   return (
-    <ArticleStyle>
-      <TagBar>{meta.tags.map((tag) => <TagBadge key={tag}>{tag}</TagBadge>)}</TagBar>
-      <Title>{meta.title}</Title>
-      <ReactMarkdown source={article} />
-    </ArticleStyle>
+    <Wrapper>
+      <ArticleItem {...meta} />
+      <ArticleStyle>
+        <ReactMarkdown source={article} />
+      </ArticleStyle>
+    </Wrapper>
   );
 };
 

@@ -8,6 +8,7 @@ import { serif } from 'styles/type';
 
 const Wrapper = styled.div`
   ${bgColor(Token.bg)};
+  width: 100%;
   margin: 1rem 0;
   :hover {
     cursor: pointer;
@@ -33,12 +34,14 @@ const Title = styled.h1`
   font-size: 2rem;
   ${fgColor(Token.fg0Hard)}
   ${serif}
-  margin: 0.5rem 0;
+  margin: 0;
+  margin-top: 0.75rem;
 `;
 
 const SubInfo = styled.p`
   font-size: 0.75rem;
   ${fgColor(Token.fg2)}
+  margin: 0;
 `;
 
 const ArticleItem = ({
