@@ -42,10 +42,7 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 const Home = () => (
-  <div>
-    <p>@Nanozuki personal website</p>
-    <ArticleList />
-  </div>
+  <ArticleList />
 );
 
 function App() {
