@@ -6,9 +6,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 
 import { useColor, colorTrans, Token } from 'styles/colors';
+import { serif } from 'styles/type';
 
 const Navbar = styled.nav`
-  padding: 1rem 0 1rem 0;
+  padding: 2rem 0;
   width: 100%;
   display: flex;
   align-items: first baseline;
@@ -23,7 +24,7 @@ const Left = styled.div`
 
 const Title = styled.p`
   font-size: 2.5rem;
-  font-family: serif;
+  ${serif}
   font-weight: 700;
   margin: 0;
 

@@ -35,7 +35,7 @@ const useArticleFilename = (filename) => {
 };
 
 const Wrapper = styled.div`
-  padding: 2rem 0;
+  padding: 1rem 0;
 `;
 
 const ArticleStyle = styled.article`
@@ -89,7 +89,6 @@ const ArticleStyle = styled.article`
 const Article = () => {
   const { file } = useParams('file');
   const meta = metas.find((m) => m.file === `${file}.md`);
-  console.log('meta', meta);
   const article = useArticleFilename(file);
   return (
     <Wrapper>

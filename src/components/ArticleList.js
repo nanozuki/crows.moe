@@ -8,7 +8,7 @@ import { ArticleItem } from 'components/ArticleItem';
 
 
 const Wrapper = styled.div`
-  padding: 2rem 0 1rem;
+  padding: 1rem 0;
 `;
 
 const ItemWrapper = styled.div`
