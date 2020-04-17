@@ -15,10 +15,6 @@ const Navbar = styled.nav`
   justify-content: space-between;
   color: ${useColor(Token.orangeHard)};
   ${colorTrans(['color'])};
-
-  :hover {
-    cursor: pointer;
-  }
 `;
 
 const Left = styled.div`
@@ -30,6 +26,10 @@ const Title = styled.p`
   font-family: serif;
   font-weight: 700;
   margin: 0;
+
+  :hover {
+    cursor: pointer;
+  }
 `;
 
 const About = styled.p`
@@ -66,8 +66,8 @@ const Nav = ({ isDarkMode, toggleDarkMode }) => {
         <Title onClick={returnHome}>crows.moe</Title>
         <About>
           <Twitter />
-          {' '}
-          personal website
+          {"'s "}
+          website
         </About>
       </Left>
       <ColorToggler>

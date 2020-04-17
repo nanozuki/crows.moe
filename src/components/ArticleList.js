@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-// import PropTypes from 'prop-types';
-// import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 import { metas } from 'articles/metas';
 import { useColor, colorTrans, Token } from 'styles/colors';
@@ -16,18 +15,22 @@ const ItemWrapper = styled.div`
   ${colorTrans(['background-color'])}
   :hover {
     cursor: pointer;
-    background: ${useColor(Token.bg1)};
+    background-color: ${useColor(Token.bg1)};
   }
 `;
 
-const ArticleList = () => (
-  <Wrapper>
-    {metas.map((meta) => (
-      <ItemWrapper key={meta.file}>
-        <ArticleItem meta={meta} />
-      </ItemWrapper>
-    ))}
-  </Wrapper>
-);
+const ArticleList = () => {
+  const history = useHistory();
+  const toArticle = (file) => () => { history.push(`/a/${file.split('.')[0]}`); };
+  return (
+    <Wrapper>
+      {metas.map((meta) => (
+        <ItemWrapper key={meta.file} onClick={toArticle(meta.file)}>
+          <ArticleItem meta={meta} />
+        </ItemWrapper>
+      ))}
+    </Wrapper>
+  );
+};
 
 export { ArticleList };

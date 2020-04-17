@@ -1,20 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
 
 import { useColor, colorTrans, Token } from 'styles/colors';
 import { serif } from 'styles/type';
 
 const Wrapper = styled.div`
-  ${colorTrans(['background-color'])};
-  background-color: ${useColor(Token.bg)};
   width: 100%;
   margin: 1rem 0;
-  :hover {
-    cursor: pointer;
-    background-color: ${useColor(Token.bg1)};
-  }
 `;
 
 const TagBar = styled.div`
@@ -39,6 +32,7 @@ const Title = styled.h1`
   ${serif}
   margin: 0;
   margin-top: 0.75rem;
+  margin-top: 0.25rem;
 `;
 
 const SubInfo = styled.p`
@@ -49,14 +43,9 @@ const SubInfo = styled.p`
 `;
 
 const ArticleItem = ({ meta }) => {
-  const {
-    title, file, publish, tags,
-  } = meta;
-  const endpoint = `/a/${file.split('.')[0]}`;
-  const history = useHistory();
-  const toArticle = () => { history.push(endpoint); };
+  const { title, publish, tags } = meta;
   return (
-    <Wrapper onClick={toArticle}>
+    <Wrapper>
       <TagBar>{tags.map((tag) => <TagBadge key={tag}>{tag}</TagBadge>)}</TagBar>
       <Title>{title}</Title>
       <SubInfo>{`发表于${publish}`}</SubInfo>
