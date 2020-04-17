@@ -21,11 +21,9 @@ const ItemWrapper = styled.div`
 
 const ArticleList = () => (
   <Wrapper>
-    {metas.map(({
-      title, publish, tags, file,
-    }) => (
+    {metas.map(({ meta }) => (
       <ItemWrapper>
-        <ArticleItem key={file} title={title} publish={publish} tags={tags} file={file} />
+        <ArticleItem meta={meta} />
       </ItemWrapper>
     ))}
   </Wrapper>

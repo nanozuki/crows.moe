@@ -5,7 +5,6 @@ import ReactMarkdown from 'react-markdown';
 
 import { metas } from 'articles/metas';
 import { ArticleItem } from 'components/ArticleItem';
-import { bgColor, fgColor, Token } from 'styles/colors';
 import { serif } from 'styles/type';
 
 const filterFrontMatter = (text) => {
@@ -13,28 +12,25 @@ const filterFrontMatter = (text) => {
   if ((lines.length < 2 || lines[0] !== '---')) {
     return text;
   }
-  let endIndex = lines.slice(1).findIndex(line => line === '---') + 1;
+  const endIndex = lines.slice(1).findIndex((line) => line === '---') + 1;
   return lines.slice((endIndex + 1)).join('\n');
-}
+};
 
 const useArticleFilename = (filename) => {
-  const start = new Date();
   const [article, setArticle] = useState('');
+  const filepath = `articles/${filename}.md`;
   useEffect(() => {
     (async function fetchArticle() {
       if (article === '') {
-        const { default: path } = await import(`articles/${filename}.md`);
+        const { default: path } = await import(filepath);
         const response = await fetch(path);
         const text = await response.text();
         setArticle(filterFrontMatter(text));
-      } else {
-        const stop = new Date();
-        console.log(`render article cost time: ${stop-start}ms`);
       }
-    })()
-  }, [article, filename, start]);
+    }());
+  }, [article, filename]);
   return article;
-}
+};
 
 const Wrapper = styled.div`
   padding: 2rem 0;
@@ -90,11 +86,11 @@ const ArticleStyle = styled.article`
 
 const Article = () => {
   const { file } = useParams('file');
-  const meta = metas.find(m => m.file === `${file}.md`);
+  const meta = metas.find((m) => m.file === `${file}.md`);
   const article = useArticleFilename(file);
   return (
     <Wrapper>
-      <ArticleItem {...meta} />
+      <ArticleItem meta={meta} />
       <ArticleStyle>
         <ReactMarkdown source={article} />
       </ArticleStyle>

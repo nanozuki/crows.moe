@@ -44,9 +44,10 @@ const SubInfo = styled.p`
   margin: 0;
 `;
 
-const ArticleItem = ({
-  title, file, publish, tags,
-}) => {
+const ArticleItem = ({ meta }) => {
+  const {
+    title, file, publish, tags,
+  } = meta;
   const endpoint = `/a/${file.split('.')[0]}`;
   const history = useHistory();
   const toArticle = () => { history.push(endpoint); };
@@ -59,10 +60,12 @@ const ArticleItem = ({
   );
 };
 ArticleItem.propTypes = {
-  title: PropTypes.string.isRequired,
-  file: PropTypes.string.isRequired,
-  publish: PropTypes.string.isRequired,
-  tags: PropTypes.arrayOf(PropTypes.string).isRequired,
+  meta: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    file: PropTypes.string.isRequired,
+    publish: PropTypes.string.isRequired,
+    tags: PropTypes.arrayOf(PropTypes.string).isRequired,
+  }).isRequired,
 };
 
 export { ArticleItem };
