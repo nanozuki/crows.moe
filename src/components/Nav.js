@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 
-import { fgColor, Token } from 'styles/colors';
+import { useColor, colorTrans, Token } from 'styles/colors';
 
 const Navbar = styled.nav`
   padding: 1rem 0 1rem 0;
@@ -13,7 +13,8 @@ const Navbar = styled.nav`
   display: flex;
   align-items: first baseline;
   justify-content: space-between;
-  ${fgColor(Token.orangeHard)};
+  color: ${useColor(Token.orangeHard)};
+  ${colorTrans(['color'])};
 
   :hover {
     cursor: pointer;
@@ -33,7 +34,8 @@ const Title = styled.p`
 
 const About = styled.p`
   font-size: 1rem;
-  ${fgColor(Token.fg2)};
+  color: ${useColor(Token.fg2)};
+  ${colorTrans(['color'])};
   margin: 0;
 `;
 
@@ -42,7 +44,8 @@ const ColorToggler = styled.div`
 `;
 
 const TwitterLink = styled.a`
-  ${fgColor(Token.blueHard)}
+  color: ${useColor(Token.blueHard)};
+  ${colorTrans(['color'])};
   text-decoration: none;
   :hover {
     text-decoration: underline;

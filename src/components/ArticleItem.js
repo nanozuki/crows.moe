@@ -3,44 +3,48 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 
-import { bgColor, fgColor, Token } from 'styles/colors';
+import { useColor, colorTrans, Token } from 'styles/colors';
 import { serif } from 'styles/type';
 
 const Wrapper = styled.div`
-  ${bgColor(Token.bg)};
+  ${colorTrans(['background-color'])};
+  background-color: ${useColor(Token.bg)};
   width: 100%;
   margin: 1rem 0;
   :hover {
     cursor: pointer;
-    ${bgColor(Token.bg1)};
+    background-color: ${useColor(Token.bg1)};
   }
 `;
 
 const TagBar = styled.div`
   display: flex;
-  div:first-child {
-    ${bgColor(Token.orange)}
-    ${fgColor(Token.bg)}
-  }
 `;
 
 const TagBadge = styled.div`
-  ${bgColor(Token.bg2)};
+  ${colorTrans(['background-color', 'color'])};
+  color: ${useColor(Token.fg)};
+  background-color: ${useColor(Token.bg2)};
+  :first-child {
+    background-color: ${useColor(Token.orange)};
+    color: ${useColor(Token.bg)};
+  }
   margin-right: 0.5em;
   padding: 0.25rem 0.5rem;
 `;
 
 const Title = styled.h1`
   font-size: 2rem;
-  ${fgColor(Token.fg0Hard)}
+  color: ${useColor(Token.fg0Hard)};
   ${serif}
   margin: 0;
   margin-top: 0.75rem;
 `;
 
 const SubInfo = styled.p`
+  color: ${useColor(Token.fg2)};
+  ${colorTrans(['color'])};
   font-size: 0.75rem;
-  ${fgColor(Token.fg2)}
   margin: 0;
 `;
 

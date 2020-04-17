@@ -18,11 +18,13 @@ const filterFrontMatter = (text) => {
 
 const useArticleFilename = (filename) => {
   const [article, setArticle] = useState('');
-  const filepath = `articles/${filename}.md`;
+  // const filepath = `articles/${filename}.md`;
   useEffect(() => {
     (async function fetchArticle() {
       if (article === '') {
-        const { default: path } = await import(filepath);
+        /* eslint-disable prefer-template */
+        const { default: path } = await import('articles/' + filename + '.md');
+        /* eslint-enable prefer-template */
         const response = await fetch(path);
         const text = await response.text();
         setArticle(filterFrontMatter(text));
@@ -87,6 +89,7 @@ const ArticleStyle = styled.article`
 const Article = () => {
   const { file } = useParams('file');
   const meta = metas.find((m) => m.file === `${file}.md`);
+  console.log('meta', meta);
   const article = useArticleFilename(file);
   return (
     <Wrapper>

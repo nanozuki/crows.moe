@@ -154,12 +154,12 @@ const darkMode = {
   orangeHard: palette.bright_orange,
 };
 
-const fgColor = (token) => (props) => `color: ${props.theme[token]};
-transition: color 1s ease-in-out;`;
-
-const bgColor = (token) => (props) => `background-color: ${props.theme[token]};
-transition: background-color 1s ease-in-out;`;
+const useColor = (token) => (props) => props.theme[token];
+const colorTrans = (attrs) => {
+  const trans = attrs.map((attr) => `${attr} 0.5s ease-in-out`);
+  return `transition: ${trans.join(', ')};`;
+};
 
 export {
-  fgColor, bgColor, Token, lightMode, darkMode,
+  useColor, colorTrans, Token, lightMode, darkMode,
 };

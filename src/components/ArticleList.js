@@ -4,7 +4,7 @@ import styled from 'styled-components';
 // import { useHistory } from 'react-router-dom';
 
 import { metas } from 'articles/metas';
-import { bgColor, Token } from 'styles/colors';
+import { useColor, colorTrans, Token } from 'styles/colors';
 import { ArticleItem } from 'components/ArticleItem';
 
 
@@ -13,16 +13,17 @@ const Wrapper = styled.div`
 `;
 
 const ItemWrapper = styled.div`
+  ${colorTrans(['background-color'])}
   :hover {
     cursor: pointer;
-    ${bgColor(Token.bg1)}
+    background: ${useColor(Token.bg1)};
   }
 `;
 
 const ArticleList = () => (
   <Wrapper>
-    {metas.map(({ meta }) => (
-      <ItemWrapper>
+    {metas.map((meta) => (
+      <ItemWrapper key={meta.file}>
         <ArticleItem meta={meta} />
       </ItemWrapper>
     ))}

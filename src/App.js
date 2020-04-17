@@ -11,13 +11,15 @@ import { ArticleList } from 'components/ArticleList';
 import { Nav } from 'components/Nav';
 
 import {
-  fgColor, bgColor, Token, lightMode, darkMode,
+  useColor, colorTrans, Token, lightMode, darkMode,
 } from 'styles/colors';
 
 const PageWrapper = styled.div`
   width: 100%;
   min-height: 100%;
-  ${bgColor(Token.bg)}
+  color: ${useColor(Token.fg)};
+  background-color: ${useColor(Token.bg)};
+  ${colorTrans(['color', 'background-color'])}
 `;
 
 const OutterWrapper = styled.div`
@@ -26,7 +28,6 @@ const OutterWrapper = styled.div`
 `;
 
 const AppWrapper = styled.div`
-  ${fgColor(Token.fg)}
   margin-left: 1rem;
   margin-right: 1rem;
 `;
