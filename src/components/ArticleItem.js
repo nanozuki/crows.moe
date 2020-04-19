@@ -30,9 +30,7 @@ const Title = styled.h1`
   font-size: 2rem;
   color: ${useColor(Token.fg0Hard)};
   ${serif}
-  margin: 0;
-  margin-top: 0.75rem;
-  margin-top: 0.25rem;
+  margin: 0.5rem 0 0.25rem 0;
 `;
 
 const SubInfo = styled.p`

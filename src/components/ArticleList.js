@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 
 import { metas } from 'articles/metas';
-import { useColor, colorTrans, Token } from 'styles/colors';
+import { useColor, Token } from 'styles/colors';
 import { ArticleItem } from 'components/ArticleItem';
 
 
@@ -12,12 +12,19 @@ const Wrapper = styled.div`
 `;
 
 const ItemWrapper = styled.div`
-  ${colorTrans(['background-color'])}
+  border-style: none solid;
+  border-width: 0.5rem;
+  border-color: transparent;
+  margin: 0 -1rem;
+  padding: 0 0.5rem;
   :hover {
     cursor: pointer;
-    background-color: ${useColor(Token.bg1)};
+    background-color: ${useColor(Token.orange)}10;
+    border-color: ${useColor(Token.orange)};
   }
 `;
+
+//   transition: border-left 0.1s;
 
 const ArticleList = () => {
   const history = useHistory();
