@@ -17,7 +17,7 @@ import {
 const PageWrapper = styled.div`
   width: 100%;
   min-height: 100%;
-  color: ${useColor(Token.fg)};
+  color: ${useColor(Token.fg2)};
   background-color: ${useColor(Token.bg)};
   ${colorTrans(['color', 'background-color'])}
 `;
