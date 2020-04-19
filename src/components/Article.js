@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import { metas } from 'articles/metas';
 import { ArticleItem } from 'components/ArticleItem';
 import { serif } from 'styles/type';
+import { useColor, Token } from 'styles/colors';
 
 const filterFrontMatter = (text) => {
   const lines = text.split('\n');
@@ -86,15 +87,24 @@ const ArticleStyle = styled.article`
   }
 `;
 
+const LoadingHint = styled.h3`
+  color: ${useColor(Token.orangeHard)};
+`;
+
 const Article = () => {
   const { file } = useParams('file');
   const meta = metas.find((m) => m.file === `${file}.md`);
   const article = useArticleFilename(file);
+  const content = (article === '') ? (
+    <LoadingHint>加载中...</LoadingHint>
+  ) : (
+    <ReactMarkdown source={article} />
+  );
   return (
     <Wrapper>
       <ArticleItem meta={meta} />
       <ArticleStyle>
-        <ReactMarkdown source={article} />
+        { content }
       </ArticleStyle>
     </Wrapper>
   );

@@ -25,9 +25,9 @@ const Left = styled.div`
 const Title = styled.p`
   font-size: 2.5rem;
   ${serif}
-  font-weight: 700;
+  font-weight: 900;
   margin: 0;
-
+  margin-bottom: 0.25rem;
   :hover {
     cursor: pointer;
   }

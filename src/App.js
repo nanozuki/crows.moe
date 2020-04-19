@@ -17,7 +17,7 @@ import {
 const PageWrapper = styled.div`
   width: 100%;
   min-height: 100%;
-  color: ${useColor(Token.fg)};
+  color: ${useColor(Token.fg2)};
   background-color: ${useColor(Token.bg)};
   ${colorTrans(['color', 'background-color'])}
 `;
@@ -42,25 +42,24 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const Home = () => (
-  <ArticleList />
-);
+function useColorMode() {
+  const [isDark, setIsDark] = useState(localStorage.getItem('color-scheme') === 'dark');
+  const toggleColor = () => { setIsDark(!isDark); localStorage.setItem('color-scheme', (isDark ? 'light' : 'dark')); };
+  return [isDark, toggleColor];
+}
 
 function App() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
+  const [isDark, toggleColor] = useColorMode();
   return (
-    <ThemeProvider theme={isDarkMode ? darkMode : lightMode}>
+    <ThemeProvider theme={isDark ? darkMode : lightMode}>
       <GlobalStyle />
       <Router>
         <PageWrapper>
           <OutterWrapper>
             <AppWrapper>
-              <Nav isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+              <Nav isDarkMode={isDark} toggleDarkMode={toggleColor} />
               <Switch>
-                <Route path="/" exact><Home /></Route>
+                <Route path="/" exact><ArticleList /></Route>
                 <Route path="/a/:file" exact><Article /></Route>
               </Switch>
             </AppWrapper>
