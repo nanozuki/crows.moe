@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 import {
-  BrowserRouter as Router,
   Switch,
   Route,
 } from 'react-router-dom';
@@ -13,6 +12,7 @@ import { Nav } from 'components/Nav';
 import {
   useColor, colorTrans, Token, lightMode, darkMode,
 } from 'styles/colors';
+import { log } from 'log';
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -39,12 +39,19 @@ const GlobalStyle = createGlobalStyle`
   }
   body {
     overflow-y: scroll;
+    margin: 0;
   }
 `;
 
 function useColorMode() {
-  const [isDark, setIsDark] = useState(localStorage.getItem('color-scheme') === 'dark');
-  const toggleColor = () => { setIsDark(!isDark); localStorage.setItem('color-scheme', (isDark ? 'light' : 'dark')); };
+  const init = (typeof window !== 'undefined') ? localStorage.getItem('color-scheme') === 'dark' : false;
+  const [isDark, setIsDark] = useState(init);
+  log.info(`init color mode: isDark=${isDark}, init=${init}`);
+  const toggleColor = () => {
+    setIsDark(!isDark);
+    log.info(`toggleColor color mode to: ${isDark ? 'light' : 'dark'}`);
+    localStorage.setItem('color-scheme', (isDark ? 'light' : 'dark'));
+  };
   return [isDark, toggleColor];
 }
 
@@ -53,19 +60,17 @@ function App() {
   return (
     <ThemeProvider theme={isDark ? darkMode : lightMode}>
       <GlobalStyle />
-      <Router>
-        <PageWrapper>
-          <OutterWrapper>
-            <AppWrapper>
-              <Nav isDarkMode={isDark} toggleDarkMode={toggleColor} />
-              <Switch>
-                <Route path="/" exact><ArticleList /></Route>
-                <Route path="/a/:file" exact><Article /></Route>
-              </Switch>
-            </AppWrapper>
-          </OutterWrapper>
-        </PageWrapper>
-      </Router>
+      <PageWrapper>
+        <OutterWrapper>
+          <AppWrapper>
+            <Nav isDarkMode={isDark} toggleDarkMode={toggleColor} />
+            <Switch>
+              <Route path="/" exact><ArticleList /></Route>
+              <Route path="/a/:file" exact><Article /></Route>
+            </Switch>
+          </AppWrapper>
+        </OutterWrapper>
+      </PageWrapper>
     </ThemeProvider>
   );
 }
