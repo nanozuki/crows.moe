@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 import {
   Switch,
@@ -12,7 +12,6 @@ import { Nav } from 'components/Nav';
 import {
   useColor, colorTrans, Token, lightMode, darkMode,
 } from 'styles/colors';
-import { log } from 'log';
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -44,12 +43,9 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 function useColorMode() {
-  const init = (typeof window !== 'undefined') ? localStorage.getItem('color-scheme') === 'dark' : false;
-  const [isDark, setIsDark] = useState(init);
-  log.info(`init color mode: isDark=${isDark}, init=${init}`);
+  const [isDark, setIsDark] = useState(false);
   const toggleColor = () => {
     setIsDark(!isDark);
-    log.info(`toggleColor color mode to: ${isDark ? 'light' : 'dark'}`);
     localStorage.setItem('color-scheme', (isDark ? 'light' : 'dark'));
   };
   return [isDark, toggleColor];
@@ -57,6 +53,14 @@ function useColorMode() {
 
 function App() {
   const [isDark, toggleColor] = useColorMode();
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const lsIsDark = localStorage.getItem('color-scheme') === 'dark';
+      if (lsIsDark !== isDark) {
+        toggleColor();
+      }
+    }
+  }, [isDark]);
   return (
     <ThemeProvider theme={isDark ? darkMode : lightMode}>
       <GlobalStyle />

@@ -156,7 +156,7 @@ const darkMode = {
 
 const useColor = (token) => (props) => props.theme[token];
 const colorTrans = (attrs) => {
-  const trans = attrs.map((attr) => `${attr} 0.5s ease-in-out`);
+  const trans = attrs.map((attr) => `${attr} 0.35s ease-in-out`);
   return `transition: ${trans.join(', ')};`;
 };
 
