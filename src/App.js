@@ -12,6 +12,7 @@ import { Nav } from 'components/Nav';
 import {
   useColor, colorTrans, Token, lightMode, darkMode,
 } from 'styles/colors';
+import 'styles/colors.css';
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -45,24 +46,27 @@ const GlobalStyle = createGlobalStyle`
 function useColorMode() {
   const [isDark, setIsDark] = useState(false);
   const toggleColor = () => {
-    setIsDark(!isDark);
-    localStorage.setItem('color-scheme', (isDark ? 'light' : 'dark'));
+    const next = !isDark;
+    localStorage.setItem('color-scheme', (next ? 'light' : 'dark'));
+    const html = document.querySelector('html');
+    html.dataset.theme = next ? 'light' : 'dark';
+    setIsDark(next);
   };
   return [isDark, toggleColor];
 }
 
 function App() {
   const [isDark, toggleColor] = useColorMode();
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const lsIsDark = localStorage.getItem('color-scheme') === 'dark';
-      if (lsIsDark !== isDark) {
-        toggleColor();
-      }
-    }
-  }, [isDark]);
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined') {
+  //     const lsIsDark = localStorage.getItem('color-scheme') === 'dark';
+  //     if (lsIsDark !== isDark) {
+  //       toggleColor();
+  //     }
+  //   }
+  // }, [isDark]);
   return (
-    <ThemeProvider theme={isDark ? darkMode : lightMode}>
+    <>
       <GlobalStyle />
       <PageWrapper>
         <OutterWrapper>
@@ -75,7 +79,7 @@ function App() {
           </AppWrapper>
         </OutterWrapper>
       </PageWrapper>
-    </ThemeProvider>
+    </>
   );
 }
 
