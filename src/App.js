@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import {
   Switch,
@@ -44,33 +44,14 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-function useColorMode() {
-  let init;
-  if (typeof window !== 'undefined') {
-    init = document.querySelector('html').dataset.theme === 'dark';
-  }
-  const [isDark, setIsDark] = useState(init);
-  const toggleColor = () => {
-    const next = !isDark;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('color-scheme', (next ? 'dark' : 'light'));
-    }
-    const html = document.querySelector('html');
-    html.dataset.theme = next ? 'dark' : 'light';
-    setIsDark(next);
-  };
-  return [isDark, toggleColor];
-}
-
 function App() {
-  const [isDark, toggleColor] = useColorMode();
   return (
     <>
       <GlobalStyle />
       <PageWrapper>
         <OutterWrapper>
           <AppWrapper>
-            <Nav isDarkMode={isDark} toggleDarkMode={toggleColor} />
+            <Nav />
             <Switch>
               <Route path="/" exact><ArticleList /></Route>
               <Route path="/a/:file" exact><Article /></Route>
