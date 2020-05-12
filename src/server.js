@@ -67,7 +67,6 @@ server
         (function() {
           function setDataThemeAttribute(theme) {
             document.querySelector('html').setAttribute('data-theme', theme);
-            console.log("setDataThemeAttribute=", theme);
           }
           
           var preferDarkQuery = '(prefers-color-scheme: dark)';
