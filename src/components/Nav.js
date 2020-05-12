@@ -60,7 +60,10 @@ const Twitter = () => (
 const Nav = ({ isDarkMode, toggleDarkMode }) => {
   const history = useHistory();
   const returnHome = () => { history.push('/'); };
-  const icon = isDarkMode ? faMoon : faSun;
+  let icon = <div />;
+  if (typeof isDarkMode !== 'undefined') {
+    icon = <FontAwesomeIcon icon={isDarkMode ? faMoon : faSun} onClick={toggleDarkMode} />;
+  }
   return (
     <Navbar>
       <Left>
@@ -72,7 +75,7 @@ const Nav = ({ isDarkMode, toggleDarkMode }) => {
         </About>
       </Left>
       <ColorToggler>
-        <FontAwesomeIcon icon={icon} onClick={toggleDarkMode} />
+        {icon}
       </ColorToggler>
     </Navbar>
   );

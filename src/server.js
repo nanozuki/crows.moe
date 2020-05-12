@@ -48,7 +48,7 @@ server
     ? `<script src="${assets.client.js}" defer></script>`
     : `<script src="${assets.client.js}" defer crossorigin></script>`}
       <meta name="crows.moe" content="Nanozuki's website" />
-      <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+      <link rel="manifest" href="./manifest.json" />
       <title>crows.moe</title>
       <script>
         (function(d) {
@@ -63,7 +63,30 @@ server
       ${styleTags}
     </head>
     <body>
-        <div id="root">${markup}</div>
+      <script type="text/javascript">
+        (function() {
+          function setDataThemeAttribute(theme) {
+            document.querySelector('html').setAttribute('data-theme', theme);
+            console.log("setDataThemeAttribute=", theme);
+          }
+          
+          var preferDarkQuery = '(prefers-color-scheme: dark)';
+          var mql = window.matchMedia(preferDarkQuery);
+          var supportsColorSchemeQuery = mql.media === preferDarkQuery;
+          var localStorageTheme = null;
+          try {
+            localStorageTheme = localStorage.getItem('color-scheme');
+          } catch (err) {}
+          var localStorageExists = localStorageTheme !== null;
+        
+          if (localStorageExists) {
+            setDataThemeAttribute(localStorageTheme);
+          } else if (supportsColorSchemeQuery && mql.matches) {
+            setDataThemeAttribute('dark');
+          }
+        })();
+      </script>
+      <div id="root">${markup}</div>
     </body>
 </html>`,
       );

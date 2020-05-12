@@ -20,6 +20,28 @@
     </script>
   </head>
   <body>
+    <script type="text/javascript">
+      (function() {
+        function setDataThemeAttribute(theme) {
+          document.querySelector('html').setAttribute('data-theme', theme);
+        }
+        
+        var preferDarkQuery = '(prefers-color-scheme: dark)';
+        var mql = window.matchMedia(preferDarkQuery);
+        var supportsColorSchemeQuery = mql.media === preferDarkQuery;
+        var localStorageTheme = null;
+        try {
+          localStorageTheme = localStorage.getItem('color-scheme');
+        } catch (err) {}
+        var localStorageExists = localStorageTheme !== null;
+      
+        if (localStorageExists) {
+          setDataThemeAttribute(localStorageTheme);
+        } else if (supportsColorSchemeQuery && mql.matches) {
+          setDataThemeAttribute('dark');
+        }
+      })();
+    </script>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>
