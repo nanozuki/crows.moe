@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import {
-  BrowserRouter as Router,
   Switch,
   Route,
 } from 'react-router-dom';
@@ -11,8 +10,10 @@ import { ArticleList } from 'components/ArticleList';
 import { Nav } from 'components/Nav';
 
 import {
-  useColor, colorTrans, Token, lightMode, darkMode,
+  useColor, colorTrans, Token,
 } from 'styles/colors';
+import 'styles/colors.css';
+import 'App.css';
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -39,34 +40,45 @@ const GlobalStyle = createGlobalStyle`
   }
   body {
     overflow-y: scroll;
+    margin: 0;
   }
 `;
 
 function useColorMode() {
-  const [isDark, setIsDark] = useState(localStorage.getItem('color-scheme') === 'dark');
-  const toggleColor = () => { setIsDark(!isDark); localStorage.setItem('color-scheme', (isDark ? 'light' : 'dark')); };
+  let init;
+  if (typeof window !== 'undefined') {
+    init = document.querySelector('html').dataset.theme === 'dark';
+  }
+  const [isDark, setIsDark] = useState(init);
+  const toggleColor = () => {
+    const next = !isDark;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('color-scheme', (next ? 'dark' : 'light'));
+    }
+    const html = document.querySelector('html');
+    html.dataset.theme = next ? 'dark' : 'light';
+    setIsDark(next);
+  };
   return [isDark, toggleColor];
 }
 
 function App() {
   const [isDark, toggleColor] = useColorMode();
   return (
-    <ThemeProvider theme={isDark ? darkMode : lightMode}>
+    <>
       <GlobalStyle />
-      <Router>
-        <PageWrapper>
-          <OutterWrapper>
-            <AppWrapper>
-              <Nav isDarkMode={isDark} toggleDarkMode={toggleColor} />
-              <Switch>
-                <Route path="/" exact><ArticleList /></Route>
-                <Route path="/a/:file" exact><Article /></Route>
-              </Switch>
-            </AppWrapper>
-          </OutterWrapper>
-        </PageWrapper>
-      </Router>
-    </ThemeProvider>
+      <PageWrapper>
+        <OutterWrapper>
+          <AppWrapper>
+            <Nav isDarkMode={isDark} toggleDarkMode={toggleColor} />
+            <Switch>
+              <Route path="/" exact><ArticleList /></Route>
+              <Route path="/a/:file" exact><Article /></Route>
+            </Switch>
+          </AppWrapper>
+        </OutterWrapper>
+      </PageWrapper>
+    </>
   );
 }
 

@@ -1,18 +1,33 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import 'modern-normalize/modern-normalize.css';
+import http from 'http';
 
-import { App } from 'App';
-import * as serviceWorker from 'serviceWorker';
+import { log } from 'log';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root'),
-);
+let app = require('./server').default;
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+const server = http.createServer(app);
+
+let currentApp = app;
+
+server.listen(process.env.PORT || 3000, (error) => {
+  if (error) {
+    log.error(error);
+  }
+  log.info('🚀 started');
+});
+
+if (module.hot) {
+  log.info('✅  Server-side HMR Enabled!');
+
+  module.hot.accept('./server', () => {
+    log.info('🔁  HMR Reloading `./server`...');
+
+    try {
+      app = require('./server').default;
+      server.removeListener('request', currentApp);
+      server.on('request', app);
+      currentApp = app;
+    } catch (error) {
+      log.error(error);
+    }
+  });
+}

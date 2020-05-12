@@ -19,7 +19,7 @@ const ItemWrapper = styled.div`
   padding: 0 0.5rem;
   :hover {
     cursor: pointer;
-    background-color: ${useColor(Token.orange)}10;
+    background-color: #d65d0e10;
     border-color: ${useColor(Token.orange)};
   }
 `;

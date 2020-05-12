@@ -64,7 +64,6 @@ const Token = {
 
   gray: 'gray',
   grayHard: 'grayHard',
-  graySoft: 'graySoft',
 
   red: 'red',
   redHard: 'redHard',
@@ -154,9 +153,9 @@ const darkMode = {
   orangeHard: palette.bright_orange,
 };
 
-const useColor = (token) => (props) => props.theme[token];
+const useColor = (token) => `var(--color-${token})`;
 const colorTrans = (attrs) => {
-  const trans = attrs.map((attr) => `${attr} 0.5s ease-in-out`);
+  const trans = attrs.map((attr) => `${attr} 0.35s ease-in-out`);
   return `transition: ${trans.join(', ')};`;
 };
 
