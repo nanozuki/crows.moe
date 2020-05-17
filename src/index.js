@@ -2,7 +2,7 @@ import http from 'http';
 
 import { log } from 'log';
 
-let app = require('./server').default;
+let app = require('./server').server;
 
 const server = http.createServer(app);
 
@@ -22,7 +22,9 @@ if (module.hot) {
     log.info('🔁  HMR Reloading `./server`...');
 
     try {
-      app = require('./server').default;
+      /* eslint-disable global-require */
+      app = require('./server').server;
+      /* eslint-enable global-require */
       server.removeListener('request', currentApp);
       server.on('request', app);
       currentApp = app;

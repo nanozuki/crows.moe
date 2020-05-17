@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import {
   Switch,
   Route,
 } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 
 import { Article } from 'components/Article';
 import { ArticleList } from 'components/ArticleList';
@@ -44,33 +45,20 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-function useColorMode() {
-  let init;
-  if (typeof window !== 'undefined') {
-    init = document.querySelector('html').dataset.theme === 'dark';
-  }
-  const [isDark, setIsDark] = useState(init);
-  const toggleColor = () => {
-    const next = !isDark;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('color-scheme', (next ? 'dark' : 'light'));
-    }
-    const html = document.querySelector('html');
-    html.dataset.theme = next ? 'dark' : 'light';
-    setIsDark(next);
-  };
-  return [isDark, toggleColor];
-}
-
 function App() {
-  const [isDark, toggleColor] = useColorMode();
   return (
     <>
       <GlobalStyle />
+      <Helmet>
+        <title>crows.moe</title>
+        <meta property="og:title" content="crows.mow" />
+        <meta property="og:type" content="website" />
+        <meta property="og:description" content="Nanozuki's personal website" />
+      </Helmet>
       <PageWrapper>
         <OutterWrapper>
           <AppWrapper>
-            <Nav isDarkMode={isDark} toggleDarkMode={toggleColor} />
+            <Nav />
             <Switch>
               <Route path="/" exact><ArticleList /></Route>
               <Route path="/a/:file" exact><Article /></Route>

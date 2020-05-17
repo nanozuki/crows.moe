@@ -3,11 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <!--link rel="icon" href="%PUBLIC_URL%/favicon.ico" /-->
+    <!--meta name="theme-color" content="#000000" /-->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="crows.moe" content="Nanozuki's website" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>crows.moe</title>
+    {{css-assets}}
+    {{client-js}}
+    <meta name="crows.moe" content="Nanozuki's personal website" />
+    <link rel="manifest" href="./manifest.json" />
+    {{helmet}}
     <script>
       (function(d) {
         var config = {
@@ -18,6 +20,7 @@
         h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
       })(document);
     </script>
+    {{style-tags}}
   </head>
   <body>
     <script type="text/javascript">
@@ -42,7 +45,7 @@
         }
       })();
     </script>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <noscript>You need to enable JavaScript to viwe this website.</noscript>
+    <div id="root">{{markup}}</div>
   </body>
 </html>

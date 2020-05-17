@@ -1,5 +1,4 @@
-import React/* , { useState } */ from 'react';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -57,12 +56,31 @@ const Twitter = () => (
   <TwitterLink href="https://twitter.com/NanozukiCrows">@Nanozuki</TwitterLink>
 );
 
-const Nav = ({ isDarkMode, toggleDarkMode }) => {
+function useColorMode() {
+  let init;
+  if (typeof window !== 'undefined') {
+    init = document.querySelector('html').dataset.theme === 'dark';
+  }
+  const [isDark, setIsDark] = useState(init);
+  const toggleColor = () => {
+    const next = !isDark;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('color-scheme', (next ? 'dark' : 'light'));
+    }
+    const html = document.querySelector('html');
+    html.dataset.theme = next ? 'dark' : 'light';
+    setIsDark(next);
+  };
+  return [isDark, toggleColor];
+}
+
+const Nav = () => {
   const history = useHistory();
   const returnHome = () => { history.push('/'); };
+  const [isDark, toggleColor] = useColorMode();
   let icon = <div />;
-  if (typeof isDarkMode !== 'undefined') {
-    icon = <FontAwesomeIcon icon={isDarkMode ? faMoon : faSun} onClick={toggleDarkMode} />;
+  if (typeof isDark !== 'undefined') {
+    icon = <FontAwesomeIcon icon={isDark ? faMoon : faSun} onClick={toggleColor} />;
   }
   return (
     <Navbar>
@@ -70,8 +88,7 @@ const Nav = ({ isDarkMode, toggleDarkMode }) => {
         <Title onClick={returnHome}>crows.moe</Title>
         <About>
           <Twitter />
-          {"'s "}
-          website
+          {'\'s personal website'}
         </About>
       </Left>
       <ColorToggler>
@@ -79,11 +96,6 @@ const Nav = ({ isDarkMode, toggleDarkMode }) => {
       </ColorToggler>
     </Navbar>
   );
-};
-
-Nav.propTypes = {
-  isDarkMode: PropTypes.bool.isRequired,
-  toggleDarkMode: PropTypes.func.isRequired,
 };
 
 export { Nav };
