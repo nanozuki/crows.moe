@@ -79,7 +79,7 @@ const Nav = () => {
   const returnHome = () => { history.push('/'); };
   const [isDark, toggleColor] = useColorMode();
   let icon = <div />;
-  if (typeof isDarkMode !== 'undefined') {
+  if (typeof isDark !== 'undefined') {
     icon = <FontAwesomeIcon icon={isDark ? faMoon : faSun} onClick={toggleColor} />;
   }
   return (
