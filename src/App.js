@@ -4,6 +4,7 @@ import {
   Switch,
   Route,
 } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 
 import { Article } from 'components/Article';
 import { ArticleList } from 'components/ArticleList';
@@ -48,6 +49,12 @@ function App() {
   return (
     <>
       <GlobalStyle />
+      <Helmet>
+        <title>crows.moe</title>
+        <meta property="og:title" content="crows.mow" />
+        <meta property="og:type" content="website" />
+        <meta property="og:description" content="Nanozuki's personal website" />
+      </Helmet>
       <PageWrapper>
         <OutterWrapper>
           <AppWrapper>

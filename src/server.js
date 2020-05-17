@@ -4,6 +4,7 @@ import express from 'express';
 import { renderToString } from 'react-dom/server';
 import { ServerStyleSheet, StyleSheetManager } from 'styled-components';
 import fs from 'fs';
+import { Helmet } from 'react-helmet';
 
 import { App } from 'App';
 import { log } from 'log';
@@ -23,6 +24,7 @@ server
     const sheet = new ServerStyleSheet();
     let markup;
     let styleTags;
+    let helmet;
     try {
       markup = renderToString(
         <StyleSheetManager sheet={sheet.instance}>
@@ -31,6 +33,7 @@ server
           </StaticRouter>
         </StyleSheetManager>,
       );
+      helmet = Helmet.renderStatic();
       styleTags = sheet.getStyleTags();
     } catch (err) {
       log.error(err);
@@ -49,9 +52,11 @@ server
       const clientJs = process.env.NODE_ENV === 'production'
         ? `<script src="${assets.client.js}" defer></script>`
         : `<script src="${assets.client.js}" defer crossorigin></script>`;
+      const helmetHeads = helmet && helmet.title.toString() + helmet.meta.toString();
       const html = template
         .replace('{{css-assets}}', cssAssets)
         .replace('{{client-js}}', clientJs)
+        .replace('{{helmet}}', helmetHeads || '')
         .replace('{{style-tags}}', styleTags)
         .replace('{{markup}}', markup);
       res.status(200).send(html);

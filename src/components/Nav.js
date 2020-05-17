@@ -88,8 +88,7 @@ const Nav = () => {
         <Title onClick={returnHome}>crows.moe</Title>
         <About>
           <Twitter />
-          {"'s "}
-          website
+          {'\'s personal website'}
         </About>
       </Left>
       <ColorToggler>
