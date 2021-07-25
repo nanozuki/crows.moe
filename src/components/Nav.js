@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
-import { navigate } from 'gatsby'
+import { navigate } from 'gatsby';
 
 import { getColor, colorTrans, Token } from '../styles/colors';
 import { serif } from '../styles/type';
@@ -75,7 +75,7 @@ function useColorMode() {
 }
 
 const Nav = () => {
-  const returnHome = () => { navigate("/"); };
+  const returnHome = () => { navigate('/'); };
   const [isDark, toggleColor] = useColorMode();
   let icon = <div />;
   if (typeof isDark !== 'undefined') {
@@ -97,4 +97,4 @@ const Nav = () => {
   );
 };
 
-export { Nav };
+export default Nav;

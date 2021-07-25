@@ -1,9 +1,9 @@
-import * as React from "react"
-import { /*Link, */useStaticQuery, graphql } from 'gatsby'
+import * as React from 'react';
+import { /* Link, */useStaticQuery, graphql } from 'gatsby';
 import { Helmet } from 'react-helmet';
 
-import { Layout } from '../components/Layout';
-import { ArticleList } from '../components/ArticleList';
+import Layout from '../components/Layout';
+import ArticleList from '../components/ArticleList';
 
 const IndexPage = () => {
   const data = useStaticQuery(graphql`
@@ -20,7 +20,6 @@ const IndexPage = () => {
       }
     }
   `);
-  console.log("data", data);
   return (
     <Layout>
       <Helmet>
@@ -31,7 +30,7 @@ const IndexPage = () => {
       </Helmet>
       <ArticleList articles={data.allStrapiArticle.nodes} />
     </Layout>
-  )
-}
+  );
+};
 
-export default IndexPage
+export default IndexPage;

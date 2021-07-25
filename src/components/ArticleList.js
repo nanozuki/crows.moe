@@ -1,10 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
-import { navigate } from 'gatsby'
+import { navigate } from 'gatsby';
 
 import { getColor, Token } from '../styles/colors';
-import { ArticleItem } from '../components/ArticleItem';
-
+import ArticleItem from './ArticleItem';
 
 const Wrapper = styled.div`
   padding: 1rem 0;
@@ -23,12 +23,8 @@ const ItemWrapper = styled.div`
   }
 `;
 
-//   transition: border-left 0.1s;
-
 const ArticleList = ({ articles }) => {
-  // const history = useHistory();
   const toArticle = (title) => () => navigate(`/a/${title}`);
-  console.log("data in article list", articles);
   return (
     <Wrapper>
       {articles.map((article) => (
@@ -39,5 +35,8 @@ const ArticleList = ({ articles }) => {
     </Wrapper>
   );
 };
+ArticleList.propTypes = {
+  articles: PropTypes.arrayOf(PropTypes.object).isRequired,
+};
 
-export { ArticleList };
+export default ArticleList;

@@ -41,12 +41,12 @@ const SubInfo = styled.p`
 `;
 
 const ArticleItem = ({ article }) => {
-  const { title, publish_date, tags } = article;
+  const { title, publish_date: publishDate, tags } = article;
   return (
     <Wrapper>
       <TagBar>{tags.map((tag) => <TagBadge key={tag.name}>{tag.name}</TagBadge>)}</TagBar>
       <Title>{title}</Title>
-      <SubInfo>{`发表于${publish_date}`}</SubInfo>
+      <SubInfo>{`发表于${publishDate}`}</SubInfo>
     </Wrapper>
   );
 };
@@ -60,4 +60,4 @@ ArticleItem.propTypes = {
   }).isRequired,
 };
 
-export { ArticleItem };
+export default ArticleItem;

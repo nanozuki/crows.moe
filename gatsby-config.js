@@ -41,5 +41,13 @@ module.exports = {
         singleTypes: [],
       },
     },
+    {
+      resolve: 'gatsby-plugin-eslint',
+      options: {
+        stages: ['develop'],
+        extensions: ['js', 'jsx'],
+        exclude: ['node_modules', '.cache', 'public'],
+      }
+    }
   ],
 };

@@ -1,8 +1,9 @@
-import * as React from "react"
-import styled from '@emotion/styled'
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import styled from '@emotion/styled';
 
 import { getColor, colorTrans, Token } from '../styles/colors';
-import { Nav } from './Nav';
+import Nav from './Nav';
 
 import 'normalize.css/normalize.css';
 import '../styles/colors.css';
@@ -28,28 +29,26 @@ const AppWrapper = styled.div`
 `;
 
 function loadTheme() {
-  if (typeof window === "undefined") {
-    return
+  if (typeof window === 'undefined') {
+    return;
   }
   function setDataThemeAttribute(theme) {
     document.querySelector('html').setAttribute('data-theme', theme);
   }
 
-  var preferDarkQuery = '(prefers-color-scheme: dark)';
-  var mql = window.matchMedia(preferDarkQuery);
-  var supportsColorSchemeQuery = mql.media === preferDarkQuery;
-  var localStorageTheme = null;
-  try {
-    localStorageTheme = localStorage.getItem('color-scheme');
-  } catch (err) { }
-  var localStorageExists = localStorageTheme !== null;
+  const preferDarkQuery = '(prefers-color-scheme: dark)';
+  const mql = window.matchMedia(preferDarkQuery);
+  const supportsColorSchemeQuery = mql.media === preferDarkQuery;
+  let localStorageTheme = null;
+  localStorageTheme = localStorage.getItem('color-scheme');
+  const localStorageExists = localStorageTheme !== null;
 
   if (localStorageExists) {
     setDataThemeAttribute(localStorageTheme);
   } else if (supportsColorSchemeQuery && mql.matches) {
     setDataThemeAttribute('dark');
   }
-};
+}
 
 const Layout = ({ children }) => {
   loadTheme();
@@ -64,7 +63,10 @@ const Layout = ({ children }) => {
         </OutterWrapper>
       </PageWrapper>
     </>
-  )
-}
+  );
+};
+Layout.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
-export { Layout };
+export default Layout;

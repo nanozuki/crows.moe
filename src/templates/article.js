@@ -1,10 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
 import ReactMarkdown from 'react-markdown';
 import { Helmet } from 'react-helmet';
 
-import { ArticleItem } from '../components/ArticleItem';
-import { Layout } from '../components/Layout';
+import ArticleItem from '../components/ArticleItem';
+import Layout from '../components/Layout';
 import { serif } from '../styles/type';
 
 const Wrapper = styled.div`
@@ -60,10 +61,8 @@ const ArticleStyle = styled.article`
 `;
 
 const Article = ({ pageContext }) => {
-  console.log("article.js", pageContext);
   const article = pageContext;
-  const tags = article.tags.map((tag) =>
-    <meta key={tag.name} property="og:article:tag" content={tag.name} />);
+  const tags = article.tags.map((tag) => <meta key={tag.name} property="og:article:tag" content={tag.name} />);
   return (
     <Layout>
       <Wrapper>
@@ -83,6 +82,17 @@ const Article = ({ pageContext }) => {
       </Wrapper>
     </Layout>
   );
+};
+Article.propTypes = {
+  pageContext: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    publish_date: PropTypes.string.isRequired,
+    tags: PropTypes.arrayOf(PropTypes.shape({
+      name: PropTypes.string.isRequired,
+    })).isRequired,
+    content: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default Article;
