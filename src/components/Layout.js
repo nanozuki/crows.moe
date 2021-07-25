@@ -28,6 +28,9 @@ const AppWrapper = styled.div`
 `;
 
 function loadTheme() {
+  if (typeof window === "undefined") {
+    return
+  }
   function setDataThemeAttribute(theme) {
     document.querySelector('html').setAttribute('data-theme', theme);
   }
