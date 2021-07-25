@@ -1,49 +1,36 @@
 {
   "name": "crows.moe",
   "version": "1.0.0",
-  "description": "personal blog of nanozuki crows",
-  "main": "index.js",
-  "repository": "git@github.com:nanozuki/crows.moe.git",
-  "author": "Nanozuki Crows <nanozuki.crows@gmail.com>",
-  "license": "MIT",
-  "private": false,
-  "dependencies": {
-    "@babel/runtime": "^7.9.2",
-    "@fortawesome/fontawesome-svg-core": "^1.2.28",
-    "@fortawesome/free-solid-svg-icons": "^5.13.0",
-    "@fortawesome/react-fontawesome": "^0.1.9",
-    "express": "^4.17.1",
-    "modern-normalize": "^0.6.0",
-    "prop-types": "^15.7.2",
-    "razzle": "^3.0.0",
-    "razzle-dev-utils": "^3.0.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-helmet": "^6.0.0",
-    "react-markdown": "^4.3.1",
-    "react-router-dom": "^5.1.2",
-    "react-scripts": "3.4.1",
-    "styled-components": "^5.1.0"
-  },
+  "private": true,
+  "description": "Nanozuki's personal website",
+  "author": "Nanozuki Crows",
+  "keywords": [
+    "gatsby"
+  ],
   "scripts": {
-    "generate": "go run generator/main.go -p ./src/articles && eslint src/articles/metas.js --fix",
-    "start": "razzle start",
-    "build": "razzle build",
-    "test": "razzle test --env=jsdom",
-    "start:prod": "NODE_ENV=production node build/server.js"
+    "develop": "gatsby develop",
+    "start": "gatsby develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean"
   },
   "browserslist": [
     "cover 90%"
   ],
-  "devDependencies": {
-    "babel-eslint": "^10.1.0",
-    "babel-plugin-styled-components": "^1.10.7",
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb": "^18.1.0",
-    "eslint-plugin-import": "^2.20.1",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.19.0",
-    "eslint-plugin-react-hooks": "^2.5.0",
-    "path": "^0.12.7"
+  "dependencies": {
+    "@emotion/react": "^11.4.0",
+    "@emotion/styled": "^11.3.0",
+    "gatsby": "^3.10.1",
+    "gatsby-plugin-emotion": "^6.10.0",
+    "gatsby-plugin-image": "^1.10.1",
+    "gatsby-plugin-manifest": "^3.10.0",
+    "gatsby-plugin-react-helmet": "^4.10.0",
+    "gatsby-plugin-sharp": "^3.10.2",
+    "gatsby-source-filesystem": "^3.10.0",
+    "gatsby-transformer-remark": "^4.7.0",
+    "gatsby-transformer-sharp": "^3.10.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-helmet": "^6.1.0"
   }
 }
