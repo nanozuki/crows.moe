@@ -65,7 +65,7 @@ function useColorMode() {
   const toggleColor = () => {
     const next = !isDark;
     if (typeof window !== 'undefined') {
-      localStorage.setItem('color-scheme', (next ? 'dark' : 'light'));
+      localStorage.setItem('color-scheme', next ? 'dark' : 'light');
     }
     const html = document.querySelector('html');
     html.dataset.theme = next ? 'dark' : 'light';
@@ -75,7 +75,7 @@ function useColorMode() {
 }
 
 const Nav = () => {
-  const returnHome = () => { navigate('/'); };
+  const returnHome = () => navigate('/');
   const [isDark, toggleColor] = useColorMode();
   let icon = <div />;
   if (typeof isDark !== 'undefined') {
@@ -90,9 +90,7 @@ const Nav = () => {
           {'\'s personal website'}
         </About>
       </Left>
-      <ColorToggler>
-        {icon}
-      </ColorToggler>
+      <ColorToggler>{icon}</ColorToggler>
     </Navbar>
   );
 };

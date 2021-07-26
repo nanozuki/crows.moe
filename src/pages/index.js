@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { /* Link, */useStaticQuery, graphql } from 'gatsby';
+import { useStaticQuery, graphql } from 'gatsby';
 import { Helmet } from 'react-helmet';
 
 import Layout from '../components/Layout';
@@ -8,7 +8,7 @@ import ArticleList from '../components/ArticleList';
 const IndexPage = () => {
   const data = useStaticQuery(graphql`
     query {
-      allStrapiArticle(sort: {fields: publish_date, order: DESC}) {
+      allStrapiArticle(sort: { fields: publish_date, order: DESC }) {
         nodes {
           strapiId
           title

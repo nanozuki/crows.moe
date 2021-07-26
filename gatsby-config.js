@@ -7,12 +7,12 @@ module.exports = {
     "gatsby-plugin-emotion",
     "gatsby-plugin-image",
     "gatsby-plugin-react-helmet",
-    {
+    /*{
       resolve: "gatsby-plugin-manifest",
       options: {
         icon: "src/images/icon.png",
       },
-    },
+    },*/
     "gatsby-transformer-remark",
     "gatsby-plugin-sharp",
     "gatsby-transformer-sharp",

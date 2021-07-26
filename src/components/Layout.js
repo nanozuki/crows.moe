@@ -1,8 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
+import { Helmet } from 'react-helmet';
 
 import { getColor, colorTrans, Token } from '../styles/colors';
+import { loadTheme, loadThemeScript } from '../styles/load';
 import Nav from './Nav';
 
 import 'normalize.css/normalize.css';
@@ -28,32 +30,13 @@ const AppWrapper = styled.div`
   margin-right: 1rem;
 `;
 
-function loadTheme() {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  function setDataThemeAttribute(theme) {
-    document.querySelector('html').setAttribute('data-theme', theme);
-  }
-
-  const preferDarkQuery = '(prefers-color-scheme: dark)';
-  const mql = window.matchMedia(preferDarkQuery);
-  const supportsColorSchemeQuery = mql.media === preferDarkQuery;
-  let localStorageTheme = null;
-  localStorageTheme = localStorage.getItem('color-scheme');
-  const localStorageExists = localStorageTheme !== null;
-
-  if (localStorageExists) {
-    setDataThemeAttribute(localStorageTheme);
-  } else if (supportsColorSchemeQuery && mql.matches) {
-    setDataThemeAttribute('dark');
-  }
-}
-
 const Layout = ({ children }) => {
   loadTheme();
   return (
     <>
+      <Helmet>
+        <script type="text/javascript">{loadThemeScript}</script>
+      </Helmet>
       <PageWrapper>
         <OutterWrapper>
           <AppWrapper>
