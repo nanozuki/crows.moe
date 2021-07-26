@@ -1,13 +1,10 @@
-FROM node:latest
+FROM node:14-buster as builder
 
-WORKDIR /usr/app
+WORKDIR /app
+COPY . .
+RUN npm install
+RUN npm run build
 
-COPY package.json /usr/app
-COPY pnpm-lock.yaml /usr/app
-
-RUN npm -g install pnpm
-RUN pnpm install
-
-COPY . /usr/app
-RUN pnpm run build
-CMD ["pnpm","run","start:prod"]
+FROM nginx:latest
+EXPOSE 80
+COPY --from=builder /app/public /usr/share/nginx/html

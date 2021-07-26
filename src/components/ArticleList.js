@@ -1,11 +1,10 @@
 import React from 'react';
-import styled from 'styled-components';
-import { useHistory } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import styled from '@emotion/styled';
+import { navigate } from 'gatsby';
 
-import { metas } from 'articles/metas';
-import { useColor, Token } from 'styles/colors';
-import { ArticleItem } from 'components/ArticleItem';
-
+import { getColor, Token } from '../styles/colors';
+import ArticleItem from './ArticleItem';
 
 const Wrapper = styled.div`
   padding: 1rem 0;
@@ -20,24 +19,24 @@ const ItemWrapper = styled.div`
   :hover {
     cursor: pointer;
     background-color: #d65d0e10;
-    border-color: ${useColor(Token.orange)};
+    border-color: ${getColor(Token.orange)};
   }
 `;
 
-//   transition: border-left 0.1s;
-
-const ArticleList = () => {
-  const history = useHistory();
-  const toArticle = (file) => () => { history.push(`/a/${file.split('.')[0]}`); };
+const ArticleList = ({ articles }) => {
+  const toArticle = (title) => () => navigate(`/a/${title}`);
   return (
     <Wrapper>
-      {metas.map((meta) => (
-        <ItemWrapper key={meta.file} onClick={toArticle(meta.file)}>
-          <ArticleItem meta={meta} />
+      {articles.map((article) => (
+        <ItemWrapper key={article.strapiId} onClick={toArticle(article.title)}>
+          <ArticleItem article={article} />
         </ItemWrapper>
       ))}
     </Wrapper>
   );
 };
+ArticleList.propTypes = {
+  articles: PropTypes.arrayOf(PropTypes.object).isRequired,
+};
 
-export { ArticleList };
+export default ArticleList;

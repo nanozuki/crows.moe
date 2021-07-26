@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { useHistory } from 'react-router-dom';
+import styled from '@emotion/styled';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { navigate } from 'gatsby';
 
-import { useColor, colorTrans, Token } from 'styles/colors';
-import { serif } from 'styles/type';
+import { getColor, colorTrans, Token } from '../styles/colors';
+import { serif } from '../styles/type';
 
 const Navbar = styled.nav`
   padding: 2rem 0;
@@ -13,7 +13,7 @@ const Navbar = styled.nav`
   display: flex;
   align-items: first baseline;
   justify-content: space-between;
-  color: ${useColor(Token.orangeHard)};
+  color: ${getColor(Token.orangeHard)};
   ${colorTrans(['color'])};
 `;
 
@@ -34,7 +34,7 @@ const Title = styled.p`
 
 const About = styled.p`
   font-size: 1rem;
-  color: ${useColor(Token.fg2)};
+  color: ${getColor(Token.fg2)};
   ${colorTrans(['color'])};
   margin: 0;
 `;
@@ -44,7 +44,7 @@ const ColorToggler = styled.div`
 `;
 
 const TwitterLink = styled.a`
-  color: ${useColor(Token.blueHard)};
+  color: ${getColor(Token.blueHard)};
   ${colorTrans(['color'])};
   text-decoration: none;
   :hover {
@@ -75,8 +75,7 @@ function useColorMode() {
 }
 
 const Nav = () => {
-  const history = useHistory();
-  const returnHome = () => { history.push('/'); };
+  const returnHome = () => { navigate('/'); };
   const [isDark, toggleColor] = useColorMode();
   let icon = <div />;
   if (typeof isDark !== 'undefined') {
@@ -98,4 +97,4 @@ const Nav = () => {
   );
 };
 
-export { Nav };
+export default Nav;
