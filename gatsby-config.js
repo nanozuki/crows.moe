@@ -35,7 +35,7 @@ module.exports = {
     {
       resolve: `gatsby-source-strapi`,
       options: {
-        apiURL: `http://localhost:1337`,
+        apiURL: `https://strapi.crows.moe`,
         queryLimit: 1000, // Default to 100
         collectionTypes: [`Article`, `Tag`],
         singleTypes: [],
