@@ -21,13 +21,8 @@ const PageWrapper = styled.div`
 `;
 
 const OutterWrapper = styled.div`
-  max-width: 42rem;
+  max-width: 40rem;
   margin: 0 auto;
-`;
-
-const AppWrapper = styled.div`
-  margin-left: 1rem;
-  margin-right: 1rem;
 `;
 
 const Layout = ({ children }) => {
@@ -40,10 +35,8 @@ const Layout = ({ children }) => {
       </Helmet>
       <PageWrapper>
         <OutterWrapper>
-          <AppWrapper>
-            <Nav />
-            {children}
-          </AppWrapper>
+          <Nav />
+          {children}
         </OutterWrapper>
       </PageWrapper>
     </>

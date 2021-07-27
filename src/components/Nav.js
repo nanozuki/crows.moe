@@ -9,7 +9,7 @@ import { serif } from '../styles/type';
 import { setThemeMeta } from '../styles/load';
 
 const Navbar = styled.nav`
-  padding: 2rem 0;
+  padding: 2rem 0 3rem;
   width: 100%;
   display: flex;
   align-items: first baseline;
