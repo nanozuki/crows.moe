@@ -160,5 +160,5 @@ const colorTrans = (attrs) => {
 };
 
 export {
-  getColor, colorTrans, Token, lightMode, darkMode,
+  colorTrans, darkMode, getColor, lightMode, Token,
 };

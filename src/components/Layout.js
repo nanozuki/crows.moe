@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
 import { Helmet } from 'react-helmet';
 
-import { getColor, colorTrans, Token } from '../styles/colors';
+import { colorTrans, getColor, Token } from '../styles/colors';
 import { loadTheme, loadThemeScript } from '../styles/load';
 import Nav from './Nav';
 
@@ -32,6 +32,7 @@ const AppWrapper = styled.div`
 
 const Layout = ({ children }) => {
   loadTheme();
+  // because the Helmet run after page load, the script will only run in ssr index.html.
   return (
     <>
       <Helmet>

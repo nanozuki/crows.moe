@@ -7,12 +7,16 @@ module.exports = {
     "gatsby-plugin-emotion",
     "gatsby-plugin-image",
     "gatsby-plugin-react-helmet",
-    /*{
+    {
       resolve: "gatsby-plugin-manifest",
       options: {
-        icon: "src/images/icon.png",
+        short_name: "鸦之歌",
+        name: "鸦之歌",
+        icon: "src/images/icon.jpg",
+        start_url: "/",
+        description: "Nanozuki's personal website",
       },
-    },*/
+    },
     "gatsby-transformer-remark",
     "gatsby-plugin-sharp",
     "gatsby-transformer-sharp",
@@ -42,12 +46,12 @@ module.exports = {
       },
     },
     {
-      resolve: 'gatsby-plugin-eslint',
+      resolve: "gatsby-plugin-eslint",
       options: {
-        stages: ['develop'],
-        extensions: ['js', 'jsx'],
-        exclude: ['node_modules', '.cache', 'public'],
-      }
-    }
+        stages: ["develop"],
+        extensions: ["js", "jsx"],
+        exclude: ["node_modules", ".cache", "public"],
+      },
+    },
   ],
 };

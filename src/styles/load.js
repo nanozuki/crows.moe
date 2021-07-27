@@ -1,4 +1,22 @@
 // load theme from localStorage and system
+import { darkMode, lightMode } from './colors';
+
+function setThemeMeta(isDark) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  const themeColor = isDark ? darkMode.bg : lightMode.bg;
+  document.body.style.backgroundColor = themeColor;
+  const elem = document.getElementsByTagName('meta')['theme-color'];
+  if (elem) {
+    elem.content = themeColor;
+  } else {
+    const meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    meta.content = themeColor;
+    document.getElementsByTagName('head')[0].appendChild(meta);
+  }
+}
 
 // csr version:
 function loadTheme() {
@@ -7,6 +25,7 @@ function loadTheme() {
   }
   function setDataThemeAttribute(theme) {
     document.querySelector('html').setAttribute('data-theme', theme);
+    setThemeMeta(theme === 'dark');
   }
 
   const preferDarkQuery = '(prefers-color-scheme: dark)';
@@ -26,8 +45,22 @@ function loadTheme() {
 // ssr-version
 const loadThemeScript = `
   (function() {
+    function setThemeMeta(isDark) {
+      var themeColor = isDark ? '#282828' : '#fbf1c7';
+      var elem = document.getElementsByTagName("meta")["theme-color"];
+      document.body.style.background = themeColor;
+      if (elem) {
+        elem.content = themeColor;
+      } else {
+        const meta = document.createElement("meta");
+        meta.name = "theme-color";
+        meta.content = themeColor;
+        document.getElementsByTagName("head")[0].appendChild(meta);
+      }
+    }
     function setDataThemeAttribute(theme) {
       document.querySelector('html').setAttribute('data-theme', theme);
+      setThemeMeta(theme === 'dark');
     }
 
     var preferDarkQuery = '(prefers-color-scheme: dark)';
@@ -47,4 +80,4 @@ const loadThemeScript = `
   })();
 `;
 
-export { loadTheme, loadThemeScript };
+export { loadTheme, loadThemeScript, setThemeMeta };

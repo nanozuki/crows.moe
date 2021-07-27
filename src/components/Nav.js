@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import { navigate } from 'gatsby';
 
-import { getColor, colorTrans, Token } from '../styles/colors';
+import { colorTrans, getColor, Token } from '../styles/colors';
 import { serif } from '../styles/type';
+import { setThemeMeta } from '../styles/load';
 
 const Navbar = styled.nav`
   padding: 2rem 0;
@@ -70,6 +71,7 @@ function useColorMode() {
     const html = document.querySelector('html');
     html.dataset.theme = next ? 'dark' : 'light';
     setIsDark(next);
+    setThemeMeta(next);
   };
   return [isDark, toggleColor];
 }
