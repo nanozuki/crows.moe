@@ -6,7 +6,7 @@ import { Helmet } from 'react-helmet';
 
 import ArticleItem from '../components/ArticleItem';
 import Layout from '../components/Layout';
-import { serif } from '../styles/type';
+import { serif, monospace } from '../styles/type';
 
 const Wrapper = styled.div`
   padding: 1rem 0;
@@ -22,7 +22,7 @@ const ArticleStyle = styled.article`
 
   h1, h2, h3, h4, h5, h6 {
     font-weight: bold;
-    ${serif};
+    ${serif}
   }
 
   h1, h2, h3, h4, h5, h6, p {
@@ -54,9 +54,10 @@ const ArticleStyle = styled.article`
     line-height: 1.5;
   }
 
-  pre {
+  pre, code {
     max-width: 100%;
     overflow-x: auto;
+    ${monospace}
   }
 `;
 

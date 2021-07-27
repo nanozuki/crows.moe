@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet';
 
 import { colorTrans, getColor, Token } from '../styles/colors';
 import { loadTheme, loadThemeScript } from '../styles/load';
+import { sans, adobeFonts } from '../styles/type';
 import Nav from './Nav';
 
 import 'normalize.css/normalize.css';
@@ -18,6 +19,7 @@ const PageWrapper = styled.div`
   color: ${getColor(Token.fg2)};
   background-color: ${getColor(Token.bg)};
   ${colorTrans(['color', 'background-color'])}
+  ${sans}
 `;
 
 const OutterWrapper = styled.div`
@@ -32,6 +34,7 @@ const Layout = ({ children }) => {
     <>
       <Helmet>
         <script type="text/javascript">{loadThemeScript}</script>
+        <script type="text/javascript">{adobeFonts}</script>
       </Helmet>
       <PageWrapper>
         <OutterWrapper>
