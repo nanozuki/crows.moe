@@ -48,7 +48,9 @@ const loadThemeScript = `
     function setThemeMeta(isDark) {
       var themeColor = isDark ? '#282828' : '#fbf1c7';
       var elem = document.getElementsByTagName("meta")["theme-color"];
-      document.body.style.background = themeColor;
+      window.onload = function() {
+        document.body.style.background = themeColor;
+      }
       if (elem) {
         elem.content = themeColor;
       } else {
