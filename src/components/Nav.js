@@ -86,7 +86,7 @@ const Nav = () => {
   return (
     <Navbar>
       <Left>
-        <Title onClick={returnHome}>crows.moe</Title>
+        <Title onClick={returnHome}>鸦之歌</Title>
         <About>
           <Twitter />
           {'\'s personal website'}

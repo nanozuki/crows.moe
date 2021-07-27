@@ -23,8 +23,8 @@ const IndexPage = () => {
   return (
     <Layout>
       <Helmet>
-        <title>crows.moe</title>
-        <meta property="og:title" content="crows.moe" />
+        <title>鸦之歌</title>
+        <meta property="og:title" content="鸦之歌" />
         <meta property="og:type" content="website" />
         <meta property="og:description" content="Nanozuki's personal website" />
       </Helmet>

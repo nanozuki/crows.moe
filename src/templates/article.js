@@ -63,12 +63,13 @@ const ArticleStyle = styled.article`
 const Article = ({ pageContext }) => {
   const article = pageContext;
   const tags = article.tags.map((tag) => <meta key={tag.name} property="og:article:tag" content={tag.name} />);
+  const title = `${article.title} - 鸦之歌`;
   return (
     <Layout>
       <Wrapper>
         <Helmet>
-          <title>{`crows.moe - ${article.title}`}</title>
-          <meta property="og:title" content={`crows.moe - ${article.title}`} />
+          <title>{title}</title>
+          <meta property="og:title" content={title} />
           <meta property="og:type" content="article" />
           {article.description && <meta property="og:description" content={article.description} />}
           <meta property="og:article:published_time" content={article.publish_date} />
