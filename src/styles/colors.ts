@@ -153,8 +153,8 @@ const darkMode = {
   orangeHard: palette.bright_orange,
 };
 
-const getColor = (token) => `var(--color-${token})`;
-const colorTrans = (attrs) => {
+const getColor = (token: string): string => `var(--color-${token})`;
+const colorTrans = (attrs: string[]): string => {
   const trans = attrs.map((attr) => `${attr} 0.35s ease-in-out`);
   return `transition: ${trans.join(', ')};`;
 };
