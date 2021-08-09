@@ -1,10 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
 import ReactMarkdown from 'react-markdown';
 import { Helmet } from 'react-helmet';
 
-import ArticleItem from '../components/ArticleItem';
+import ArticleItem, { Article } from '../components/ArticleItem';
 import Layout from '../components/Layout';
 import { serif, monospace } from '../styles/type';
 
@@ -61,8 +60,11 @@ const ArticleStyle = styled.article`
   }
 `;
 
-const Article = ({ pageContext }) => {
-  const article = pageContext;
+interface ArticlePageProps {
+  pageContext: Article;
+}
+
+const ArticlePage = ({ pageContext: article }: ArticlePageProps) => {
   const tags = article.tags.map((tag) => <meta key={tag.name} property="og:article:tag" content={tag.name} />);
   const title = `${article.title} - 鸦之歌`;
   return (
@@ -85,16 +87,5 @@ const Article = ({ pageContext }) => {
     </Layout>
   );
 };
-Article.propTypes = {
-  pageContext: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-    publish_date: PropTypes.string.isRequired,
-    tags: PropTypes.arrayOf(PropTypes.shape({
-      name: PropTypes.string.isRequired,
-    })).isRequired,
-    content: PropTypes.string.isRequired,
-  }).isRequired,
-};
 
-export default Article;
+export default ArticlePage;

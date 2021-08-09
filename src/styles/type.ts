@@ -15,4 +15,6 @@ const adobeFonts = `
   })(document);
 `;
 
-export { adobeFonts, sans, serif, monospace };
+export {
+  adobeFonts, sans, serif, monospace,
+};

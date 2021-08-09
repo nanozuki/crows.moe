@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import PropTypes from 'prop-types';
 
 import { getColor, colorTrans, Token } from '../styles/colors';
 import { serif } from '../styles/type';
@@ -28,7 +27,7 @@ const TagBadge = styled.div`
 
 const Title = styled.h1`
   font-size: 2rem;
-  color: ${getColor(Token.fg0Hard)};
+  color: ${getColor(Token.fg0)};
   ${serif}
   margin: 0.5rem 0 0.25rem 0;
 `;
@@ -40,7 +39,24 @@ const SubInfo = styled.p`
   margin: 0;
 `;
 
-const ArticleItem = ({ article }) => {
+export interface Article {
+  strapiId: string
+  title: string
+  description: string
+  publish_date: string
+  tags: Tag[]
+  content: string
+}
+
+export interface Tag {
+  name: string
+}
+
+interface ArticleItemProps {
+  article: Article
+}
+
+const ArticleItem = ({ article }: ArticleItemProps) => {
   const { title, publish_date: publishDate, tags } = article;
   return (
     <Wrapper>
@@ -49,15 +65,6 @@ const ArticleItem = ({ article }) => {
       <SubInfo>{`发表于${publishDate}`}</SubInfo>
     </Wrapper>
   );
-};
-ArticleItem.propTypes = {
-  article: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    publish_date: PropTypes.string.isRequired,
-    tags: PropTypes.arrayOf(PropTypes.shape({
-      name: PropTypes.string.isRequired,
-    })).isRequired,
-  }).isRequired,
 };
 
 export default ArticleItem;

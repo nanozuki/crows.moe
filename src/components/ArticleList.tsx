@@ -1,10 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
 import { navigate } from 'gatsby';
 
 import { getColor, Token } from '../styles/colors';
-import ArticleItem from './ArticleItem';
+import ArticleItem, { Article } from './ArticleItem';
 
 const Wrapper = styled.div`
   padding: 1rem 0;
@@ -23,8 +22,12 @@ const ItemWrapper = styled.div`
   }
 `;
 
-const ArticleList = ({ articles }) => {
-  const toArticle = (title) => () => navigate(`/a/${title}`);
+interface ArticleListProps {
+  articles: Article[]
+}
+
+const ArticleList = ({ articles }: ArticleListProps) => {
+  const toArticle = (title: string): (()=>void) => () => navigate(`/a/${title}`);
   return (
     <Wrapper>
       {articles.map((article) => (
@@ -34,9 +37,6 @@ const ArticleList = ({ articles }) => {
       ))}
     </Wrapper>
   );
-};
-ArticleList.propTypes = {
-  articles: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 export default ArticleList;

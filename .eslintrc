@@ -1,20 +1,22 @@
 {
-  "parser": "babel-eslint", // uses babel-eslint transforms
-    "settings": {
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "airbnb-typescript"
+  ],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "settings": {
     "react": {
-      "version": "detect" // detect react version
+      "version": "detect"
     }
   },
   "env": {
-    "node": true, // defines things like process.env when generating through node
+    "node": true,
     "browser": true
-  },
-  "rules": {
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
-  },
-  "extends": [
-    "eslint:recommended", // use recommended configs
-    "plugin:react/recommended",
-    "airbnb"
-  ]
+  }
 }

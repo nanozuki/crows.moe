@@ -1,5 +1,4 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
 import { Helmet } from 'react-helmet';
 
@@ -27,7 +26,11 @@ const OutterWrapper = styled.div`
   margin: 0 auto;
 `;
 
-const Layout = ({ children }) => {
+interface LayoutProps {
+  children: React.ReactNode
+}
+
+const Layout = ({ children }: LayoutProps) => {
   loadTheme();
   // because the Helmet run after page load, the script will only run in ssr index.html.
   return (
@@ -44,9 +47,6 @@ const Layout = ({ children }) => {
       </PageWrapper>
     </>
   );
-};
-Layout.propTypes = {
-  children: PropTypes.node.isRequired,
 };
 
 export default Layout;

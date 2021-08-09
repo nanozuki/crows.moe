@@ -57,10 +57,10 @@ const Twitter = () => (
   <TwitterLink href="https://twitter.com/NanozukiCrows">@Nanozuki</TwitterLink>
 );
 
-function useColorMode() {
-  let init;
+function useColorMode(): [boolean | null, ()=>void] {
+  let init = null;
   if (typeof window !== 'undefined') {
-    init = document.querySelector('html').dataset.theme === 'dark';
+    init = document.querySelector('html')?.dataset.theme === 'dark';
   }
   const [isDark, setIsDark] = useState(init);
   const toggleColor = () => {
@@ -69,7 +69,9 @@ function useColorMode() {
       localStorage.setItem('color-scheme', next ? 'dark' : 'light');
     }
     const html = document.querySelector('html');
-    html.dataset.theme = next ? 'dark' : 'light';
+    if (html) {
+      html.dataset.theme = next ? 'dark' : 'light';
+    }
     setIsDark(next);
     setThemeMeta(next);
   };
@@ -80,7 +82,7 @@ const Nav = () => {
   const returnHome = () => navigate('/');
   const [isDark, toggleColor] = useColorMode();
   let icon = <div />;
-  if (typeof isDark !== 'undefined') {
+  if (isDark !== null) {
     icon = <FontAwesomeIcon icon={isDark ? faMoon : faSun} onClick={toggleColor} />;
   }
   return (

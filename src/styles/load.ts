@@ -1,17 +1,17 @@
 // load theme from localStorage and system
 import { darkMode, lightMode } from './colors';
 
-function setThemeMeta(isDark) {
+function setThemeMeta(isDark: boolean) {
   if (typeof window === 'undefined') {
     return;
   }
   const themeColor = isDark ? darkMode.bg : lightMode.bg;
   document.body.style.backgroundColor = themeColor;
-  const elem = document.getElementsByTagName('meta')['theme-color'];
-  if (elem) {
-    elem.content = themeColor;
+  const themeMata = <HTMLMetaElement>document.querySelector('meta[name=theme-color]');
+  if (themeMata) {
+    themeMata.content = themeColor;
   } else {
-    const meta = document.createElement('meta');
+    const meta = <HTMLMetaElement>document.createElement('meta');
     meta.name = 'theme-color';
     meta.content = themeColor;
     document.getElementsByTagName('head')[0].appendChild(meta);
@@ -23,8 +23,8 @@ function loadTheme() {
   if (typeof window === 'undefined') {
     return;
   }
-  function setDataThemeAttribute(theme) {
-    document.querySelector('html').setAttribute('data-theme', theme);
+  function setDataThemeAttribute(theme: string) {
+    document.querySelector('html')?.setAttribute('data-theme', theme);
     setThemeMeta(theme === 'dark');
   }
 
@@ -33,9 +33,8 @@ function loadTheme() {
   const supportsColorSchemeQuery = mql.media === preferDarkQuery;
   let localStorageTheme = null;
   localStorageTheme = localStorage.getItem('color-scheme');
-  const localStorageExists = localStorageTheme !== null;
 
-  if (localStorageExists) {
+  if (localStorageTheme) {
     setDataThemeAttribute(localStorageTheme);
   } else if (supportsColorSchemeQuery && mql.matches) {
     setDataThemeAttribute('dark');
@@ -47,10 +46,10 @@ const loadThemeScript = `
   (function() {
     function setThemeMeta(isDark) {
       var themeColor = isDark ? '#282828' : '#fbf1c7';
-      var elem = document.getElementsByTagName("meta")["theme-color"];
       window.onload = function() {
         document.body.style.background = themeColor;
       }
+      var elem = document.querySelector('meta[name=theme-color]');
       if (elem) {
         elem.content = themeColor;
       } else {
@@ -72,9 +71,8 @@ const loadThemeScript = `
     try {
       localStorageTheme = localStorage.getItem('color-scheme');
     } catch (err) {}
-    var localStorageExists = localStorageTheme !== null;
-
-    if (localStorageExists) {
+  
+    if (localStorageTheme) {
       setDataThemeAttribute(localStorageTheme);
     } else if (supportsColorSchemeQuery && mql.matches) {
       setDataThemeAttribute('dark');
