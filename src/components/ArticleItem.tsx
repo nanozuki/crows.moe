@@ -39,7 +39,7 @@ const SubInfo = styled.p`
   margin: 0;
 `;
 
-interface Article {
+export interface Article {
   strapiId: string
   title: string
   description: string
@@ -48,7 +48,7 @@ interface Article {
   content: string
 }
 
-interface Tag {
+export interface Tag {
   name: string
 }
 

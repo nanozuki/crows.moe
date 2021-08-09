@@ -57,10 +57,10 @@ const Twitter = () => (
   <TwitterLink href="https://twitter.com/NanozukiCrows">@Nanozuki</TwitterLink>
 );
 
-function useColorMode() {
-  let init;
+function useColorMode(): [boolean, ()=>void] {
+  let init = false;
   if (typeof window !== 'undefined') {
-    init = document.querySelector('html').dataset.theme === 'dark';
+    init = document.querySelector('html')?.dataset.theme === 'dark';
   }
   const [isDark, setIsDark] = useState(init);
   const toggleColor = () => {
@@ -69,7 +69,9 @@ function useColorMode() {
       localStorage.setItem('color-scheme', next ? 'dark' : 'light');
     }
     const html = document.querySelector('html');
-    html.dataset.theme = next ? 'dark' : 'light';
+    if (html) {
+      html.dataset.theme = next ? 'dark' : 'light';
+    }
     setIsDark(next);
     setThemeMeta(next);
   };
