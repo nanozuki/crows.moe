@@ -6,7 +6,7 @@ const Home: NextPage = () => {
       <header>
         <p>2021年</p>
         <p>Programmers' Exodus</p>
-        <p>
+        <p className="text-3xl font-bold underline">
           媒体艺术祭 <small>投票环节</small>
         </p>
       </header>

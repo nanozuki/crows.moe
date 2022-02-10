@@ -1,3 +1,9 @@
+@import 'modern-normalize/modern-normalize.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html,
 body {
   padding: 0;
