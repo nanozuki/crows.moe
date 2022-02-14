@@ -1,36 +1,27 @@
 import type { NextPage } from 'next';
 
+import { Entrance } from '../components/Entrance';
+
 const Home: NextPage = () => {
+  const toNewVote = (userID: string) => {
+    console.log('userID:', userID);
+  };
+  const viewVote = (voteID: string) => {
+    console.log('voteID:', voteID);
+  };
+
   return (
-    <div className="max-w-2xl ml-auto mr-auto">
+    <div className="bg-base min-h-screen w-full max-w-screen-sm ml-auto mr-auto">
       <header className="bg-love text-highlight-low font-serif p-4">
         <p>2021年</p>
-        <p>Programmers' Exodus</p>
+        <p>{"Programmers' Exodus"}</p>
         <p className="text-3xl font-bold underline">
           媒体艺术祭 <small>投票环节</small>
         </p>
       </header>
       <main className="pl-4 pr-4">
-        <section>
-          <h1 className="text-xl mt-em mb-em">新投票</h1>
-          <p>请输入你的telegram ID或者昵称</p>
-          <label htmlFor="user id">
-            <input type="text" />
-          </label>
-          <button className="block bg-subtle text-base pt-1 pb-1 pl-4 pr-4 rounded-md mt-4 mb-4">
-            <p>开始投票</p>
-          </button>
-        </section>
-        <section>
-          <h1 className="text-xl mt-em mb-em">查看/修改投票</h1>
-          <p>请输入投票ID</p>
-          <label htmlFor="vote id">
-            <input type="text" />
-          </label>
-          <button className="block bg-subtle text-base pt-1 pb-1 pl-4 pr-4 rounded-md mt-4 mb-4">
-            <p>确认</p>
-          </button>
-        </section>
+        <Entrance title="新投票" onSubmit={toNewVote} />
+        <Entrance title="查看/修改投票" onSubmit={viewVote} />
       </main>
     </div>
   );

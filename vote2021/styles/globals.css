@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0px 2px #286983;
+}
