@@ -1,29 +1,29 @@
 import type { NextPage } from 'next';
 
 import { Entrance } from '../components/Entrance';
+import { Container } from '../components/Container';
+import { useRouter } from 'next/router';
+import { Layout } from '../components/Layout';
 
 const Home: NextPage = () => {
+  const router = useRouter();
   const toNewVote = (userID: string) => {
-    console.log('userID:', userID);
+    // TODO: create new vote, get the vote id
+    router.push(`/votes/${userID}/0`);
   };
   const viewVote = (voteID: string) => {
-    console.log('voteID:', voteID);
+    router.push(`/votes/${voteID}/0`);
   };
 
   return (
-    <div className="bg-base min-h-screen w-full max-w-screen-sm ml-auto mr-auto">
-      <header className="bg-love text-highlight-low font-serif p-4">
-        <p>2021年</p>
-        <p>{"Programmers' Exodus"}</p>
-        <p className="text-3xl font-bold underline">
-          媒体艺术祭 <small>投票环节</small>
-        </p>
-      </header>
+    <Layout>
       <main className="pl-4 pr-4">
-        <Entrance title="新投票" onSubmit={toNewVote} />
-        <Entrance title="查看/修改投票" onSubmit={viewVote} />
+        <Container>
+          <Entrance title="新投票" onSubmit={toNewVote} />
+          <Entrance title="查看/修改投票" onSubmit={viewVote} />
+        </Container>
       </main>
-    </div>
+    </Layout>
   );
 };
 

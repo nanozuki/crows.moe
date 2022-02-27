@@ -24,8 +24,8 @@ const Entrance = (props: EntranceProps) => {
     }
   };
   return (
-    <form onSubmit={handleSubmit}>
-      <h1 className="text-xl mt-em font-serif">{props.title}</h1>
+    <form className="mt-8 mb-8" onSubmit={handleSubmit}>
+      <h1 className="text-xl font-serif">{props.title}</h1>
       <TextField
         className="w-full max-w-xs"
         label="Telegram ID 或用户名"
