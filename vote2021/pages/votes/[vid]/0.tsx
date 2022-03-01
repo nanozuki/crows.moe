@@ -23,7 +23,9 @@ const VoteStep0: NextPage = () => {
         <Container>
           <article className="text-text">
             <Paragraph>
-              投票范围为2021年1月1日至2021年12月31日发布的作品，分为TV动画、非TV动画、漫画、游戏、文学五个部门。
+              投票范围为2021年1月1日至2021年12月31日发布的作品，以及跨年份作品的2021年内的部分。
+              分为TV动画、非TV动画、漫画、游戏、文学五个部门。
+              具体范围另见每个部门的说明品，
             </Paragraph>
             <Paragraph>
               本次投票采取
@@ -42,7 +44,7 @@ const VoteStep0: NextPage = () => {
               className="w-full sm:max-w-xs block bg-subtle text-base pt-1 pb-1 pl-4 pr-4 mt-2 mb-2"
               onClick={handleClick}
             >
-              <p>前往</p>
+              <p>下一步</p>
             </button>
           </article>
         </Container>

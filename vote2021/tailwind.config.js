@@ -27,6 +27,12 @@ module.exports = {
       spacing: {
         em: '1em',
       },
+      gridTemplateColumns: {
+        vote: '4rem minmax(4rem, 1fr)',
+      },
+      borderWidth: {
+        1: '1px',
+      },
     },
   },
   plugins: [],

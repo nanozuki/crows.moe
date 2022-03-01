@@ -11,7 +11,7 @@ interface HyperLinkProps {
 }
 const HyperLink = (props: HyperLinkProps) => {
   return (
-    <a className="text-foam ml-1 mr-1" href={props.href}>
+    <a className="text-foam ml-0.5 mr-0.5" href={props.href}>
       {props.children}
     </a>
   );
@@ -21,7 +21,11 @@ interface QuoteProps {
   children: React.ReactNode;
 }
 const Quote = ({ children }: QuoteProps) => {
-  return <blockquote className='bg-highlight-med font-mono p-4'>{children}</blockquote>;
+  return (
+    <blockquote className="bg-highlight-med font-mono p-4">
+      {children}
+    </blockquote>
+  );
 };
 
 export { Paragraph, HyperLink, Quote };
