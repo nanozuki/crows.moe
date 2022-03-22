@@ -10,33 +10,33 @@ import (
 )
 
 type Ballot struct {
-	ID         uint `gorm:"primarykey"`
+	ID         uint `gorm:"primaryKey"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	VoteID     uuid.UUID `gorm:"type:char(36)"`
-	Partment   Partment
-	Candidates Candidates `gorm:"type:bolb"`
+	Department Department
+	Candidates Candidates `gorm:"type:blob"`
 }
 
-func NewBallot(voteID uuid.UUID, partment Partment) *Ballot {
+func NewBallot(voteID uuid.UUID, d Department) *Ballot {
 	return &Ballot{
-		VoteID:   voteID,
-		Partment: partment,
+		VoteID:     voteID,
+		Department: d,
 	}
 }
 
-type Partment uint8
+type Department uint8
 
 const (
-	TVAnime Partment = iota
+	TVAnime Department = iota
 	NonTVAnime
 	Manga
 	Game
 	Novel
 )
 
-func (p Partment) IsValid() bool {
-	return p <= Novel
+func (d Department) IsValid() bool {
+	return d <= Novel
 }
 
 type Candidates []Candidate

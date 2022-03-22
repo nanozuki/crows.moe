@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/nanozuki/crows.moe/vote2021/entity"
+	"github.com/nanozuki/crows.moe/vote2021/service"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -16,14 +17,20 @@ func (r *Repository) CreateVote(ctx context.Context, vote *entity.Vote) error {
 	return r.DB.WithContext(ctx).Create(vote).Error
 }
 
-func (r *Repository) FindBallot(ctx context.Context, voteID uuid.UUID, partment entity.Partment) (*entity.Ballot, error) {
+func (r *Repository) FindBallot(ctx context.Context, voteID uuid.UUID, d entity.Department) (*entity.Ballot, error) {
 	var b entity.Ballot
-	r.DB.WithContext(ctx).
-		Where("vote_id = ? AND partment = ?", voteID, partment).
-		Take(&b)
-	panic("not implemented") // TODO: Implement
+	err := r.DB.WithContext(ctx).
+		Where("vote_id = ? AND department = ?", voteID, d).
+		Take(&b).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, service.ErrEntityNotFound
+		}
+		return nil, err
+	}
+	return &b, nil
 }
 
 func (r *Repository) SaveBallot(ctx context.Context, ballot *entity.Ballot) error {
-	panic("not implemented") // TODO: Implement
+	return r.DB.WithContext(ctx).Save(ballot).Error
 }

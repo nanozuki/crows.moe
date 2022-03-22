@@ -77,7 +77,7 @@ func (s *Server) GetBallot(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("invalid vote_id: %v", req.VoteID))
 	}
-	res, err := s.Service.GetBallot(ctx, voteID, entity.Partment(req.Partment))
+	res, err := s.Service.GetBallot(ctx, voteID, entity.Department(req.Partment))
 	if err != nil {
 		return err
 	}

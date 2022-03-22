@@ -17,7 +17,7 @@ type Service struct {
 
 type Repo interface {
 	CreateVote(ctx context.Context, vote *entity.Vote) error
-	FindBallot(ctx context.Context, voteID uuid.UUID, partment entity.Partment) (*entity.Ballot, error)
+	FindBallot(ctx context.Context, id uuid.UUID, d entity.Department) (*entity.Ballot, error)
 	SaveBallot(ctx context.Context, ballot *entity.Ballot) error
 }
 
@@ -29,32 +29,32 @@ func (s *Service) NewVote(ctx context.Context, userName string) (*entity.Vote, e
 	return &vote, err
 }
 
-func (s *Service) GetBallot(ctx context.Context, voteID uuid.UUID, partment entity.Partment) (*entity.Ballot, error) {
-	if !partment.IsValid() {
-		return nil, fmt.Errorf("invalid partment: %v", partment)
+func (s *Service) GetBallot(ctx context.Context, voteID uuid.UUID, d entity.Department) (*entity.Ballot, error) {
+	if !d.IsValid() {
+		return nil, fmt.Errorf("invalid partment: %v", d)
 	}
-	ballot, err := s.Repo.FindBallot(ctx, voteID, partment)
+	ballot, err := s.Repo.FindBallot(ctx, voteID, d)
 	if err != nil {
 		if err != ErrEntityNotFound {
 			return nil, err
 		}
-		ballot = entity.NewBallot(voteID, partment)
+		ballot = entity.NewBallot(voteID, d)
 	}
 	return ballot, nil
 }
 
 func (s *Service) UpdateBallot(
-	ctx context.Context, voteID uuid.UUID, partment entity.Partment, candidates entity.Candidates,
+	ctx context.Context, voteID uuid.UUID, d entity.Department, candidates entity.Candidates,
 ) (*entity.Ballot, error) {
-	if !partment.IsValid() {
-		return nil, fmt.Errorf("invalid partment: %v", partment)
+	if !d.IsValid() {
+		return nil, fmt.Errorf("invalid d: %v", d)
 	}
-	ballot, err := s.Repo.FindBallot(ctx, voteID, partment)
+	ballot, err := s.Repo.FindBallot(ctx, voteID, d)
 	if err != nil {
 		if err != ErrEntityNotFound {
 			return nil, err
 		}
-		ballot = entity.NewBallot(voteID, partment)
+		ballot = entity.NewBallot(voteID, d)
 	}
 	ballot.Candidates = candidates
 	return ballot, s.Repo.SaveBallot(ctx, ballot)

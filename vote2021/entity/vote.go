@@ -3,7 +3,7 @@ package entity
 import uuid "github.com/satori/go.uuid"
 
 type Vote struct {
-	ID       uuid.UUID `gorm:"primarykey;type:char(36)"`
+	ID       uuid.UUID `gorm:"primaryKey;type:char(36)"`
 	UserName string    `gorm:"type:varchar(127)"`
 }
 
