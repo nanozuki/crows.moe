@@ -7,7 +7,8 @@ import { Layout } from '../../../components/Layout';
 
 const VoteStep1: NextPage = () => {
   const router = useRouter();
-  const { vid } = router.query;
+  const { vid, edit } = router.query;
+  console.log(`vid: ${vid}, edit: ${edit}`);
   const handleClick = (e: FormEvent) => {
     e.preventDefault();
     router.push(`/votes/${vid}/4`);

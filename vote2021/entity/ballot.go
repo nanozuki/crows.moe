@@ -15,24 +15,26 @@ type Ballot struct {
 	UpdatedAt  time.Time
 	VoteID     uuid.UUID `gorm:"type:char(36)"`
 	Department Department
-	Candidates Candidates `gorm:"type:blob"`
+	Candidates Candidates `gorm:"type:json"`
 }
 
 func NewBallot(voteID uuid.UUID, d Department) *Ballot {
 	return &Ballot{
 		VoteID:     voteID,
 		Department: d,
+		Candidates: Candidates{},
 	}
 }
 
 type Department uint8
 
 const (
-	TVAnime Department = iota
-	NonTVAnime
-	Manga
-	Game
-	Novel
+	_          Department = iota
+	TVAnime               // 1
+	NonTVAnime            // 2
+	Manga                 // 3
+	Game                  // 4
+	Novel                 // 5
 )
 
 func (d Department) IsValid() bool {

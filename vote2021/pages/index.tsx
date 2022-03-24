@@ -8,8 +8,15 @@ import { Layout } from '../components/Layout';
 const Home: NextPage = () => {
   const router = useRouter();
   const toNewVote = (userID: string) => {
-    // TODO: create new vote, get the vote id
-    router.push(`/votes/${userID}/0`);
+    fetch('/api/vote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_name: userID }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        router.push(`/votes/${data.id}/0`);
+      });
   };
   const viewVote = (voteID: string) => {
     router.push(`/votes/${voteID}/0`);

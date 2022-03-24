@@ -2,17 +2,24 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { FormEvent } from 'react';
 import { HyperLink, Paragraph } from '../../../components/Article';
-import { Ballot } from '../../../components/Ballot';
+import { BallotEditor } from '../../../components/BallotEditor';
 import { Container } from '../../../components/Container';
 import { Layout } from '../../../components/Layout';
 
-const VoteStep1: NextPage = () => {
+const VoteDepartment: NextPage = () => {
   const router = useRouter();
-  const { vid } = router.query;
-  const handleClick = (e: FormEvent) => {
+  const { vid, dp } = router.query;
+  if (typeof vid !== 'string' || typeof dp !== 'string') {
+    return null;
+  }
+  console.log(`vid: ${vid}, dp: ${dp}`);
+  let voteID: string = vid;
+  let department: number = parseInt(dp);
+  const toNext = (e: FormEvent) => {
     e.preventDefault();
-    router.push(`/votes/${vid}/2`);
+    router.push(`/votes/${vid}/${department + 1}`);
   };
+
   return (
     <Layout>
       <nav className="bg-subtle text-base font-serif pl-4 pr-4">
@@ -33,10 +40,10 @@ const VoteStep1: NextPage = () => {
                 2021年日本动画列表
               </HyperLink>
             </Paragraph>
-            <Ballot />
+            <BallotEditor voteID={voteID} department={department} />
             <button
               className="w-full sm:max-w-xs block bg-subtle text-base pt-1 pb-1 pl-4 pr-4 mt-2 mb-2"
-              onClick={handleClick}
+              onClick={toNext}
             >
               <p>下一步</p>
             </button>
@@ -47,4 +54,4 @@ const VoteStep1: NextPage = () => {
   );
 };
 
-export default VoteStep1;
+export default VoteDepartment;

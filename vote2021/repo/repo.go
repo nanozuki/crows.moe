@@ -6,11 +6,23 @@ import (
 	"github.com/nanozuki/crows.moe/vote2021/entity"
 	"github.com/nanozuki/crows.moe/vote2021/service"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 type Repository struct {
 	DB *gorm.DB
+}
+
+func NewRepository(dsn string) (*Repository, error) {
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	// if err := db.AutoMigrate(&entity.Vote{}, &entity.Ballot{}); err != nil {
+	// 	return nil, err
+	// }
+	return &Repository{db}, nil
 }
 
 func (r *Repository) CreateVote(ctx context.Context, vote *entity.Vote) error {

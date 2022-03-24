@@ -7,11 +7,9 @@ import (
 
 	"github.com/nanozuki/crows.moe/vote2021/entity"
 	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
 )
 
 type Service struct {
-	DB   *gorm.DB
 	Repo Repo
 }
 

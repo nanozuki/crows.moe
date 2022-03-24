@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/nanozuki/crows.moe/vote2021/entity"
 	"github.com/nanozuki/crows.moe/vote2021/service"
 	uuid "github.com/satori/go.uuid"
@@ -24,16 +24,20 @@ func NewServer(svc *service.Service) *Server {
 		Service: svc,
 	}
 	api := srv.Echo.Group("/api")
+	api.Use(middleware.Logger())
 	{
 		api.POST("/vote", srv.NewVote)
-		api.GET("/vote/:vote_id/:partment", nil)
-		api.PUT("/vote/:vote_id/:partment", nil)
+		api.GET("/vote/:vote_id/:department", srv.GetBallot)
+		api.PUT("/vote/:vote_id/:department", srv.PutBallot)
 	}
-	feSrv, err := url.Parse(fmt.Sprintf("http://127.0.0.1:3000"))
-	if err != nil {
-		log.Fatal(err)
+	{ // reverse proxy frontend
+		feSrv, err := url.Parse("http://127.0.0.1:3000")
+		if err != nil {
+			log.Fatal(err)
+		}
+		targets := []*middleware.ProxyTarget{{URL: feSrv}}
+		srv.Echo.Any("/*", nil, middleware.Proxy(middleware.NewRoundRobinBalancer(targets)))
 	}
-	srv.Echo.Any("/*", echo.WrapHandler(httputil.NewSingleHostReverseProxy(feSrv)))
 	return srv
 }
 
@@ -59,8 +63,8 @@ func (s *Server) NewVote(c echo.Context) error {
 }
 
 type GetBallotReq struct {
-	VoteID   string `param:"vote_id"`
-	Partment uint8  `param:"partment"`
+	VoteID     string `param:"vote_id"`
+	Department uint8  `param:"department"`
 }
 
 type GetBallotRes struct {
@@ -68,16 +72,17 @@ type GetBallotRes struct {
 }
 
 func (s *Server) GetBallot(c echo.Context) error {
-	req := &GetBallotReq{}
+	req := GetBallotReq{}
 	if err := c.Bind(&req); err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("invalid request: %v", err))
 	}
+	fmt.Println("vote_id:", c.Param("vote_id"))
 	ctx := c.Request().Context()
 	voteID, err := uuid.FromString(req.VoteID)
 	if err != nil {
-		return c.String(http.StatusBadRequest, fmt.Sprintf("invalid vote_id: %v", req.VoteID))
+		return c.String(http.StatusBadRequest, fmt.Sprintf("invalid vote_id: '%v'", req.VoteID))
 	}
-	res, err := s.Service.GetBallot(ctx, voteID, entity.Department(req.Partment))
+	res, err := s.Service.GetBallot(ctx, voteID, entity.Department(req.Department))
 	if err != nil {
 		return err
 	}
@@ -86,7 +91,7 @@ func (s *Server) GetBallot(c echo.Context) error {
 
 type PutBallotReq struct {
 	VoteID     string            `param:"vote_id"`
-	Partment   string            `param:"partment"`
+	Department entity.Department `param:"department"`
 	Candidates entity.Candidates `json:"candidates"`
 }
 
@@ -95,7 +100,7 @@ type PutBallotRes struct {
 }
 
 func (s *Server) PutBallot(c echo.Context) error {
-	req := &PutBallotReq{}
+	req := PutBallotReq{}
 	if err := c.Bind(&req); err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("invalid request: %v", err))
 	}
@@ -104,7 +109,7 @@ func (s *Server) PutBallot(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("invalid vote_id: %v", req.VoteID))
 	}
-	res, err := s.Service.UpdateBallot(ctx, voteID, req.Partment, req.Candidates)
+	res, err := s.Service.UpdateBallot(ctx, voteID, req.Department, req.Candidates)
 	if err != nil {
 		return err
 	}
