@@ -5,7 +5,7 @@ import { HyperLink, Paragraph, Quote } from '../../../components/Article';
 import { Container } from '../../../components/Container';
 import { Layout } from '../../../components/Layout';
 
-const VoteStep0: NextPage = () => {
+const VoteStart: NextPage = () => {
   const router = useRouter();
   const { vid } = router.query;
   const handleClick = (e: FormEvent) => {
@@ -16,7 +16,7 @@ const VoteStep0: NextPage = () => {
     <Layout>
       <nav className="bg-subtle text-base font-serif pl-4 pr-4">
         <Container>
-          <p className="text-xl pt-em pb-em">0/5: 规则介绍</p>
+          <p className="text-xl pt-em pb-em">规则介绍</p>
         </Container>
       </nav>
       <main className="pl-4 pr-4">
@@ -38,7 +38,7 @@ const VoteStep0: NextPage = () => {
             <Paragraph>您本次的投票ID为:</Paragraph>
             <Quote>{vid}</Quote>
             <Paragraph>
-              请记住次ID或者直接保存本页链接，用以查看或者修改自己的投票。
+              请记住此ID或者直接保存本页链接，用以查看或者修改自己的投票。
             </Paragraph>
             <button
               className="w-full sm:max-w-xs block bg-subtle text-base pt-1 pb-1 pl-4 pr-4 mt-2 mb-2"
@@ -53,4 +53,4 @@ const VoteStep0: NextPage = () => {
   );
 };
 
-export default VoteStep0;
+export default VoteStart;

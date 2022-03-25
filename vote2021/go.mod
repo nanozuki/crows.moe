@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/labstack/echo/v4 v4.7.2
+	github.com/pkg/errors v0.8.1
 	github.com/satori/go.uuid v1.2.0
 	gorm.io/driver/postgres v1.3.1
 	gorm.io/gorm v1.23.2

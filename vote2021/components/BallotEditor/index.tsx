@@ -57,30 +57,56 @@ const NameInput = (props: NameInputProps) => {
 interface BallotEditor {
   voteID: string;
   department: number;
+  setEdit: (edit: boolean) => void;
 }
 
-const BallotEditor = ({ voteID, department }: BallotEditor) => {
+const BallotEditor = ({
+  voteID,
+  department,
+  setEdit: setPropEdit,
+}: BallotEditor) => {
   const [ballot, setBallot] = useState<Ballot>([]);
   const [edit, setEdit] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [errMessage, setErrMessage] = useState('');
   useEffect(() => {
     fetch(`/api/vote/${voteID}/${department}`)
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          return res.text().then((text) => {
+            throw new Error(text);
+          });
+        } else {
+          return res.json();
+        }
+      })
+      .catch((error: Error) => {
+        alert(error.message);
+      })
       .then((data: { candidates: Candidate[] }) => {
         setLoaded(true);
         if (data.candidates.length === 0) {
           setEdit(true);
+          setPropEdit(true);
           setBallot(expandBallotForEdit(data.candidates));
         } else {
           setEdit(false);
+          setPropEdit(false);
           setBallot(compressBallotForSubmit(data.candidates));
         }
       });
-  }, [voteID]);
+    return function cleanup() {
+      setBallot([]);
+      setEdit(false);
+      setPropEdit(false);
+      setLoaded(false);
+      setErrMessage('');
+    };
+  }, [department, setPropEdit, voteID]);
 
   const submit = () => {
     setEdit(false);
+    setPropEdit(false);
     const compressed = compressBallotForSubmit(ballot);
     setBallot(compressed);
     fetch(`/api/vote/${voteID}/${department}`, {
@@ -101,6 +127,7 @@ const BallotEditor = ({ voteID, department }: BallotEditor) => {
   };
   const toEdit = () => {
     setEdit(true);
+    setPropEdit(true);
     setBallot(expandBallotForEdit(ballot));
   };
 
@@ -135,17 +162,18 @@ const BallotEditor = ({ voteID, department }: BallotEditor) => {
     });
   }
   return (
-    <section className="bg-highlight-med p-4 mt-8 mb-8">
+    <section className="bg-overlay p-4 mt-8 mb-8 -ml-4 -mr-4 sm:ml-0 sm:mr-0">
       <p className="text-2xl font-bold font-serif leading-loose border-b-2 border-solid border-iris mb-4">
         投票
       </p>
-      <form className="grid grid-cols-vote gap-2">
-        <p className="leading-none text-muted">排名</p>
-        <p className="leading-none">作品名</p>
-        {items}
-      </form>
+      {loaded || <p className="text-muted mt-4 mb-4">加载中...</p>}
       {loaded && (
         <>
+          <form className="grid grid-cols-vote gap-2">
+            <p className="leading-none text-muted">排名</p>
+            <p className="leading-none">作品名</p>
+            {items}
+          </form>
           {edit && (
             <button
               key="add-line-btn"
@@ -159,14 +187,14 @@ const BallotEditor = ({ voteID, department }: BallotEditor) => {
             </button>
           )}
           <button
-            className="bg-subtle text-base block w-full text-center leading-7 mt-2"
+            className="bg-iris text-base block w-full text-center leading-7 mt-4"
             key="submit-btn"
             onClick={(e: FormEvent) => {
               e.preventDefault();
               edit ? submit() : toEdit();
             }}
           >
-            {edit ? '完成' : '编辑'}
+            {edit ? '确认' : '编辑'}
           </button>{' '}
           {errMessage && (
             <p key="err-message" className="text-love">

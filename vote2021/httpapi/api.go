@@ -27,6 +27,7 @@ func NewServer(svc *service.Service) *Server {
 	api.Use(middleware.Logger())
 	{
 		api.POST("/vote", srv.NewVote)
+		api.GET("/vote/:vote_id", srv.GetVote)
 		api.GET("/vote/:vote_id/:department", srv.GetBallot)
 		api.PUT("/vote/:vote_id/:department", srv.PutBallot)
 	}
@@ -57,9 +58,25 @@ func (s *Server) NewVote(c echo.Context) error {
 	}
 	res, err := s.Service.NewVote(c.Request().Context(), req.UserName)
 	if err != nil {
-		return err
+		if err == service.ErrEntityDuplicated {
+			return c.String(http.StatusBadRequest, "此用户已创建投票")
+		}
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, NewVoteRes{res.ID.String(), res.UserName})
+}
+
+func (s *Server) GetVote(c echo.Context) error {
+	voteIDStr := c.Param("vote_id")
+	voteID, err := uuid.FromString(voteIDStr)
+	if err != nil {
+		return c.String(http.StatusBadRequest, fmt.Sprintf("invalid vote_id: '%s'", voteIDStr))
+	}
+	vote, err := s.Service.GetVote(c.Request().Context(), voteID)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, NewVoteRes{vote.ID.String(), vote.UserName})
 }
 
 type GetBallotReq struct {

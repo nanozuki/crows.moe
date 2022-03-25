@@ -2,7 +2,7 @@ import {
   Ballot,
   compressBallotForSubmit,
   expandBallotForEdit,
-} from '../components/BallotEditor/store';
+} from '../components/BallotEditor/ballot';
 
 describe('expandBallotForEdit', () => {
   interface test {
@@ -13,105 +13,75 @@ describe('expandBallotForEdit', () => {
   const tests: test[] = [
     {
       name: 'one candi in range',
-      in: {
-        department: 1,
-        candidates: [{ ranking: 1, name: 'a' }],
-      },
-      out: {
-        department: 1,
-        candidates: [
-          { ranking: 1, name: 'a' },
-          { ranking: 2 },
-          { ranking: 3 },
-          { ranking: 4 },
-          { ranking: 5 },
-        ],
-      },
+      in: [{ ranking: 1, name: 'a' }],
+      out: [
+        { ranking: 1, name: 'a' },
+        { ranking: 2 },
+        { ranking: 3 },
+        { ranking: 4 },
+        { ranking: 5 },
+      ],
     },
     {
       name: 'two candi in range',
-      in: {
-        department: 1,
-        candidates: [
-          { ranking: 1, name: 'a' },
-          { ranking: 2, name: 'b' },
-        ],
-      },
-      out: {
-        department: 1,
-        candidates: [
-          { ranking: 1, name: 'a' },
-          { ranking: 2, name: 'b' },
-          { ranking: 3 },
-          { ranking: 4 },
-          { ranking: 5 },
-        ],
-      },
+      in: [
+        { ranking: 1, name: 'a' },
+        { ranking: 2, name: 'b' },
+      ],
+      out: [
+        { ranking: 1, name: 'a' },
+        { ranking: 2, name: 'b' },
+        { ranking: 3 },
+        { ranking: 4 },
+        { ranking: 5 },
+      ],
     },
     {
       name: 'three seprated candi in range',
-      in: {
-        department: 1,
-        candidates: [
-          { ranking: 1, name: 'a' },
-          { ranking: 2, name: 'b' },
-          { ranking: 5, name: 'c' },
-        ],
-      },
-      out: {
-        department: 1,
-        candidates: [
-          { ranking: 1, name: 'a' },
-          { ranking: 2, name: 'b' },
-          { ranking: 3 },
-          { ranking: 4 },
-          { ranking: 5, name: 'c' },
-        ],
-      },
+      in: [
+        { ranking: 1, name: 'a' },
+        { ranking: 2, name: 'b' },
+        { ranking: 5, name: 'c' },
+      ],
+      out: [
+        { ranking: 1, name: 'a' },
+        { ranking: 2, name: 'b' },
+        { ranking: 3 },
+        { ranking: 4 },
+        { ranking: 5, name: 'c' },
+      ],
     },
     {
       name: 'two candi not in range',
-      in: {
-        department: 1,
-        candidates: [
-          { ranking: 2, name: 'a' },
-          { ranking: 8, name: 'c' },
-        ],
-      },
-      out: {
-        department: 1,
-        candidates: [
-          { ranking: 1 },
-          { ranking: 2, name: 'a' },
-          { ranking: 3 },
-          { ranking: 4 },
-          { ranking: 5 },
-          { ranking: 8, name: 'c' },
-        ],
-      },
+      in: [
+        { ranking: 2, name: 'a' },
+        { ranking: 8, name: 'c' },
+      ],
+      out: [
+        { ranking: 1 },
+        { ranking: 2, name: 'a' },
+        { ranking: 3 },
+        { ranking: 4 },
+        { ranking: 5 },
+        { ranking: 8, name: 'c' },
+      ],
     },
     {
       name: 'three candi not in range',
-      in: {
-        department: 1,
-        candidates: [
-          { ranking: 2, name: 'a' },
-          { ranking: 8, name: 'b' },
-          { ranking: 10, name: 'c' },
-        ],
-      },
-      out: {
-        department: 1,
-        candidates: [
-          { ranking: 1 },
-          { ranking: 2, name: 'a' },
-          { ranking: 3 },
-          { ranking: 4 },
-          { ranking: 5 },
-          { ranking: 8, name: 'b' },
-          { ranking: 10, name: 'c' },
-        ],
-      },
+      in: [
+        { ranking: 2, name: 'a' },
+        { ranking: 8, name: 'b' },
+        { ranking: 10, name: 'c' },
+      ],
+      out: [
+        { ranking: 1 },
+        { ranking: 2, name: 'a' },
+        { ranking: 3 },
+        { ranking: 4 },
+        { ranking: 5 },
+        { ranking: 8, name: 'b' },
+        { ranking: 10, name: 'c' },
+      ],
     },
   ];
   tests.forEach((tt) => {
@@ -131,107 +101,77 @@ describe('compressBallotForSubmit', () => {
   const tests: test[] = [
     {
       name: 'one candi in range',
-      in: {
-        department: 1,
-        candidates: [
-          { ranking: 1, name: 'a' },
-          { ranking: 2 },
-          { ranking: 3 },
-          { ranking: 4 },
-          { ranking: 5 },
-        ],
-      },
-      out: {
-        department: 1,
-        candidates: [{ ranking: 1, name: 'a' }],
-      },
+      in: [
+        { ranking: 1, name: 'a' },
+        { ranking: 2 },
+        { ranking: 3 },
+        { ranking: 4 },
+        { ranking: 5 },
+      ],
+      out: [{ ranking: 1, name: 'a' }],
     },
     {
       name: 'two candi in range',
-      in: {
-        department: 1,
-        candidates: [
-          { ranking: 1 },
-          { ranking: 2, name: 'a' },
-          { ranking: 3, name: 'b' },
-          { ranking: 4 },
-          { ranking: 5 },
-        ],
-      },
-      out: {
-        department: 1,
-        candidates: [
-          { ranking: 2, name: 'a' },
-          { ranking: 3, name: 'b' },
-        ],
-      },
+      in: [
+        { ranking: 1 },
+        { ranking: 2, name: 'a' },
+        { ranking: 3, name: 'b' },
+        { ranking: 4 },
+        { ranking: 5 },
+      ],
+      out: [
+        { ranking: 2, name: 'a' },
+        { ranking: 3, name: 'b' },
+      ],
     },
     {
       name: 'three not orderd candi',
-      in: {
-        department: 1,
-        candidates: [
-          { ranking: 5, name: 'c' },
-          { ranking: 1, name: 'a' },
-          { ranking: 2, name: 'b' },
-          { ranking: 3 },
-          { ranking: 0, name: '' },
-          { name: 'd' },
-        ],
-      },
-      out: {
-        department: 1,
-        candidates: [
-          { ranking: 1, name: 'a' },
-          { ranking: 2, name: 'b' },
-          { ranking: 5, name: 'c' },
-          { ranking: 6, name: 'd' },
-        ],
-      },
+      in: [
+        { ranking: 5, name: 'c' },
+        { ranking: 1, name: 'a' },
+        { ranking: 2, name: 'b' },
+        { ranking: 3 },
+        { ranking: 0, name: '' },
+        { name: 'd' },
+      ],
+      out: [
+        { ranking: 1, name: 'a' },
+        { ranking: 2, name: 'b' },
+        { ranking: 5, name: 'c' },
+        { ranking: 6, name: 'd' },
+      ],
     },
     {
       name: 'two candi not in range',
-      in: {
-        department: 1,
-        candidates: [
-          { ranking: 1 },
-          { ranking: 8, name: 'c' },
-          { ranking: 2, name: 'a' },
-          { ranking: 3 },
-          { ranking: 5 },
-          { ranking: 4 },
-        ],
-      },
-      out: {
-        department: 1,
-        candidates: [
-          { ranking: 2, name: 'a' },
-          { ranking: 8, name: 'c' },
-        ],
-      },
+      in: [
+        { ranking: 1 },
+        { ranking: 8, name: 'c' },
+        { ranking: 2, name: 'a' },
+        { ranking: 3 },
+        { ranking: 5 },
+        { ranking: 4 },
+      ],
+      out: [
+        { ranking: 2, name: 'a' },
+        { ranking: 8, name: 'c' },
+      ],
     },
     {
       name: 'three candi not in range',
-      in: {
-        department: 1,
-        candidates: [
-          { ranking: 1 },
-          { ranking: 2, name: 'a' },
-          { ranking: 3 },
-          { ranking: 10, name: 'c' },
-          { ranking: 8, name: 'b' },
-          {},
-          { ranking: 5 },
-        ],
-      },
-      out: {
-        department: 1,
-        candidates: [
-          { ranking: 2, name: 'a' },
-          { ranking: 8, name: 'b' },
-          { ranking: 10, name: 'c' },
-        ],
-      },
+      in: [
+        { ranking: 1 },
+        { ranking: 2, name: 'a' },
+        { ranking: 3 },
+        { ranking: 10, name: 'c' },
+        { ranking: 8, name: 'b' },
+        {},
+        { ranking: 5 },
+      ],
+      out: [
+        { ranking: 2, name: 'a' },
+        { ranking: 8, name: 'b' },
+        { ranking: 10, name: 'c' },
+      ],
     },
   ];
   tests.forEach((tt) => {

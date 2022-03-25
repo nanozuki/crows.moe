@@ -13,7 +13,7 @@ type Ballot struct {
 	ID         uint `gorm:"primaryKey"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
-	VoteID     uuid.UUID `gorm:"type:char(36)"`
+	VoteID     uuid.UUID `gorm:"type:char(36);index"`
 	Department Department
 	Candidates Candidates `gorm:"type:json"`
 }

@@ -15,16 +15,24 @@ type Service struct {
 
 type Repo interface {
 	CreateVote(ctx context.Context, vote *entity.Vote) error
+	FindVote(ctx context.Context, id uuid.UUID) (*entity.Vote, error)
 	FindBallot(ctx context.Context, id uuid.UUID, d entity.Department) (*entity.Ballot, error)
 	SaveBallot(ctx context.Context, ballot *entity.Ballot) error
 }
 
-var ErrEntityNotFound = errors.New("entity not found")
+var (
+	ErrEntityNotFound   = errors.New("entity not found")
+	ErrEntityDuplicated = errors.New("entity duplicated")
+)
 
 func (s *Service) NewVote(ctx context.Context, userName string) (*entity.Vote, error) {
 	vote := entity.NewVote(userName)
 	err := s.Repo.CreateVote(ctx, &vote)
 	return &vote, err
+}
+
+func (s *Service) GetVote(ctx context.Context, id uuid.UUID) (*entity.Vote, error) {
+	return s.Repo.FindVote(ctx, id)
 }
 
 func (s *Service) GetBallot(ctx context.Context, voteID uuid.UUID, d entity.Department) (*entity.Ballot, error) {

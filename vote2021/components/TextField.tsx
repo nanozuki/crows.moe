@@ -21,11 +21,7 @@ export const TextField = (props: TextFieldProps) => {
       <label className="block text-subtle text-sm " {...labelProps}>
         {label}
       </label>
-      <input
-        className="block w-full p-1 mt-1 mb-1 rounded"
-        ref={ref}
-        {...inputProps}
-      />
+      <input className="block w-full p-1 mt-1 mb-1" ref={ref} {...inputProps} />
       {props.description && (
         <div className="text-muted text-xs" {...descriptionProps}>
           {props.description}
