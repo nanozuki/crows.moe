@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import { Container } from './Container';
 import Link from 'next/link';
 interface LayoutProps {
@@ -7,6 +8,13 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="min-h-screen w-full ">
+      <Head>
+        <title>{"2021年Programmers' Exodus媒体艺术祭投票"}</title>
+        <meta
+          property="og:title"
+          content="2021年Programmers' Exodus媒体艺术祭投票"
+        />
+      </Head>
       <header className="bg-love text-highlight-low font-serif pl-4 pr-4 pt-8 pb-4">
         <Link href="/">
           <a>

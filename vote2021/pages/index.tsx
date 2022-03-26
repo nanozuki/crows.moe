@@ -7,45 +7,33 @@ import { Layout } from '../components/Layout';
 
 const Home: NextPage = () => {
   const router = useRouter();
-  const toNewVote = (userID: string) => {
+  const toNewVote = async (userID: string) => {
     if ((userID || '') === '') {
       throw new Error('用户名不能为空');
     }
-    fetch('/api/vote', {
+    const res = await fetch('/api/vote', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_name: userID }),
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          return res.text().then((text) => {
-            throw new Error(text);
-          });
-        } else {
-          return res.json();
-        }
-      })
-      .then((data) => {
-        router.push(`/votes/${data.id}/0`);
-      });
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text);
+    }
+    const data = await res.json();
+    router.push(`/votes/${data.id}/0`);
   };
-  const viewVote = (voteID: string) => {
+  const viewVote = async (voteID: string) => {
     if ((voteID || '') === '') {
       throw new Error('Vote ID 不能为空');
     }
-    fetch(`/api/vote/${voteID}`)
-      .then(async (res) => {
-        if (!res.ok) {
-          return res.text().then((text) => {
-            throw new Error(text);
-          });
-        } else {
-          return res.json();
-        }
-      })
-      .then((_) => {
-        router.push(`/votes/${voteID}/0`);
-      });
+    const res = await fetch(`/api/vote/${voteID}`);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text);
+    }
+    await res.json();
+    router.push(`/votes/${voteID}/0`);
   };
 
   return (

@@ -1,5 +1,5 @@
 import { useTextField } from '@react-aria/textfield';
-import { FormEvent, useRef, useState, useEffect } from 'react';
+import { FormEvent, useRef, useState, useEffect, useCallback } from 'react';
 import {
   ballotAddLine,
   ballotSetName,
@@ -69,47 +69,42 @@ const BallotEditor = ({
   const [edit, setEdit] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [errMessage, setErrMessage] = useState('');
+  const updateEdit = useCallback(
+    (edit: boolean, ballot: Ballot): Ballot => {
+      setEdit(edit);
+      setPropEdit(edit);
+      let next: Ballot;
+      if (edit) {
+        next = expandBallotForEdit(ballot);
+      } else {
+        next = compressBallotForSubmit(ballot);
+      }
+      setBallot(next);
+      return next;
+    },
+    [setPropEdit]
+  );
   useEffect(() => {
-    fetch(`/api/vote/${voteID}/${department}`)
-      .then(async (res) => {
-        if (!res.ok) {
-          return res.text().then((text) => {
-            throw new Error(text);
-          });
-        } else {
-          return res.json();
-        }
-      })
-      .catch((error: Error) => {
-        alert(error.message);
-      })
-      .then((data: { candidates: Candidate[] }) => {
-        setLoaded(true);
-        if (data.candidates.length === 0) {
-          setEdit(true);
-          setPropEdit(true);
-          setBallot(expandBallotForEdit(data.candidates));
-        } else {
-          setEdit(false);
-          setPropEdit(false);
-          setBallot(compressBallotForSubmit(data.candidates));
-        }
-      });
+    (async function () {
+      const res = await fetch(`/api/vote/${voteID}/${department}`);
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text);
+      }
+      const data: { candidates: Candidate[] } = await res.json();
+      setLoaded(true);
+      updateEdit(data.candidates.length === 0, data.candidates);
+    })();
     return function cleanup() {
-      setBallot([]);
-      setEdit(false);
-      setPropEdit(false);
+      updateEdit(false, []);
       setLoaded(false);
       setErrMessage('');
     };
-  }, [department, setPropEdit, voteID]);
+  }, [department, updateEdit, voteID]);
 
-  const submit = () => {
-    setEdit(false);
-    setPropEdit(false);
-    const compressed = compressBallotForSubmit(ballot);
-    setBallot(compressed);
-    fetch(`/api/vote/${voteID}/${department}`, {
+  const submit = async () => {
+    const compressed = updateEdit(false, ballot);
+    const res = await fetch(`/api/vote/${voteID}/${department}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -117,18 +112,15 @@ const BallotEditor = ({
         department,
         candidates: compressed,
       }),
-    }).then((res) => {
-      if (!res.ok) {
-        setErrMessage('提交投票失败');
-      } else {
-        setErrMessage('');
-      }
     });
+    if (!res.ok) {
+      setErrMessage('提交投票失败');
+    } else {
+      setErrMessage('');
+    }
   };
   const toEdit = () => {
-    setEdit(true);
-    setPropEdit(true);
-    setBallot(expandBallotForEdit(ballot));
+    updateEdit(true, ballot);
   };
 
   let items: React.ReactNode[] = [];
@@ -170,8 +162,8 @@ const BallotEditor = ({
       {loaded && (
         <>
           <form className="grid grid-cols-vote gap-2">
-            <p className="leading-none text-muted">排名</p>
-            <p className="leading-none">作品名</p>
+            <p className="leading-none text-iris">排名</p>
+            <p className="leading-none text-iris">作品名</p>
             {items}
           </form>
           {edit && (

@@ -4,7 +4,7 @@ import { TextField } from './TextField';
 interface EntranceProps {
   title: string;
   label: string;
-  onSubmit: (value: string) => void;
+  onSubmit: (value: string) => Promise<void>;
 }
 
 const Entrance = (props: EntranceProps) => {
@@ -14,10 +14,10 @@ const Entrance = (props: EntranceProps) => {
     setErrMessage('');
     setValue(s);
   };
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     try {
-      props.onSubmit(value);
+      await props.onSubmit(value);
     } catch (e) {
       if (e instanceof Error) {
         setErrMessage(e.message);
