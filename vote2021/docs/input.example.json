@@ -1,0 +1,13 @@
+{
+  "ballots": [
+    {
+      "id": "string",
+      "works": [
+        {
+          "id": 100,
+          "ranking": 0
+        }
+      ]
+    }
+  ]
+}
