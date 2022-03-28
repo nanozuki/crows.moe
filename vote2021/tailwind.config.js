@@ -23,6 +23,10 @@ module.exports = {
         high: '#cecacd',
       },
     },
+    fontFamily: {
+      sans: ['source-han-sans-cjk-sc', 'sans-serif'],
+      serif: ['source-han-serif-sc', 'serif'],
+    },
     extend: {
       spacing: {
         em: '1em',

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -31,8 +32,10 @@ func NewServer(svc *service.Service) *Server {
 		api.GET("/vote/:vote_id/:department", srv.GetBallot)
 		api.PUT("/vote/:vote_id/:department", srv.PutBallot)
 	}
-	{ // reverse proxy frontend
-		feSrv, err := url.Parse("http://127.0.0.1:3000")
+
+	// reverse proxy frontend
+	if feSrvURL := os.Getenv("VOTE2021_DEV_SRV"); feSrvURL != "" {
+		feSrv, err := url.Parse(feSrvURL)
 		if err != nil {
 			log.Fatal(err)
 		}
