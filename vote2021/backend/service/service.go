@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/nanozuki/crows.moe/vote2021/entity"
+	"github.com/nanozuki/crows.moe/vote2021/backend/entity"
 	uuid "github.com/satori/go.uuid"
 )
 

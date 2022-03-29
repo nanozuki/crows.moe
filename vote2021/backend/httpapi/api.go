@@ -9,8 +9,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/nanozuki/crows.moe/vote2021/entity"
-	"github.com/nanozuki/crows.moe/vote2021/service"
+	"github.com/nanozuki/crows.moe/vote2021/backend/entity"
+	"github.com/nanozuki/crows.moe/vote2021/backend/service"
 	uuid "github.com/satori/go.uuid"
 )
 

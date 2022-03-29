@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/nanozuki/crows.moe/vote2021/httpapi"
-	"github.com/nanozuki/crows.moe/vote2021/repo"
-	"github.com/nanozuki/crows.moe/vote2021/service"
+	"github.com/nanozuki/crows.moe/vote2021/backend/httpapi"
+	"github.com/nanozuki/crows.moe/vote2021/backend/repo"
+	"github.com/nanozuki/crows.moe/vote2021/backend/service"
 )
 
 func must[T any](result T, err error) T {

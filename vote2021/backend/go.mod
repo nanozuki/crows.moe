@@ -1,4 +1,4 @@
-module github.com/nanozuki/crows.moe/vote2021
+module github.com/nanozuki/crows.moe/vote2021/backend
 
 go 1.18
 
