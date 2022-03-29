@@ -17,7 +17,10 @@ type Repo interface {
 	CreateVote(ctx context.Context, vote *entity.Vote) error
 	FindVote(ctx context.Context, id uuid.UUID) (*entity.Vote, error)
 	FindBallot(ctx context.Context, id uuid.UUID, d entity.Department) (*entity.Ballot, error)
+	FindBallots(ctx context.Context, dp entity.Department) ([]*entity.Ballot, error)
 	SaveBallot(ctx context.Context, ballot *entity.Ballot) error
+	FindWorks(ctx context.Context, dp entity.Department) ([]*entity.Work, error)
+	EnsureWork(ctx context.Context, dp entity.Department, name string) (*entity.Work, error)
 }
 
 var (
