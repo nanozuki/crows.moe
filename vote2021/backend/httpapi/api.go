@@ -27,10 +27,10 @@ func NewServer(svc *service.Service) *Server {
 	api := srv.Echo.Group("/api")
 	api.Use(middleware.Logger())
 	{
-		api.POST("/vote", srv.NewVote)
+		// api.POST("/vote", srv.NewVote)
 		api.GET("/vote/:vote_id", srv.GetVote)
 		api.GET("/vote/:vote_id/:department", srv.GetBallot)
-		api.PUT("/vote/:vote_id/:department", srv.PutBallot)
+		// api.PUT("/vote/:vote_id/:department", srv.PutBallot)
 	}
 
 	// reverse proxy frontend

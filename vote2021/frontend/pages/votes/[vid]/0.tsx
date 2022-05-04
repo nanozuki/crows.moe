@@ -38,7 +38,7 @@ const VoteStart: NextPage = () => {
             <Paragraph>您本次的投票ID为:</Paragraph>
             <Quote>{vid}</Quote>
             <Paragraph>
-              请记住此ID或者直接保存本页链接，用以查看或者修改自己的投票。
+              请记住此ID或者直接保存本页链接，用以查看自己的投票。
             </Paragraph>
             <button
               className="w-full sm:max-w-xs block bg-subtle text-base pt-1 pb-1 pl-4 pr-4 mt-2 mb-2"

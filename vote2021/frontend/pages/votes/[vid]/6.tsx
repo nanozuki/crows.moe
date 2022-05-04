@@ -20,7 +20,7 @@ const VoteEnd: NextPage = () => {
             <Paragraph>投票完成！谢谢您的参与！</Paragraph>
             <Paragraph>您本次的投票ID为:</Paragraph>
             <Quote>{vid}</Quote>
-            <Paragraph>请记住此ID用以查看或者修改自己的投票。</Paragraph>
+            <Paragraph>请记住此ID用以查看自己的投票。</Paragraph>
           </article>
         </Container>
       </main>

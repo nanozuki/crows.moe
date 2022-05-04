@@ -81,7 +81,6 @@ const departments: Record<number, Department> = {
 
 const VoteDepartment: NextPage = () => {
   const router = useRouter();
-  const [edit, setEdit] = useState(false);
   const { vid, dp } = router.query;
   if (typeof vid !== 'string' || typeof dp !== 'string') {
     return null;
@@ -108,16 +107,13 @@ const VoteDepartment: NextPage = () => {
           <BallotEditor
             voteID={voteID}
             department={department}
-            setEdit={setEdit}
           />
-          {edit || (
             <button
               className="w-full block bg-subtle text-base pt-1 pb-1 pl-4 pr-4 mt-2 mb-2"
               onClick={toNext}
             >
               <p>下一步</p>
             </button>
-          )}
         </Container>
       </main>
     </Layout>

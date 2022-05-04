@@ -7,7 +7,7 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   return (
-    <div className="min-h-screen w-full ">
+    <div className="min-h-screen w-full text-text">
       <Head>
         <title>{"2021年Programmers' Exodus媒体艺术祭投票"}</title>
         <meta
@@ -22,7 +22,7 @@ const Layout = ({ children }: LayoutProps) => {
               <p>2021年</p>
               <p>{"Programmers' Exodus"}</p>
               <p className="text-3xl font-bold">
-                媒体艺术祭 <small>投票</small>
+                媒体艺术祭 <small>结果发表</small>
               </p>
             </Container>
           </a>

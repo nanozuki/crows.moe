@@ -33,6 +33,7 @@ module.exports = {
       },
       gridTemplateColumns: {
         vote: '4rem minmax(4rem, 1fr)',
+        result: '1rem minmax(1rem, 1fr)',
       },
       borderWidth: {
         1: '1px',
