@@ -26,7 +26,22 @@ func NewBallot(voteID uuid.UUID, d Department) *Ballot {
 	}
 }
 
-type Department uint8
+func (b *Ballot) NeedVerification() []*Verification {
+	var vs []*Verification
+	for _, c := range b.Candidates {
+		if c.ID == 0 {
+			vs = append(vs, &Verification{
+				Name: c.Name,
+				Verfify: func(work Work) {
+					c.ID = work.ID
+				},
+			})
+		}
+	}
+	return vs
+}
+
+type Department uint
 
 const (
 	_          Department = iota
@@ -37,8 +52,29 @@ const (
 	Novel                 // 5
 )
 
+func AllDepartment() []Department {
+	return []Department{TVAnime, NonTVAnime, Manga, Game, Novel}
+}
+
+func (d Department) String() string {
+	switch d {
+	case TVAnime:
+		return "TVAnime"
+	case NonTVAnime:
+		return "NonTVAnime"
+	case Manga:
+		return "Manga"
+	case Game:
+		return "Game"
+	case Novel:
+		return "Novel"
+	default:
+		return "unknown"
+	}
+}
+
 func (d Department) IsValid() bool {
-	return d <= Novel
+	return d >= TVAnime && d <= Novel
 }
 
 type Candidates []Candidate
@@ -63,5 +99,10 @@ func (c Candidates) Value() (driver.Value, error) {
 type Candidate struct {
 	Name    string `json:"name"`
 	Ranking uint   `json:"ranking"`
-	ID      int    `json:"id"`
+	ID      uint   `json:"id"`
+}
+
+type Verification struct {
+	Name    string
+	Verfify func(work Work)
 }
