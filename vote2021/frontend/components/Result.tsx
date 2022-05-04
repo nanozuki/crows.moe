@@ -68,15 +68,18 @@ const Details = () => {
       <h1 className="text-xl font-serif text-love">详情</h1>
       {Object.keys(result).map((dp) => {
         return (
-          <div className="mb-4 mt-4">
+          <div key={dp} className="mb-4 mt-4">
             <p className="text-iris mb-2">{dp}</p>
             {result[dp].map((works, index) => {
               return (
-                <div className="grid grid-cols-result gap-2">
+                <div
+                  key={`{rankings-of-${dp}}`}
+                  className="grid grid-cols-result gap-2"
+                >
                   <p className="font-serif">{index + 1}</p>
                   <div>
                     {works.map((work) => (
-                      <p>{work}</p>
+                      <p key={work}>{work}</p>
                     ))}
                   </div>
                 </div>
