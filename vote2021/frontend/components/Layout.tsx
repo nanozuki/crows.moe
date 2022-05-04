@@ -22,7 +22,7 @@ const Layout = ({ children }: LayoutProps) => {
               <p>2021年</p>
               <p>{"Programmers' Exodus"}</p>
               <p className="text-3xl font-bold">
-                媒体艺术祭 <small>投票</small>
+                媒体艺术祭 <small>结果发表</small>
               </p>
             </Container>
           </a>
