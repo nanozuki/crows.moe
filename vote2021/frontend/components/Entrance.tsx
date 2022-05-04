@@ -25,8 +25,8 @@ const Entrance = (props: EntranceProps) => {
     }
   };
   return (
-    <form className="mt-8 mb-8" onSubmit={handleSubmit}>
-      <h1 className="text-xl font-serif">{props.title}</h1>
+    <form className="mt-16 mb-16" onSubmit={handleSubmit}>
+      <h1 className="text-xl font-serif mt-4 mb-4 text-love">{props.title}</h1>
       <TextField
         className="w-full sm:w-1/2"
         label={props.label}
