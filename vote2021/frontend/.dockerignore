@@ -1,3 +1,8 @@
-.next/*
-__test__/*
-node_modules/*
+Dockerfile
+.dockerignore
+node_modules
+__test__
+npm-debug.log
+README.md
+.next
+.git
