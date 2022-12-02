@@ -4,16 +4,14 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/val"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 type Ballot struct {
-	ID         uint `gorm:"primaryKey"`
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	gorm.Model
 	VoteID     uuid.UUID `gorm:"type:char(36);index"`
 	Department val.Department
 	Candidates Candidates `gorm:"type:json"`
