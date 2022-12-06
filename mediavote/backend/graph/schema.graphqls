@@ -1,0 +1,89 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  voter(id: ID!): Voter
+  nominations(voterID: ID, department: Department): [Nomination]!
+  works(department: Department): [Work]
+  ballots: [Ballot] # only query ballots of current voter
+  ranking(department: Department!): Ranking
+  rankings: [Ranking]
+}
+
+type Mutation {
+  newVoter(name: String!): VoterOutput
+  loginVoter(name: String!, pin: String!): Voter
+
+  newNomination(department: Department!, workName: String!): Nomination
+  deleteNomination(id: ID!): Boolean
+
+  newWork(department: Department!, workName: String!): Work # for admin
+  workAddAlias(id: ID!, alias: [String!]): Work
+
+  postBallot(input: BallotInput): Ballot
+}
+
+type Voter {
+  id: ID!
+  name: String!
+}
+
+type VoterOutput {
+  voter: Voter!
+  pin: String!
+}
+
+type Nomination {
+  id: ID!
+  voterID: ID!
+  department: Department!
+  workName: String!
+  workID: ID
+  work: Work
+}
+
+type Work {
+  id: ID!
+  department: Department!
+  workName: String!
+  alias: [String!]
+}
+
+input BallotInput {
+  id: ID!
+  department: Department!
+  candidates: [WorkRankingInput!]!
+}
+
+type Ballot {
+  id: ID!
+  voterID: ID!
+  department: Department!
+  candidates: [WorkRanking!]!
+}
+
+input WorkRankingInput {
+  Ranking: Int!
+  WorkID: ID!
+}
+
+type WorkRanking {
+  Ranking: Int!
+  WorkID: ID!
+  Work: Work!
+}
+
+type Ranking {
+  department: Department!
+  rankings: [WorkRanking!]!
+}
+
+enum Department {
+  TVAnime
+  NonTVAnime
+  Manga
+  Game
+  Novel
+}
