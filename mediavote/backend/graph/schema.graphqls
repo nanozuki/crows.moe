@@ -47,7 +47,8 @@ type Nomination {
 type Work {
   id: ID!
   department: Department!
-  workName: String!
+  nameCN: String!
+  nameOrigin: String!
   alias: [String!]
 }
 

@@ -4,17 +4,13 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
-
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/val"
-	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
 )
 
 type Ballot struct {
-	gorm.Model
-	VoteID     uuid.UUID `gorm:"type:char(36);index"`
-	Department val.Department
-	Candidates Candidates `gorm:"type:json"`
+	ID         uint           `json:"id"`
+	VoterID    uint           `json:"voterID"`
+	Department Department     `json:"department"`
+	Candidates []*WorkRanking `json:"candidates"`
 }
 
 type Candidate struct {

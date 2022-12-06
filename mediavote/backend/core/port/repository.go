@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/val"
 )
 
 type EntityRepository[ID, Entity, EntityQuery, EntityUpdate any] interface {
@@ -21,7 +20,7 @@ type Repository interface {
 }
 
 type NominationQuery struct {
-	Department val.Department
+	Department entity.Department
 	VoterID    uint
 }
 
@@ -31,7 +30,7 @@ type NominationUpdate struct {
 }
 
 type WorkQuery struct {
-	Department val.Department
+	Department entity.Department
 }
 
 type WorkUpdate struct {

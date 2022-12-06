@@ -3,14 +3,12 @@ package entity
 import (
 	"fmt"
 	"math/rand"
-
-	"gorm.io/gorm"
 )
 
 type Voter struct {
-	gorm.Model
-	PinCode string
-	Name    string
+	ID      uint   `json:"id"`
+	Name    string `json:"name"`
+	PinCode string `json:"-"`
 }
 
 func NewVoter(name string) Voter {
