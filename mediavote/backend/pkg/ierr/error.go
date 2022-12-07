@@ -11,6 +11,7 @@ type Error struct {
 	Code    string
 	Fields  F
 	Message string
+	Origin  error
 }
 
 func (e *Error) Error() string {
@@ -25,6 +26,12 @@ func (e *Error) Error() string {
 		return e.Code
 	}
 	return fmt.Sprintf("%s: %s", e.Code, fs)
+}
+
+// From origin error
+func (e *Error) From(err error) *Error {
+	e.Origin = err
+	return e
 }
 
 func Is(err error, target *Error) bool {

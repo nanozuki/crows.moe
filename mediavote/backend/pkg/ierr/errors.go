@@ -3,6 +3,7 @@ package ierr
 import "fmt"
 
 const (
+	CodeInternalServerError = "InternalServerError"
 	CodeForamtError         = "FormatError"
 	CodeRequiredFieldMissed = "RequiredFieldMissed"
 	CodeRequiredEnvMissed   = "RequiredEnvMissed"
@@ -13,10 +14,18 @@ const (
 	CodeNotFound            = "NotFound"
 )
 
+func InternalServerError(err error) *Error {
+	return &Error{
+		Code:    CodeInternalServerError,
+		Message: err.Error(),
+		Origin:  err,
+	}
+}
+
 func FormatError(object string, value any) *Error {
 	return &Error{
 		Code:    CodeForamtError,
-		Fields:  map[string]string{"object": object, "value": fmt.Sprint(value)},
+		Fields:  F{"object": object, "value": fmt.Sprint(value)},
 		Message: fmt.Sprintf("invalid %s: '%s'", object, fmt.Sprint(value)),
 	}
 }
@@ -24,7 +33,7 @@ func FormatError(object string, value any) *Error {
 func RequiredFieldMissed(field string) *Error {
 	return &Error{
 		Code:    CodeRequiredFieldMissed,
-		Fields:  map[string]string{"field": field},
+		Fields:  F{"field": field},
 		Message: fmt.Sprintf("%s is empty", field),
 	}
 }
@@ -32,7 +41,7 @@ func RequiredFieldMissed(field string) *Error {
 func RequiredEnvMissed(env string) *Error {
 	return &Error{
 		Code:    CodeRequiredFieldMissed,
-		Fields:  map[string]string{"env": env},
+		Fields:  F{"env": env},
 		Message: fmt.Sprintf("env %s is empty", env),
 	}
 }
@@ -51,14 +60,14 @@ const (
 func Forbidden(reason Reason) *Error {
 	return &Error{
 		Code:    CodeForbidden,
-		Fields:  map[string]string{"reason": string(reason)},
+		Fields:  F{"reason": string(reason)},
 		Message: string(reason),
 	}
 }
 func AlreadyLoggedIn(name string) *Error {
 	return &Error{
 		Code:    CodeForbidden,
-		Fields:  map[string]string{"name": name},
+		Fields:  F{"name": name},
 		Message: fmt.Sprintf("already logged in as '%s'", name),
 	}
 }
@@ -66,7 +75,7 @@ func AlreadyLoggedIn(name string) *Error {
 func NameOrPinError(name, pin string) *Error {
 	return &Error{
 		Code:    CodeNameOrPinError,
-		Fields:  map[string]string{"name": name, "pin": pin},
+		Fields:  F{"name": name, "pin": pin},
 		Message: "name or pin is not correct",
 	}
 }

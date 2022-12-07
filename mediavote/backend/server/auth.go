@@ -10,7 +10,7 @@ import (
 
 const (
 	SessionCookieName = "sessionid"
-	ApiKeyHeader      = "X-API-KEY"
+	APIKeyHeader      = "X-API-KEY"
 )
 
 func newCookie(session *entity.Session) *http.Cookie {
@@ -27,7 +27,7 @@ func newCookie(session *entity.Session) *http.Cookie {
 func (s *Server) loadCtxUser(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var ctxUser *entity.CtxUser
-		if key := c.Request().Header.Get(ApiKeyHeader); key == env.AdminKey {
+		if key := c.Request().Header.Get(APIKeyHeader); key == env.AdminKey {
 			ctxUser = &entity.CtxUser{IsAdmin: true}
 		} else {
 			ctxUser = s.getCtxUserByCookie(c)
