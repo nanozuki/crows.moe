@@ -19,9 +19,10 @@ type Ranking struct {
 	Rankings   []*WorkRanking `json:"rankings"`
 }
 
-type VoterOutput struct {
-	Voter *Voter `json:"voter"`
-	Pin   string `json:"pin"`
+type WorkInput struct {
+	Department Department `json:"department"`
+	NameCn     string     `json:"nameCN"`
+	NameOrigin string     `json:"nameOrigin"`
 }
 
 type WorkRanking struct {

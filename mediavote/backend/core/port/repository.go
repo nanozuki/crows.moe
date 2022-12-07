@@ -2,6 +2,7 @@ package port
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
@@ -12,11 +13,13 @@ type EntityRepository[ID, Entity, EntityQuery, EntityUpdate any] interface {
 	GetByID(ctx context.Context, id ID) (*Entity, error)
 	Search(ctx context.Context, query *EntityQuery) ([]*Entity, error)
 	Create(ctx context.Context, nomi *Entity) error
-	Update(ctx context.Context, id uint, update *EntityUpdate) error
+	UpdateOne(ctx context.Context, id uint, update *EntityUpdate) error
+	UpdateMany(ctx context.Context, query *EntityQuery, update *EntityUpdate) error
 	Delete(ctx context.Context, id uint) error
 }
 
 type Repository interface {
+	WithTx(ctx context.Context, fn func(context.Context) error, opts ...*sql.TxOptions) error
 	Nomination() EntityRepository[uint, entity.Nomination, NominationQuery, NominationUpdate]
 	Session() EntityRepository[uuid.UUID, entity.Session, SessionQuery, SessionUpdate]
 	Voter() EntityRepository[uint, entity.Voter, VoterQuery, VoterUpdate]
@@ -26,6 +29,7 @@ type Repository interface {
 type NominationQuery struct {
 	Department entity.Department
 	VoterID    uint
+	WorkNames  []string
 }
 
 type NominationUpdate struct {
@@ -51,4 +55,5 @@ type WorkQuery struct {
 type WorkUpdate struct {
 	NameCN     string
 	NameOrigin string
+	Alias      []string
 }

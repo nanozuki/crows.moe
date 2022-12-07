@@ -1,9 +1,6 @@
 package gql
 
 import (
-	"context"
-	"fmt"
-
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/port"
 )
 
@@ -13,10 +10,6 @@ import (
 
 type Resolver struct {
 	Repository port.Repository
-}
-
-func getVoterID(ctx context.Context) (uint, error) {
-	panic(fmt.Errorf("not implemented: getVoterID"))
 }
 
 func unwrapPtr[T any](pt *T) T {

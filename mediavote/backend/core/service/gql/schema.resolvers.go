@@ -16,10 +16,7 @@ import (
 
 // NewNomination is the resolver for the newNomination field.
 func (r *mutationResolver) NewNomination(ctx context.Context, department entity.Department, workName string) (*entity.Nomination, error) {
-	voterID, err := getVoterID(ctx)
-	if err != nil {
-		return nil, err
-	}
+	voterID := entity.CtxUserFromContext(ctx).VoterID
 	nomi, err := entity.NewNomination(voterID, department, workName)
 	if err != nil {
 		return nil, err
@@ -32,10 +29,7 @@ func (r *mutationResolver) NewNomination(ctx context.Context, department entity.
 
 // DeleteNomination is the resolver for the deleteNomination field.
 func (r *mutationResolver) DeleteNomination(ctx context.Context, id uint) (*bool, error) {
-	voterID, err := getVoterID(ctx)
-	if err != nil {
-		return nil, err
-	}
+	voterID := entity.CtxUserFromContext(ctx).VoterID
 	nomi, err := r.Repository.Nomination().GetByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -48,17 +42,40 @@ func (r *mutationResolver) DeleteNomination(ctx context.Context, id uint) (*bool
 }
 
 // NewWork is the resolver for the newWork field.
-func (r *mutationResolver) NewWork(ctx context.Context, department entity.Department, workName string) (*entity.Work, error) {
-	panic(fmt.Errorf("not implemented: NewWork - newWork"))
+func (r *mutationResolver) NewWork(ctx context.Context, input entity.WorkInput) (*entity.Work, error) {
+	work, err := entity.NewWork(input)
+	if err != nil {
+		return nil, err
+	}
+	if err := r.Repository.Work().Create(ctx, work); err != nil {
+		return nil, err
+	}
+	return work, nil
 }
 
 // WorkAddAlias is the resolver for the workAddAlias field.
 func (r *mutationResolver) WorkAddAlias(ctx context.Context, id uint, alias []string) (*entity.Work, error) {
-	panic(fmt.Errorf("not implemented: WorkAddAlias - workAddAlias"))
+	work, err := r.Repository.Work().GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	work.AddAlias(alias)
+	err = r.Repository.WithTx(ctx, func(ctx context.Context) error {
+		if err := r.Repository.Work().UpdateOne(ctx, id, &port.WorkUpdate{Alias: work.Alias}); err != nil {
+			return err
+		}
+		query := &port.NominationQuery{Department: work.Department, WorkNames: alias}
+		update := &port.NominationUpdate{WorkID: id}
+		if err := r.Repository.Nomination().UpdateMany(ctx, query, update); err != nil {
+			return err
+		}
+		return nil
+	})
+	return work, nil
 }
 
 // PostBallot is the resolver for the postBallot field.
-func (r *mutationResolver) PostBallot(ctx context.Context, input *entity.BallotInput) (*entity.Ballot, error) {
+func (r *mutationResolver) PostBallot(ctx context.Context, input entity.BallotInput) (*entity.Ballot, error) {
 	panic(fmt.Errorf("not implemented: PostBallot - postBallot"))
 }
 
@@ -71,26 +88,20 @@ func (r *nominationResolver) Work(ctx context.Context, obj *entity.Nomination) (
 }
 
 // Voter is the resolver for the voter field.
-func (r *queryResolver) Voter(ctx context.Context, id uint) (*entity.Voter, error) {
+func (r *queryResolver) Voter(ctx context.Context) (*entity.Voter, error) {
 	panic(fmt.Errorf("not implemented: Voter - voter"))
 }
 
 // Nominations is the resolver for the nominations field.
-func (r *queryResolver) Nominations(ctx context.Context, voterID *uint, department *entity.Department) ([]*entity.Nomination, error) {
+func (r *queryResolver) Nominations(ctx context.Context, department *entity.Department) ([]*entity.Nomination, error) {
 	return r.Repository.Nomination().Search(ctx, &port.NominationQuery{
-		VoterID:    unwrapPtr(voterID),
 		Department: unwrapPtr(department),
 	})
 }
 
 // Works is the resolver for the works field.
 func (r *queryResolver) Works(ctx context.Context, department *entity.Department) ([]*entity.Work, error) {
-	panic(fmt.Errorf("not implemented: Works - works"))
-}
-
-// Ballots is the resolver for the ballots field.
-func (r *queryResolver) Ballots(ctx context.Context) ([]*entity.Ballot, error) {
-	panic(fmt.Errorf("not implemented: Ballots - ballots"))
+	return r.Repository.Work().Search(ctx, &port.WorkQuery{Department: unwrapPtr(department)})
 }
 
 // Ranking is the resolver for the ranking field.
@@ -103,6 +114,19 @@ func (r *queryResolver) Rankings(ctx context.Context) ([]*entity.Ranking, error)
 	panic(fmt.Errorf("not implemented: Rankings - rankings"))
 }
 
+// Ballot is the resolver for the ballot field.
+func (r *voterResolver) Ballot(ctx context.Context, obj *entity.Voter, department entity.Department) (*entity.Ballot, error) {
+	panic(fmt.Errorf("not implemented: Ballot - ballot"))
+}
+
+// Nominations is the resolver for the nominations field.
+func (r *voterResolver) Nominations(ctx context.Context, obj *entity.Voter, department entity.Department) ([]*entity.Nomination, error) {
+	return r.Repository.Nomination().Search(ctx, &port.NominationQuery{
+		VoterID:    obj.ID,
+		Department: department,
+	})
+}
+
 // Mutation returns graph.MutationResolver implementation.
 func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
 
@@ -112,19 +136,10 @@ func (r *Resolver) Nomination() graph.NominationResolver { return &nominationRes
 // Query returns graph.QueryResolver implementation.
 func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 
+// Voter returns graph.VoterResolver implementation.
+func (r *Resolver) Voter() graph.VoterResolver { return &voterResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type nominationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *mutationResolver) NewVoter(ctx context.Context, name string) (*entity.VoterOutput, error) {
-	panic(fmt.Errorf("not implemented: NewVoter - newVoter"))
-}
-func (r *mutationResolver) LoginVoter(ctx context.Context, name string, pin string) (*entity.Voter, error) {
-	panic(fmt.Errorf("not implemented: LoginVoter - loginVoter"))
-}
+type voterResolver struct{ *Resolver }

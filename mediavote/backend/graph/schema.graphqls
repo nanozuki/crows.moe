@@ -3,35 +3,32 @@ schema {
   mutation: Mutation
 }
 
+directive @isAdmin on FIELD_DEFINITION
+directive @hasAuth on FIELD_DEFINITION
+
 type Query {
-  voter(id: ID!): Voter
-  nominations(voterID: ID, department: Department): [Nomination]!
-  works(department: Department): [Work]
-  ballots: [Ballot] # only query ballots of current voter
+  voter: Voter @hasAuth
+  nominations(department: Department): [Nomination!]
+  works(department: Department): [Work!]
   ranking(department: Department!): Ranking
-  rankings: [Ranking]
+  rankings: [Ranking!]
 }
 
-directive @isAdmin on FIELD_DEFINITION
-
 type Mutation {
-  newNomination(department: Department!, workName: String!): Nomination
-  deleteNomination(id: ID!): Boolean
+  newNomination(department: Department!, workName: String!): Nomination @hasAuth
+  deleteNomination(id: ID!): Boolean @hasAuth
 
-  newWork(department: Department!, workName: String!): Work @isAdmin
+  newWork(input: WorkInput!): Work @isAdmin
   workAddAlias(id: ID!, alias: [String!]): Work @isAdmin
 
-  postBallot(input: BallotInput): Ballot
+  postBallot(input: BallotInput!): Ballot @hasAuth
 }
 
 type Voter {
   id: ID!
   name: String!
-}
-
-type VoterOutput {
-  voter: Voter!
-  pin: String!
+  ballot(department: Department!): Ballot
+  nominations(department: Department!): [Nomination!]
 }
 
 type Nomination {
@@ -41,6 +38,12 @@ type Nomination {
   workName: String!
   workID: ID
   work: Work
+}
+
+input WorkInput {
+  department: Department!
+  nameCN: String!
+  nameOrigin: String!
 }
 
 type Work {
@@ -72,12 +75,12 @@ input WorkRankingInput {
 type WorkRanking {
   Ranking: Int!
   WorkID: ID!
-  Work: Work!
+  Work: Work
 }
 
 type Ranking {
   department: Department!
-  rankings: [WorkRanking!]!
+  rankings: [WorkRanking!]
 }
 
 enum Department {
