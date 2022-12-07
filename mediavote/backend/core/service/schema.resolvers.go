@@ -9,7 +9,9 @@ import (
 	"fmt"
 
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
+	"github.com/nanozuki/crows.moe/mediavote/backend/core/port"
 	"github.com/nanozuki/crows.moe/mediavote/backend/graph"
+	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/errors"
 )
 
 // NewVoter is the resolver for the newVoter field.
@@ -24,12 +26,35 @@ func (r *mutationResolver) LoginVoter(ctx context.Context, name string, pin stri
 
 // NewNomination is the resolver for the newNomination field.
 func (r *mutationResolver) NewNomination(ctx context.Context, department entity.Department, workName string) (*entity.Nomination, error) {
-	panic(fmt.Errorf("not implemented: NewNomination - newNomination"))
+	voterID, err := getVoterID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	nomi, err := entity.NewNomination(voterID, department, workName)
+	if err != nil {
+		return nil, err
+	}
+	if err := r.Repository.Nomination().Create(ctx, nomi); err != nil {
+		return nil, err
+	}
+	return nomi, nil
 }
 
 // DeleteNomination is the resolver for the deleteNomination field.
 func (r *mutationResolver) DeleteNomination(ctx context.Context, id uint) (*bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteNomination - deleteNomination"))
+	voterID, err := getVoterID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	nomi, err := r.Repository.Nomination().GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if nomi.VoterID != voterID {
+		return nil, errors.Forbidden(errors.NotYourData)
+	}
+	err = r.Repository.Nomination().Delete(ctx, id)
+	return toPtr(err == nil), err
 }
 
 // NewWork is the resolver for the newWork field.
@@ -49,7 +74,10 @@ func (r *mutationResolver) PostBallot(ctx context.Context, input *entity.BallotI
 
 // Work is the resolver for the work field.
 func (r *nominationResolver) Work(ctx context.Context, obj *entity.Nomination) (*entity.Work, error) {
-	panic(fmt.Errorf("not implemented: Work - work"))
+	if obj.WorkID == nil {
+		return nil, nil
+	}
+	return r.Repository.Work().GetByID(ctx, unwrapPtr(obj.WorkID))
 }
 
 // Voter is the resolver for the voter field.
@@ -59,7 +87,10 @@ func (r *queryResolver) Voter(ctx context.Context, id uint) (*entity.Voter, erro
 
 // Nominations is the resolver for the nominations field.
 func (r *queryResolver) Nominations(ctx context.Context, voterID *uint, department *entity.Department) ([]*entity.Nomination, error) {
-	panic(fmt.Errorf("not implemented: Nominations - nominations"))
+	return r.Repository.Nomination().Search(ctx, &port.NominationQuery{
+		VoterID:    unwrapPtr(voterID),
+		Department: unwrapPtr(department),
+	})
 }
 
 // Works is the resolver for the works field.
