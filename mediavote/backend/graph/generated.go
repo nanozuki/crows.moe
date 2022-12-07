@@ -43,6 +43,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	IsAdmin func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -55,9 +56,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		DeleteNomination func(childComplexity int, id uint) int
-		LoginVoter       func(childComplexity int, name string, pin string) int
 		NewNomination    func(childComplexity int, department entity.Department, workName string) int
-		NewVoter         func(childComplexity int, name string) int
 		NewWork          func(childComplexity int, department entity.Department, workName string) int
 		PostBallot       func(childComplexity int, input *entity.BallotInput) int
 		WorkAddAlias     func(childComplexity int, id uint, alias []string) int
@@ -112,8 +111,6 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	NewVoter(ctx context.Context, name string) (*entity.VoterOutput, error)
-	LoginVoter(ctx context.Context, name string, pin string) (*entity.Voter, error)
 	NewNomination(ctx context.Context, department entity.Department, workName string) (*entity.Nomination, error)
 	DeleteNomination(ctx context.Context, id uint) (*bool, error)
 	NewWork(ctx context.Context, department entity.Department, workName string) (*entity.Work, error)
@@ -187,18 +184,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteNomination(childComplexity, args["id"].(uint)), true
 
-	case "Mutation.loginVoter":
-		if e.complexity.Mutation.LoginVoter == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_loginVoter_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.LoginVoter(childComplexity, args["name"].(string), args["pin"].(string)), true
-
 	case "Mutation.newNomination":
 		if e.complexity.Mutation.NewNomination == nil {
 			break
@@ -210,18 +195,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.NewNomination(childComplexity, args["department"].(entity.Department), args["workName"].(string)), true
-
-	case "Mutation.newVoter":
-		if e.complexity.Mutation.NewVoter == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_newVoter_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.NewVoter(childComplexity, args["name"].(string)), true
 
 	case "Mutation.newWork":
 		if e.complexity.Mutation.NewWork == nil {
@@ -565,30 +538,6 @@ func (ec *executionContext) field_Mutation_deleteNomination_args(ctx context.Con
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_loginVoter_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["name"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["pin"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pin"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["pin"] = arg1
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_newNomination_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -610,21 +559,6 @@ func (ec *executionContext) field_Mutation_newNomination_args(ctx context.Contex
 		}
 	}
 	args["workName"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_newVoter_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["name"] = arg0
 	return args, nil
 }
 
@@ -997,122 +931,6 @@ func (ec *executionContext) fieldContext_Ballot_candidates(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_newVoter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_newVoter(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().NewVoter(rctx, fc.Args["name"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*entity.VoterOutput)
-	fc.Result = res
-	return ec.marshalOVoterOutput2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐVoterOutput(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_newVoter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "voter":
-				return ec.fieldContext_VoterOutput_voter(ctx, field)
-			case "pin":
-				return ec.fieldContext_VoterOutput_pin(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type VoterOutput", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_newVoter_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_loginVoter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_loginVoter(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().LoginVoter(rctx, fc.Args["name"].(string), fc.Args["pin"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*entity.Voter)
-	fc.Result = res
-	return ec.marshalOVoter2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐVoter(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_loginVoter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Voter_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Voter_name(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Voter", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_loginVoter_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_newNomination(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_newNomination(ctx, field)
 	if err != nil {
@@ -1244,8 +1062,28 @@ func (ec *executionContext) _Mutation_newWork(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().NewWork(rctx, fc.Args["department"].(entity.Department), fc.Args["workName"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().NewWork(rctx, fc.Args["department"].(entity.Department), fc.Args["workName"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAdmin == nil {
+				return nil, errors.New("directive isAdmin is not implemented")
+			}
+			return ec.directives.IsAdmin(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*entity.Work); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nanozuki/crows.moe/mediavote/backend/core/entity.Work`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1308,8 +1146,28 @@ func (ec *executionContext) _Mutation_workAddAlias(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().WorkAddAlias(rctx, fc.Args["id"].(uint), fc.Args["alias"].([]string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().WorkAddAlias(rctx, fc.Args["id"].(uint), fc.Args["alias"].([]string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAdmin == nil {
+				return nil, errors.New("directive isAdmin is not implemented")
+			}
+			return ec.directives.IsAdmin(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*entity.Work); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nanozuki/crows.moe/mediavote/backend/core/entity.Work`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4735,18 +4593,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "newVoter":
-
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_newVoter(ctx, field)
-			})
-
-		case "loginVoter":
-
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_loginVoter(ctx, field)
-			})
-
 		case "newNomination":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -6226,13 +6072,6 @@ func (ec *executionContext) marshalOVoter2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗm
 		return graphql.Null
 	}
 	return ec._Voter(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOVoterOutput2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐVoterOutput(ctx context.Context, sel ast.SelectionSet, v *entity.VoterOutput) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._VoterOutput(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOWork2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWork(ctx context.Context, sel ast.SelectionSet, v []*entity.Work) graphql.Marshaler {

@@ -12,15 +12,14 @@ type Query {
   rankings: [Ranking]
 }
 
-type Mutation {
-  newVoter(name: String!): VoterOutput
-  loginVoter(name: String!, pin: String!): Voter
+directive @isAdmin on FIELD_DEFINITION
 
+type Mutation {
   newNomination(department: Department!, workName: String!): Nomination
   deleteNomination(id: ID!): Boolean
 
-  newWork(department: Department!, workName: String!): Work # for admin
-  workAddAlias(id: ID!, alias: [String!]): Work
+  newWork(department: Department!, workName: String!): Work @isAdmin
+  workAddAlias(id: ID!, alias: [String!]): Work @isAdmin
 
   postBallot(input: BallotInput): Ballot
 }

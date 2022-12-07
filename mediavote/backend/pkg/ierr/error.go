@@ -1,4 +1,4 @@
-package errors
+package ierr
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 type Error struct {
 	Code    string
-	Fields  map[string]string
+	Fields  F
 	Message string
 }
 
@@ -20,11 +20,11 @@ func (e *Error) Error() string {
 	if e.Message != "" {
 		return fmt.Sprintf("%s: %s", e.Code, e.Message)
 	}
-	var ss []string
-	for k, v := range e.Fields {
-		ss = append(ss, fmt.Sprintf("%s=%s", k, v))
+	fs := e.Fields.String()
+	if fs == "" {
+		return e.Code
 	}
-	return fmt.Sprintf("%s: %s", e.Code, strings.Join(ss, " "))
+	return fmt.Sprintf("%s: %s", e.Code, fs)
 }
 
 func Is(err error, target *Error) bool {
@@ -33,4 +33,22 @@ func Is(err error, target *Error) bool {
 		return false
 	}
 	return e.Code == target.Code && cmp.Equal(e.Fields, target.Fields)
+}
+
+type F map[string]string
+
+func (f *F) Set(k, v string) F {
+	if *f == nil {
+		*f = F{}
+	}
+	(*f)[k] = v
+	return *f
+}
+
+func (f F) String() string {
+	var ss []string
+	for k, v := range f {
+		ss = append(ss, fmt.Sprintf("%s=%s", k, v))
+	}
+	return strings.Join(ss, " ")
 }

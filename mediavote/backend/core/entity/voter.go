@@ -3,6 +3,8 @@ package entity
 import (
 	"fmt"
 	"math/rand"
+
+	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
 )
 
 type Voter struct {
@@ -11,9 +13,12 @@ type Voter struct {
 	PinCode string `json:"-"`
 }
 
-func NewVoter(name string) Voter {
+func NewVoter(name string) (*Voter, error) {
+	if name == "" {
+		return nil, ierr.RequiredFieldMissed("name")
+	}
 	voter := Voter{Name: name}
 	code := rand.Int31n(10000)
 	voter.PinCode = fmt.Sprintf("%04d", code)
-	return voter
+	return &voter, nil
 }

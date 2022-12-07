@@ -1,4 +1,4 @@
-package service
+package gql
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -11,18 +11,8 @@ import (
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/port"
 	"github.com/nanozuki/crows.moe/mediavote/backend/graph"
-	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/errors"
+	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
 )
-
-// NewVoter is the resolver for the newVoter field.
-func (r *mutationResolver) NewVoter(ctx context.Context, name string) (*entity.VoterOutput, error) {
-	panic(fmt.Errorf("not implemented: NewVoter - newVoter"))
-}
-
-// LoginVoter is the resolver for the loginVoter field.
-func (r *mutationResolver) LoginVoter(ctx context.Context, name string, pin string) (*entity.Voter, error) {
-	panic(fmt.Errorf("not implemented: LoginVoter - loginVoter"))
-}
 
 // NewNomination is the resolver for the newNomination field.
 func (r *mutationResolver) NewNomination(ctx context.Context, department entity.Department, workName string) (*entity.Nomination, error) {
@@ -51,7 +41,7 @@ func (r *mutationResolver) DeleteNomination(ctx context.Context, id uint) (*bool
 		return nil, err
 	}
 	if nomi.VoterID != voterID {
-		return nil, errors.Forbidden(errors.NotYourData)
+		return nil, ierr.Forbidden(ierr.NotYourData)
 	}
 	err = r.Repository.Nomination().Delete(ctx, id)
 	return toPtr(err == nil), err
@@ -125,3 +115,16 @@ func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 type mutationResolver struct{ *Resolver }
 type nominationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *mutationResolver) NewVoter(ctx context.Context, name string) (*entity.VoterOutput, error) {
+	panic(fmt.Errorf("not implemented: NewVoter - newVoter"))
+}
+func (r *mutationResolver) LoginVoter(ctx context.Context, name string, pin string) (*entity.Voter, error) {
+	panic(fmt.Errorf("not implemented: LoginVoter - loginVoter"))
+}

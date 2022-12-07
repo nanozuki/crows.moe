@@ -1,6 +1,6 @@
 package entity
 
-import "github.com/nanozuki/crows.moe/mediavote/backend/pkg/errors"
+import "github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
 
 type Nomination struct {
 	ID         uint       `json:"id"`
@@ -12,10 +12,10 @@ type Nomination struct {
 
 func NewNomination(voterID uint, dep Department, workName string) (*Nomination, error) {
 	if !dep.IsValid() {
-		return nil, errors.FormatError("department", dep)
+		return nil, ierr.FormatError("department", dep)
 	}
 	if workName == "" {
-		return nil, errors.RequiredMissedError("workName")
+		return nil, ierr.RequiredFieldMissed("workName")
 	}
 	return &Nomination{
 		VoterID:    voterID,

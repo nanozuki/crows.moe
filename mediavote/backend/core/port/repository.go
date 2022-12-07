@@ -2,8 +2,10 @@ package port
 
 import (
 	"context"
+	"time"
 
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
+	uuid "github.com/satori/go.uuid"
 )
 
 type EntityRepository[ID, Entity, EntityQuery, EntityUpdate any] interface {
@@ -16,6 +18,8 @@ type EntityRepository[ID, Entity, EntityQuery, EntityUpdate any] interface {
 
 type Repository interface {
 	Nomination() EntityRepository[uint, entity.Nomination, NominationQuery, NominationUpdate]
+	Session() EntityRepository[uuid.UUID, entity.Session, SessionQuery, SessionUpdate]
+	Voter() EntityRepository[uint, entity.Voter, VoterQuery, VoterUpdate]
 	Work() EntityRepository[uint, entity.Work, WorkQuery, WorkUpdate]
 }
 
@@ -28,6 +32,17 @@ type NominationUpdate struct {
 	WorkName string
 	WorkID   uint
 }
+
+type SessionQuery struct{}
+type SessionUpdate struct {
+	ExpireAt time.Time
+}
+
+type VoterQuery struct {
+	Name string
+	Pin  string
+}
+type VoterUpdate struct{}
 
 type WorkQuery struct {
 	Department entity.Department
