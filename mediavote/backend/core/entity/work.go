@@ -7,7 +7,7 @@ import (
 type Work struct {
 	ID         uint       `json:"id"`
 	Department Department `json:"department"`
-	NameCn     string     `json:"nameCN"`
+	NameCN     string     `json:"nameCN"`
 	NameOrigin string     `json:"nameOrigin"`
 	Alias      []string   `json:"alias"`
 }
@@ -19,7 +19,7 @@ func NewWork(input WorkInput) (*Work, error) {
 	return &Work{
 		ID:         0,
 		Department: input.Department,
-		NameCn:     input.NameCn,
+		NameCN:     input.NameCn,
 		NameOrigin: input.NameOrigin,
 		Alias:      []string{},
 	}, nil

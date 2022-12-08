@@ -20,10 +20,22 @@ type EntityRepository[ID, Entity, EntityQuery, EntityUpdate any] interface {
 
 type Repository interface {
 	WithTx(ctx context.Context, fn func(context.Context) error, opts ...*sql.TxOptions) error
+
+	Ballot() EntityRepository[uint, entity.Ballot, BallotQuery, BallotUpdate]
 	Nomination() EntityRepository[uint, entity.Nomination, NominationQuery, NominationUpdate]
+	Ranking() EntityRepository[uint, entity.Ranking, RankingQuery, RankingUpdate]
 	Session() EntityRepository[uuid.UUID, entity.Session, SessionQuery, SessionUpdate]
 	Voter() EntityRepository[uint, entity.Voter, VoterQuery, VoterUpdate]
 	Work() EntityRepository[uint, entity.Work, WorkQuery, WorkUpdate]
+}
+
+type BallotQuery struct {
+	VoterID    uint
+	Department entity.Department
+}
+
+type BallotUpdate struct {
+	Candidates []*entity.WorkRanking
 }
 
 type NominationQuery struct {
@@ -37,7 +49,14 @@ type NominationUpdate struct {
 	WorkID   uint
 }
 
+type RankingQuery struct {
+	Department entity.Department
+}
+
+type RankingUpdate struct{}
+
 type SessionQuery struct{}
+
 type SessionUpdate struct {
 	ExpireAt time.Time
 }
@@ -46,6 +65,7 @@ type VoterQuery struct {
 	Name string
 	Pin  string
 }
+
 type VoterUpdate struct{}
 
 type WorkQuery struct {

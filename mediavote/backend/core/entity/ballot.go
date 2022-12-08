@@ -1,10 +1,6 @@
 package entity
 
-import (
-	"database/sql/driver"
-	"encoding/json"
-	"fmt"
-)
+import "github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
 
 type Ballot struct {
 	ID         uint           `json:"id"`
@@ -13,26 +9,28 @@ type Ballot struct {
 	Candidates []*WorkRanking `json:"candidates"`
 }
 
-type Candidate struct {
-	Ranking uint `json:"ranking"`
-	WorkID  uint `json:"id"`
+type WorkRanking struct {
+	Ranking int  `json:"Ranking"`
+	WorkID  uint `json:"WorkID"`
 }
 
-type Candidates []Candidate
-
-func (c *Candidates) Scan(value interface{}) error {
-	var bs []byte
-	switch v := value.(type) {
-	case string:
-		bs = []byte(v)
-	case []byte:
-		bs = v
-	default:
-		return fmt.Errorf("invalid candidates: '%v'", value)
+func NewBallot(voterID uint, input BallotInput) (*Ballot, error) {
+	if !input.Department.IsValid() {
+		return nil, ierr.FormatError("department", input.Department)
 	}
-	return json.Unmarshal(bs, c)
+	ballot := Ballot{
+		VoterID:    voterID,
+		Department: input.Department,
+	}
+	ballot.SetCandidates(input.Candidates)
+	return &ballot, nil
 }
 
-func (c Candidates) Value() (driver.Value, error) {
-	return json.Marshal(c)
+func (b *Ballot) SetCandidates(candidates []*WorkRankingInput) {
+	for _, c := range candidates {
+		b.Candidates = append(b.Candidates, &WorkRanking{
+			Ranking: c.Ranking,
+			WorkID:  c.WorkID,
+		})
+	}
 }

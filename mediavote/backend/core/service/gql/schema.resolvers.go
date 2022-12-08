@@ -6,7 +6,6 @@ package gql
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/port"
@@ -76,7 +75,34 @@ func (r *mutationResolver) WorkAddAlias(ctx context.Context, id uint, alias []st
 
 // PostBallot is the resolver for the postBallot field.
 func (r *mutationResolver) PostBallot(ctx context.Context, input entity.BallotInput) (*entity.Ballot, error) {
-	panic(fmt.Errorf("not implemented: PostBallot - postBallot"))
+	voterID := entity.CtxUserFromContext(ctx).VoterID
+	ballots, err := r.Repository.Ballot().Search(ctx, &port.BallotQuery{
+		VoterID:    voterID,
+		Department: input.Department,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// not found new Ballot
+	if len(ballots) == 0 {
+		ballot, err := entity.NewBallot(voterID, input)
+		if err != nil {
+			return nil, err
+		}
+		if err := r.Repository.Ballot().Create(ctx, ballot); err != nil {
+			return nil, err
+		}
+		return ballot, nil
+	}
+
+	// found, update Ballot
+	ballot := ballots[0]
+	ballot.SetCandidates(input.Candidates)
+	if err := r.Repository.Ballot().UpdateOne(ctx, ballot.ID, &port.BallotUpdate{Candidates: ballot.Candidates}); err != nil {
+		return nil, err
+	}
+	return ballots[0], nil
 }
 
 // Work is the resolver for the work field.
@@ -89,7 +115,8 @@ func (r *nominationResolver) Work(ctx context.Context, obj *entity.Nomination) (
 
 // Voter is the resolver for the voter field.
 func (r *queryResolver) Voter(ctx context.Context) (*entity.Voter, error) {
-	panic(fmt.Errorf("not implemented: Voter - voter"))
+	voterID := entity.CtxUserFromContext(ctx).VoterID
+	return r.Repository.Voter().GetByID(ctx, voterID)
 }
 
 // Nominations is the resolver for the nominations field.
@@ -106,17 +133,35 @@ func (r *queryResolver) Works(ctx context.Context, department *entity.Department
 
 // Ranking is the resolver for the ranking field.
 func (r *queryResolver) Ranking(ctx context.Context, department entity.Department) (*entity.Ranking, error) {
-	panic(fmt.Errorf("not implemented: Ranking - ranking"))
+	rankings, err := r.Repository.Ranking().Search(ctx, &port.RankingQuery{Department: department})
+	if err != nil {
+		return nil, err
+	}
+	if len(rankings) == 0 {
+		return nil, nil
+	}
+	return rankings[0], nil
 }
 
 // Rankings is the resolver for the rankings field.
 func (r *queryResolver) Rankings(ctx context.Context) ([]*entity.Ranking, error) {
-	panic(fmt.Errorf("not implemented: Rankings - rankings"))
+	return r.Repository.Ranking().Search(ctx, &port.RankingQuery{})
 }
 
 // Ballot is the resolver for the ballot field.
 func (r *voterResolver) Ballot(ctx context.Context, obj *entity.Voter, department entity.Department) (*entity.Ballot, error) {
-	panic(fmt.Errorf("not implemented: Ballot - ballot"))
+	voterID := entity.CtxUserFromContext(ctx).VoterID
+	ballots, err := r.Repository.Ballot().Search(ctx, &port.BallotQuery{
+		VoterID:    voterID,
+		Department: department,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(ballots) == 0 {
+		return nil, nil
+	}
+	return ballots[0], nil
 }
 
 // Nominations is the resolver for the nominations field.
@@ -125,6 +170,11 @@ func (r *voterResolver) Nominations(ctx context.Context, obj *entity.Voter, depa
 		VoterID:    obj.ID,
 		Department: department,
 	})
+}
+
+// Work is the resolver for the Work field.
+func (r *workRankingResolver) Work(ctx context.Context, obj *entity.WorkRanking) (*entity.Work, error) {
+	return r.Repository.Work().GetByID(ctx, obj.WorkID)
 }
 
 // Mutation returns graph.MutationResolver implementation.
@@ -139,7 +189,11 @@ func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 // Voter returns graph.VoterResolver implementation.
 func (r *Resolver) Voter() graph.VoterResolver { return &voterResolver{r} }
 
+// WorkRanking returns graph.WorkRankingResolver implementation.
+func (r *Resolver) WorkRanking() graph.WorkRankingResolver { return &workRankingResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type nominationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type voterResolver struct{ *Resolver }
+type workRankingResolver struct{ *Resolver }

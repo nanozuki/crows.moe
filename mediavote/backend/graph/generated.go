@@ -41,6 +41,7 @@ type ResolverRoot interface {
 	Nomination() NominationResolver
 	Query() QueryResolver
 	Voter() VoterResolver
+	WorkRanking() WorkRankingResolver
 }
 
 type DirectiveRoot struct {
@@ -97,7 +98,7 @@ type ComplexityRoot struct {
 		Alias      func(childComplexity int) int
 		Department func(childComplexity int) int
 		ID         func(childComplexity int) int
-		NameCn     func(childComplexity int) int
+		NameCN     func(childComplexity int) int
 		NameOrigin func(childComplexity int) int
 	}
 
@@ -128,6 +129,9 @@ type QueryResolver interface {
 type VoterResolver interface {
 	Ballot(ctx context.Context, obj *entity.Voter, department entity.Department) (*entity.Ballot, error)
 	Nominations(ctx context.Context, obj *entity.Voter, department entity.Department) ([]*entity.Nomination, error)
+}
+type WorkRankingResolver interface {
+	Work(ctx context.Context, obj *entity.WorkRanking) (*entity.Work, error)
 }
 
 type executableSchema struct {
@@ -399,11 +403,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Work.ID(childComplexity), true
 
 	case "Work.nameCN":
-		if e.complexity.Work.NameCn == nil {
+		if e.complexity.Work.NameCN == nil {
 			break
 		}
 
-		return e.complexity.Work.NameCn(childComplexity), true
+		return e.complexity.Work.NameCN(childComplexity), true
 
 	case "Work.nameOrigin":
 		if e.complexity.Work.NameOrigin == nil {
@@ -2452,7 +2456,7 @@ func (ec *executionContext) _Work_nameCN(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.NameCn, nil
+		return obj.NameCN, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2669,7 +2673,7 @@ func (ec *executionContext) _WorkRanking_Work(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Work, nil
+		return ec.resolvers.WorkRanking().Work(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2687,8 +2691,8 @@ func (ec *executionContext) fieldContext_WorkRanking_Work(ctx context.Context, f
 	fc = &graphql.FieldContext{
 		Object:     "WorkRanking",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -4488,21 +4492,13 @@ func (ec *executionContext) unmarshalInputBallotInput(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "department", "candidates"}
+	fieldsInOrder := [...]string{"department", "candidates"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalNID2uint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "department":
 			var err error
 
@@ -5103,19 +5099,32 @@ func (ec *executionContext) _WorkRanking(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._WorkRanking_Ranking(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "WorkID":
 
 			out.Values[i] = ec._WorkRanking_WorkID(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "Work":
+			field := field
 
-			out.Values[i] = ec._WorkRanking_Work(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._WorkRanking_Work(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
