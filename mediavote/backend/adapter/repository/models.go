@@ -1,43 +1,42 @@
 package repository
 
 import (
-	"database/sql/driver"
 	"encoding/json"
-	"fmt"
 
+	"github.com/lib/pq"
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
-	uuid "github.com/satori/go.uuid"
+	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/generic"
 	"gorm.io/gorm"
 )
 
 type Ballot struct {
 	gorm.Model
-	VoteID     uuid.UUID `gorm:"type:char(36);index"`
-	Department entity.Department
-	Candidates Candidates `gorm:"type:json"`
-}
-type Candidate struct {
-	Ranking uint `json:"ranking"`
-	WorkID  uint `json:"id"`
+	VoterID    uint              `gorm:"index:idx_ballot_voter_dp,unique,priority:1"`
+	Department entity.Department `gorm:"index:idx_ballot_voter_dp,unique,priority:2"`
+	Candidates []byte            `gorm:"type:jsonb"`
 }
 
-type Candidates []Candidate
-
-func (c *Candidates) Scan(value interface{}) error {
-	var bs []byte
-	switch v := value.(type) {
-	case string:
-		bs = []byte(v)
-	case []byte:
-		bs = v
-	default:
-		return fmt.Errorf("invalid candidates: '%v'", value)
+func NewBallotFromEntity(ballot *entity.Ballot) *Ballot {
+	return &Ballot{
+		Model: gorm.Model{
+			ID: ballot.ID,
+		},
+		VoterID:    ballot.VoterID,
+		Department: ballot.Department,
+		Candidates: generic.Must(json.Marshal(ballot.Candidates)),
 	}
-	return json.Unmarshal(bs, c)
 }
 
-func (c Candidates) Value() (driver.Value, error) {
-	return json.Marshal(c)
+func (b Ballot) ToEntity() *entity.Ballot {
+	ballot := &entity.Ballot{
+		ID:         b.ID,
+		VoterID:    b.VoterID,
+		Department: b.Department,
+	}
+	if err := json.Unmarshal(b.Candidates, &ballot.Candidates); err != nil {
+		panic(err)
+	}
+	return ballot
 }
 
 type Nomination struct {
@@ -59,4 +58,5 @@ type Work struct {
 	Department entity.Department
 	NameCN     string `gorm:"type:varchar(255)"`
 	NameOrigin string `gorm:"type:varchar(255)"`
+	Alias      pq.StringArray
 }
