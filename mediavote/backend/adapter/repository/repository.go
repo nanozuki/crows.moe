@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"strconv"
 	"time"
 
 	"github.com/go-redis/redis/v9"
@@ -27,26 +26,22 @@ var _ port.Repository = &Repository{}
 func NewRepository() (*Repository, error) {
 	r := &Repository{}
 	{
-		db, err := gorm.Open(postgres.Open(env.PgDSN), &gorm.Config{})
+		db, err := gorm.Open(postgres.Open(env.PgDSN()), &gorm.Config{})
 		if err != nil {
 			return nil, ierr.InternalServerError(err) // TODO: add err type: InitError or ConnectError
 		}
 		if err := db.AutoMigrate(models...); err != nil {
 			return nil, ierr.InternalServerError(err) // TODO: add err type: InitError or ConnectError
 		}
-		if !env.IsProd {
+		if !env.IsProd() {
 			db = db.Debug()
 		}
 		r.rootDB = db
 	}
 	{
-		rdsDB, err := strconv.Atoi(env.RedisDB)
-		if err != nil {
-			return nil, ierr.FormatError("REDIS_DB", rdsDB)
-		}
 		r.rds = redis.NewClient(&redis.Options{
-			Addr: env.RedisAddr,
-			DB:   rdsDB,
+			Addr: env.RedisAddr(),
+			DB:   env.RedisDB(),
 		})
 	}
 	return r, nil

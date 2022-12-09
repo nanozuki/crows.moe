@@ -28,5 +28,5 @@ func (s *Server) Run() {
 	e.POST("/register", s.Register)
 	e.POST("/login", s.Login)
 
-	e.Logger.Fatal(e.Start(":" + env.Port))
+	e.Logger.Fatal(e.Start(":" + env.Port()))
 }
