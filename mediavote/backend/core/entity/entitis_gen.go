@@ -13,11 +13,6 @@ type BallotInput struct {
 	Candidates []*WorkRankingInput `json:"candidates"`
 }
 
-type Ranking struct {
-	Department Department     `json:"department"`
-	Rankings   []*WorkRanking `json:"rankings"`
-}
-
 type WorkInput struct {
 	Department Department `json:"department"`
 	NameCn     string     `json:"nameCN"`

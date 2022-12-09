@@ -6,16 +6,25 @@ import (
 	"time"
 
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
-	uuid "github.com/satori/go.uuid"
 )
 
-type EntityRepository[ID, Entity, EntityQuery, EntityUpdate any] interface {
+type EntityRepository[ID, Entity, Query, Update any] interface {
 	GetByID(ctx context.Context, id ID) (*Entity, error)
-	Search(ctx context.Context, query *EntityQuery) ([]*Entity, error)
+	Search(ctx context.Context, query *Query) ([]*Entity, error)
 	Create(ctx context.Context, nomi *Entity) error
-	UpdateOne(ctx context.Context, id uint, update *EntityUpdate) error
-	UpdateMany(ctx context.Context, query *EntityQuery, update *EntityUpdate) error
+	UpdateOne(ctx context.Context, id uint, update *Update) error
+	UpdateMany(ctx context.Context, query *Query, update *Update) error
 	Delete(ctx context.Context, id uint) error
+}
+
+type Cacher interface {
+	Key() string
+	ExpireTime() time.Time
+}
+
+type CacheRepository[C Cacher] interface {
+	Set(ctx context.Context, value C) error
+	Get(ctx context.Context, key string) (C, error)
 }
 
 type Repository interface {
@@ -24,7 +33,7 @@ type Repository interface {
 	Ballot() EntityRepository[uint, entity.Ballot, BallotQuery, BallotUpdate]
 	Nomination() EntityRepository[uint, entity.Nomination, NominationQuery, NominationUpdate]
 	Ranking() EntityRepository[uint, entity.Ranking, RankingQuery, RankingUpdate]
-	Session() EntityRepository[uuid.UUID, entity.Session, SessionQuery, SessionUpdate]
+	Session() CacheRepository[entity.Session]
 	Voter() EntityRepository[uint, entity.Voter, VoterQuery, VoterUpdate]
 	Work() EntityRepository[uint, entity.Work, WorkQuery, WorkUpdate]
 }
@@ -53,7 +62,9 @@ type RankingQuery struct {
 	Department entity.Department
 }
 
-type RankingUpdate struct{}
+type RankingUpdate struct {
+	Rankings []*entity.WorkRanking
+}
 
 type SessionQuery struct{}
 

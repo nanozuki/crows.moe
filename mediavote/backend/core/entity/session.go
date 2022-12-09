@@ -8,10 +8,10 @@ import (
 )
 
 type Session struct {
-	ID        uuid.UUID `gorm:"primaryKey;size=16"`
-	ExpireAt  time.Time `gorm:"index"`
-	VoterID   uint
-	VoterName string
+	ID        uuid.UUID `json:"id,omitempty"`
+	ExpireAt  time.Time `json:"expire_at,omitempty"`
+	VoterID   uint      `json:"voter_id,omitempty"`
+	VoterName string    `json:"voter_name,omitempty"`
 }
 
 const SessionExpireTime = time.Hour * 24 * 30
@@ -23,6 +23,14 @@ func NewSession(voter *Voter) Session {
 		VoterID:   voter.ID,
 		VoterName: voter.Name,
 	}
+}
+
+func (s Session) Key() string {
+	return s.ID.String()
+}
+
+func (s Session) ExpireTime() time.Time {
+	return s.ExpireAt.Add(5 * time.Second)
 }
 
 type contextKey string

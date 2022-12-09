@@ -6,7 +6,6 @@ import (
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/port"
 	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
-	uuid "github.com/satori/go.uuid"
 )
 
 type Service struct {
@@ -25,7 +24,7 @@ func (s *Service) NewVoter(ctx context.Context, name string) (*entity.Voter, *en
 		return nil, nil, err
 	}
 	session := entity.NewSession(voter)
-	if err := s.Repository.Session().Create(ctx, &session); err != nil {
+	if err := s.Repository.Session().Set(ctx, session); err != nil {
 		return nil, nil, err
 	}
 	return voter, &session, nil
@@ -43,20 +42,16 @@ func (s *Service) LoginVoter(ctx context.Context, name, pin string) (*entity.Vot
 		return nil, nil, ierr.NameOrPinError(name, pin)
 	}
 	session := entity.NewSession(voters[0])
-	if err := s.Repository.Session().Create(ctx, &session); err != nil {
+	if err := s.Repository.Session().Set(ctx, session); err != nil {
 		return nil, nil, err
 	}
 	return voters[0], &session, nil
 }
 
 func (s *Service) GetSession(ctx context.Context, id string) (*entity.Session, error) {
-	uid, err := uuid.FromString(id)
+	session, err := s.Repository.Session().Get(ctx, id)
 	if err != nil {
-		return nil, ierr.FormatError("sessionID", id)
+		return nil, ierr.NotFound("session", ierr.F{"id": id})
 	}
-	session, err := s.Repository.Session().GetByID(ctx, uid)
-	if err != nil {
-		return nil, ierr.NotFound("session", ierr.F{"id": uid.String()})
-	}
-	return session, nil
+	return &session, nil
 }
