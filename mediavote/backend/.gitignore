@@ -1,0 +1,3 @@
+# test files
+testdata/gomod/*
+!testdata/gomod/.keep

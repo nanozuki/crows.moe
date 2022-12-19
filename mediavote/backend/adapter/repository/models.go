@@ -171,7 +171,7 @@ type Work struct {
 	Department entity.Department `gorm:"size:15"`
 	NameCN     string            `gorm:"size:255"`
 	NameOrigin string            `gorm:"size:255"`
-	Alias      pq.StringArray
+	Alias      pq.StringArray    `gorm:"type:text[][]"`
 }
 
 func (r *Repository) Work() port.EntityRepository[uint, entity.Work, port.WorkQuery, port.WorkUpdate] {

@@ -55,7 +55,13 @@ func (r *Repository) WithTx(ctx context.Context, fn func(context.Context) error,
 	}, opts...)
 }
 
-var models = []interface{}{}
+var models = []interface{}{
+	Ballot{},
+	Nomination{},
+	Ranking{},
+	Voter{},
+	Work{},
+}
 
 type ctxKey int
 

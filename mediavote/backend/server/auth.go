@@ -40,7 +40,7 @@ func (s *Server) loadCtxUser(next echo.HandlerFunc) echo.HandlerFunc {
 
 func (s *Server) getCtxUserByCookie(c echo.Context) *entity.CtxUser {
 	sessionCookie, err := c.Cookie(SessionCookieName)
-	if err != nil && sessionCookie.Value == "" {
+	if err != nil || sessionCookie.Value == "" {
 		return &entity.CtxUser{}
 	}
 	session, err := s.AuthService.GetSession(c.Request().Context(), sessionCookie.Value)

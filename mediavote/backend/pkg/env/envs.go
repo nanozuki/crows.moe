@@ -43,7 +43,7 @@ func get(name string) string {
 	return getOnce(name, func() any {
 		e := os.Getenv(envPrefix + name)
 		if e == "" {
-			panic(ierr.RequiredEnvMissed(name))
+			panic(ierr.RequiredEnvMissed(envPrefix + name))
 		}
 		return e
 	}).(string)
