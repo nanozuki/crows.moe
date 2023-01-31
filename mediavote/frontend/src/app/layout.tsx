@@ -8,7 +8,11 @@ export default function RootLayout({
   return (
     <html>
       <head />
-      <body>{children}</body>
+      <body className="bg-base text-text min-h-screen">
+        <div className="w-full pl-4 pr-4 max-w-screen-wide ml-auto mr-auto">
+          {children}
+        </div>
+      </body>
     </html>
   );
 }

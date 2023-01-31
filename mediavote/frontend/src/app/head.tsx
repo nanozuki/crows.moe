@@ -12,7 +12,7 @@ const adobeFont = `(function(d) {
 export default function Head() {
   return (
     <>
-      <title>Exodus媒体艺术祭</title>
+      <title>Exodus 媒体艺术祭</title>
       <meta content="width=device-width, initial-scale=1" name="viewport" />
       <meta property="og:title" content="Exodus媒体艺术祭" />
       <link rel="icon" href="/favicon.ico" />
