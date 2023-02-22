@@ -15,8 +15,9 @@ type Query {
 }
 
 type Mutation {
-  newNomination(department: Department!, workName: String!): Nomination @hasAuth
-  deleteNomination(id: ID!): Boolean @hasAuth
+  postNominations(department: Department!, works: [String!]): [Nomination!]
+    @hasAuth
+  deleteNomination(id: ID!): Boolean @isAdmin
 
   newWork(input: WorkInput!): Work @isAdmin
   workAddAlias(id: ID!, alias: [String!]): Work @isAdmin

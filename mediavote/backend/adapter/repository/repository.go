@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/go-redis/redis/v9"
@@ -103,6 +105,10 @@ func (er EntityRepository[ID, Entity, Query, Update, Model]) Search(ctx context.
 func (er EntityRepository[ID, Entity, Query, Update, Model]) Create(ctx context.Context, entity *Entity) error {
 	m := er.EntityToModel(entity)
 	if err := er.getDB(ctx).Create(entity).Error; err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "duplicate") {
+			object := reflect.TypeOf(entity).Elem().Name()
+			return ierr.DuplicatedObject(object)
+		}
 		return err
 	}
 	*entity = *(er.ModelToEntity(m))

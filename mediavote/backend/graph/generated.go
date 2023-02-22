@@ -59,9 +59,9 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		DeleteNomination func(childComplexity int, id uint) int
-		NewNomination    func(childComplexity int, department entity.Department, workName string) int
 		NewWork          func(childComplexity int, input entity.WorkInput) int
 		PostBallot       func(childComplexity int, input entity.BallotInput) int
+		PostNominations  func(childComplexity int, department entity.Department, works []string) int
 		WorkAddAlias     func(childComplexity int, id uint, alias []string) int
 	}
 
@@ -110,7 +110,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	NewNomination(ctx context.Context, department entity.Department, workName string) (*entity.Nomination, error)
+	PostNominations(ctx context.Context, department entity.Department, works []string) ([]*entity.Nomination, error)
 	DeleteNomination(ctx context.Context, id uint) (*bool, error)
 	NewWork(ctx context.Context, input entity.WorkInput) (*entity.Work, error)
 	WorkAddAlias(ctx context.Context, id uint, alias []string) (*entity.Work, error)
@@ -189,18 +189,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteNomination(childComplexity, args["id"].(uint)), true
 
-	case "Mutation.newNomination":
-		if e.complexity.Mutation.NewNomination == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_newNomination_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.NewNomination(childComplexity, args["department"].(entity.Department), args["workName"].(string)), true
-
 	case "Mutation.newWork":
 		if e.complexity.Mutation.NewWork == nil {
 			break
@@ -224,6 +212,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.PostBallot(childComplexity, args["input"].(entity.BallotInput)), true
+
+	case "Mutation.postNominations":
+		if e.complexity.Mutation.PostNominations == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_postNominations_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.PostNominations(childComplexity, args["department"].(entity.Department), args["works"].([]string)), true
 
 	case "Mutation.workAddAlias":
 		if e.complexity.Mutation.WorkAddAlias == nil {
@@ -542,30 +542,6 @@ func (ec *executionContext) field_Mutation_deleteNomination_args(ctx context.Con
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_newNomination_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 entity.Department
-	if tmp, ok := rawArgs["department"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("department"))
-		arg0, err = ec.unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["department"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["workName"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workName"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["workName"] = arg1
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_newWork_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -593,6 +569,30 @@ func (ec *executionContext) field_Mutation_postBallot_args(ctx context.Context, 
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_postNominations_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 entity.Department
+	if tmp, ok := rawArgs["department"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("department"))
+		arg0, err = ec.unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["department"] = arg0
+	var arg1 []string
+	if tmp, ok := rawArgs["works"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("works"))
+		arg1, err = ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["works"] = arg1
 	return args, nil
 }
 
@@ -932,8 +932,8 @@ func (ec *executionContext) fieldContext_Ballot_candidates(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_newNomination(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_newNomination(ctx, field)
+func (ec *executionContext) _Mutation_postNominations(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_postNominations(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -947,7 +947,7 @@ func (ec *executionContext) _Mutation_newNomination(ctx context.Context, field g
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().NewNomination(rctx, fc.Args["department"].(entity.Department), fc.Args["workName"].(string))
+			return ec.resolvers.Mutation().PostNominations(rctx, fc.Args["department"].(entity.Department), fc.Args["works"].([]string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.HasAuth == nil {
@@ -963,10 +963,10 @@ func (ec *executionContext) _Mutation_newNomination(ctx context.Context, field g
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*entity.Nomination); ok {
+		if data, ok := tmp.([]*entity.Nomination); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nanozuki/crows.moe/mediavote/backend/core/entity.Nomination`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nanozuki/crows.moe/mediavote/backend/core/entity.Nomination`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -975,12 +975,12 @@ func (ec *executionContext) _Mutation_newNomination(ctx context.Context, field g
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*entity.Nomination)
+	res := resTmp.([]*entity.Nomination)
 	fc.Result = res
-	return ec.marshalONomination2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐNomination(ctx, field.Selections, res)
+	return ec.marshalONomination2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐNominationᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_newNomination(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_postNominations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -1011,7 +1011,7 @@ func (ec *executionContext) fieldContext_Mutation_newNomination(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_newNomination_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_postNominations_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -1036,10 +1036,10 @@ func (ec *executionContext) _Mutation_deleteNomination(ctx context.Context, fiel
 			return ec.resolvers.Mutation().DeleteNomination(rctx, fc.Args["id"].(uint))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.HasAuth == nil {
-				return nil, errors.New("directive hasAuth is not implemented")
+			if ec.directives.IsAdmin == nil {
+				return nil, errors.New("directive isAdmin is not implemented")
 			}
-			return ec.directives.HasAuth(ctx, nil, directive0)
+			return ec.directives.IsAdmin(ctx, nil, directive0)
 		}
 
 		tmp, err := directive1(rctx)
@@ -4677,10 +4677,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "newNomination":
+		case "postNominations":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_newNomination(ctx, field)
+				return ec._Mutation_postNominations(ctx, field)
 			})
 
 		case "deleteNomination":
@@ -6003,13 +6003,6 @@ func (ec *executionContext) marshalONomination2ᚕᚖgithubᚗcomᚋnanozukiᚋc
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalONomination2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐNomination(ctx context.Context, sel ast.SelectionSet, v *entity.Nomination) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Nomination(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalORanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐRankingᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.Ranking) graphql.Marshaler {

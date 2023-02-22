@@ -13,17 +13,28 @@ import (
 	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
 )
 
-// NewNomination is the resolver for the newNomination field.
-func (r *mutationResolver) NewNomination(ctx context.Context, department entity.Department, workName string) (*entity.Nomination, error) {
+// PostNominations is the resolver for the postNominations field.
+func (r *mutationResolver) PostNominations(ctx context.Context, department entity.Department, works []string) ([]*entity.Nomination, error) {
 	voterID := entity.CtxUserFromContext(ctx).VoterID
-	nomi, err := entity.NewNomination(voterID, department, workName)
-	if err != nil {
-		return nil, err
+	var nomis []*entity.Nomination
+	for _, work := range works {
+		nomi, err := entity.NewNomination(voterID, department, work)
+		if err != nil {
+			return nil, err
+		}
+
+		nomis = append(nomis, nomi)
 	}
-	if err := r.Repository.Nomination().Create(ctx, nomi); err != nil {
-		return nil, err
-	}
-	return nomi, nil
+	err := r.Repository.WithTx(ctx, func(ctx context.Context) error {
+		for _, nomi := range nomis {
+			err := r.Repository.Nomination().Create(ctx, nomi)
+			if err != nil && !ierr.IsErrCode(err, ierr.CodeDuplicatedObject) {
+				return err
+			}
+		}
+		return nil
+	})
+	return nomis, err
 }
 
 // DeleteNomination is the resolver for the deleteNomination field.
