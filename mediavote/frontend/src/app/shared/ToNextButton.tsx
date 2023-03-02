@@ -13,7 +13,7 @@ function ToNextButton({ label, to, className }: ToNextButtonProps) {
       href={to}
       className={`flex flex-row items-center bg-highlight-med h-10 pl-4 pr-1 rounded ${className}`}
     >
-      <p>{label}</p>
+      <p className="mr-1">{label}</p>
       <IconChevronRight className="block text-xl leading-none text-rose" />
     </Link>
   );

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import IconChevronLeft from '~icons/material-symbols/chevron-right.jsx';
+import IconChevronLeft from '~icons/material-symbols/chevron-left.jsx';
 
 interface ToPrevButtonProps {
   to: string;

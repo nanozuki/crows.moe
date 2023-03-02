@@ -78,7 +78,7 @@ function TabTail({ className }: TabTailProps) {
 }
 
 interface TabLineProps {
-  page: 1 | 2 | 3 | 4 | 5;
+  page: number;
 }
 
 function TabLine({ page }: TabLineProps) {
