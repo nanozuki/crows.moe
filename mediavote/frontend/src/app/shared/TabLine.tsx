@@ -79,9 +79,10 @@ function TabTail({ className }: TabTailProps) {
 
 interface TabLineProps {
   page: number;
+  className?: string;
 }
 
-function TabLine({ page }: TabLineProps) {
+function TabLine({ page, className }: TabLineProps) {
   // if 1rem = 16px
   // * head + tail = 11px + 7px = 18px
   // * margin * (n+1) = 2px * 6 = 12px
@@ -96,7 +97,7 @@ function TabLine({ page }: TabLineProps) {
     }
   };
   return (
-    <div className="flex flex-row mt-8 mb-8">
+    <div className={`flex flex-row ${className}`}>
       <TabHead className="w-[0.6875rem] h-2" />
       <TabBar className="w-[calc(20%-0.375rem)] h-2 mr-0.5" state={state(1)} />
       <TabBar className="w-[calc(20%-0.375rem)] h-2 mr-0.5" state={state(2)} />
