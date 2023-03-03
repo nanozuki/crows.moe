@@ -94,6 +94,47 @@ const nominationExamples = [
   },
 ];
 
+interface ToPrevDPProps {
+  className?: string;
+  idx: number;
+}
+
+function ToPrevDP({ className, idx }: ToPrevDPProps) {
+  if (idx === 1) {
+    return null;
+  }
+  return (
+    <ToPrevButton
+      to={`/2022/nomination/${idx - 1}`}
+      className={`${className}`}
+    />
+  );
+}
+
+interface ToNextDPProps {
+  className?: string;
+  idx: number;
+}
+
+function ToNextDP({ className, idx }: ToNextDPProps) {
+  if (idx === 5) {
+    return (
+      <div
+        className={`flex flex-row items-center bg-highlight-low text-subtle h-10 pl-8 pr-8 rounded ${className}`}
+      >
+        <p>完成</p>
+      </div>
+    );
+  }
+  return (
+    <ToNextButton
+      className={`${className}`}
+      to={`/2022/nomination/${idx + 1}`}
+      label={`Next: ${departments[idx].name}部门`}
+    />
+  );
+}
+
 interface NominationPageProps {
   params: { index: string };
 }
@@ -130,20 +171,9 @@ export default function Page({ params }: NominationPageProps) {
         })}
         <PostForm className="mt-2 mb-4" />
       </div>
-      <div className="flex flex-row mt-12 mb-4">
-        {idx > 1 && (
-          <ToPrevButton to={`/2022/nomination/${idx - 1}`} className="mr-2" />
-        )}
-        {(idx < 5 && (
-          <ToNextButton
-            to={`/2022/nomination/${idx + 1}`}
-            label={`Next: ${departments[idx].name}部门`}
-          />
-        )) || (
-          <div className="flex flex-row items-center bg-highlight-low text-subtle h-10 pl-8 pr-8 rounded">
-            <p>完成</p>
-          </div>
-        )}
+      <div className="flex flex-row mt-12 mb-4 gap-x-2">
+        <ToPrevDP idx={idx} />
+        <ToNextDP idx={idx} />
       </div>
       <TabLine page={idx} className="mt-4 mb-4" />
     </div>

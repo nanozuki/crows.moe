@@ -1,7 +1,7 @@
 'use client';
 
-import { useTextField } from '@react-aria/textfield';
-import { useButton } from '@react-aria/button';
+import { useTextField } from 'react-aria';
+import { useButton } from 'react-aria';
 import { ReactNode, useRef } from 'react';
 
 interface WorkNameInputProps {
