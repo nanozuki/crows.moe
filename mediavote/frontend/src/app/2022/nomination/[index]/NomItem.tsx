@@ -1,14 +1,10 @@
-interface NominationProps {
+interface NomProps {
   name: string;
   alias: string[];
   className?: string;
 }
 
-export default function Nomination({
-  name,
-  alias,
-  className,
-}: NominationProps) {
+export default function Nom({ name, alias, className }: NomProps) {
   return (
     <div
       className={`flex flex-col wide:flex-row items-start wide:items-center px-4 py-2 bg-overlay rounded ${className}`}

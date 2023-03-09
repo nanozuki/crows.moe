@@ -1,4 +1,4 @@
-interface Nom {
+export interface Nom {
   name: string;
   alias: string[];
 }

@@ -4,7 +4,7 @@ import Title from '@app/shared/Title';
 import ToNextButton from '@app/shared/ToNextButton';
 import ToPrevButton from '@app/shared/ToPrevButton';
 import { ReactNode } from 'react';
-import Nomination from './Nomination';
+import NomItem from './NomItem';
 import PostForm from './PostForm';
 
 interface DepartmentInfo {
@@ -167,7 +167,7 @@ export default function Page({ params }: NominationPageProps) {
       <div className="mt-8 mb-8">
         {nominationExamples.map((nomi) => {
           const props = { ...nomi, className: 'mt-4' };
-          return <Nomination key={nomi.name} {...props} />;
+          return <NomItem key={nomi.name} {...props} />;
         })}
         <PostForm className="mt-2 mb-4" />
       </div>
