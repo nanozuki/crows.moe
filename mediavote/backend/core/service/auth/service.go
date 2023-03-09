@@ -6,6 +6,7 @@ import (
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/port"
 	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
+	"github.com/rs/zerolog/log"
 )
 
 type Service struct {
@@ -23,6 +24,7 @@ func (s *Service) NewVoter(ctx context.Context, name string) (*entity.Voter, *en
 	if err := s.Repository.Voter().Create(ctx, voter); err != nil {
 		return nil, nil, err
 	}
+	log.Info().Msgf("new voter: %+v", voter)
 	session := entity.NewSession(voter)
 	if err := s.Repository.Session().Set(ctx, session); err != nil {
 		return nil, nil, err

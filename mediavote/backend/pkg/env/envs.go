@@ -27,30 +27,30 @@ var envs = struct {
 	store map[string]any
 }{store: map[string]any{}}
 
-func getOnce(name string, g func() any) any {
+func getOnce[T any](name string, g func() T) T {
 	envs.lock.Lock()
 	defer envs.lock.Unlock()
-	v, ok := envs.store[name]
+	exist, ok := envs.store[name]
 	if ok {
-		return v.(string)
+		return exist.(T)
 	}
-	v = g()
-	envs.store[name] = v
-	return v
+	value := g()
+	envs.store[name] = value
+	return value
 }
 
 func get(name string) string {
-	return getOnce(name, func() any {
+	return getOnce(name, func() string {
 		e := os.Getenv(envPrefix + name)
 		if e == "" {
 			panic(ierr.RequiredEnvMissed(envPrefix + name))
 		}
 		return e
-	}).(string)
+	})
 }
 
 func getMapOr[T any](name string, fallback T, f func(string) (T, error)) T {
-	return getOnce(name, func() any {
+	return getOnce(name, func() T {
 		e := os.Getenv(envPrefix + name)
 		if e == "" {
 			return fallback
@@ -60,5 +60,5 @@ func getMapOr[T any](name string, fallback T, f func(string) (T, error)) T {
 			panic(ierr.FormatError("name", e).From(err))
 		}
 		return t
-	}).(T)
+	})
 }

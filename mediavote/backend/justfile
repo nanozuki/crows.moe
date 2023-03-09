@@ -1,0 +1,20 @@
+# vi:ft=make
+
+set shell := ["fish", "-c"]
+
+proj := "github.com/nanozuki/crows.moe/mediavote/backend/"
+
+default:
+	just --list
+
+test-all:
+	podman-compose run server go test ./...
+
+test MODEL:
+	podman-compose run server go test {{proj}}{{MODEL}}
+
+down:
+	podman-compose down -v
+
+gen:
+	go generate

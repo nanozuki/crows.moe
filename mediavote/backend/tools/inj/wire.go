@@ -15,7 +15,7 @@ import (
 
 func InitServer() (*server.Server, error) {
 	wire.Build(
-		wire.Struct(new(Server), "*"),
+		wire.Struct(new(server.Server), "*"),
 		wire.Struct(new(gql.Resolver), "*"),
 		wire.Bind(new(graph.ResolverRoot), new(*gql.Resolver)),
 		wire.Value(gql.DirectiveRoot),
@@ -24,4 +24,22 @@ func InitServer() (*server.Server, error) {
 		wire.Bind(new(port.Repository), new(*repository.Repository)),
 	)
 	return &server.Server{}, nil
+}
+
+func InitAuthService() (*auth.Service, error) {
+	wire.Build(
+		wire.Struct(new(auth.Service), "*"),
+		repository.NewRepository,
+		wire.Bind(new(port.Repository), new(*repository.Repository)),
+	)
+	return &auth.Service{}, nil
+}
+
+func InitGqlResolver() (*gql.Resolver, error) {
+	wire.Build(
+		wire.Struct(new(gql.Resolver), "*"),
+		repository.NewRepository,
+		wire.Bind(new(port.Repository), new(*repository.Repository)),
+	)
+	return &gql.Resolver{}, nil
 }

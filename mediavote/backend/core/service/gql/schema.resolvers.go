@@ -14,74 +14,16 @@ import (
 )
 
 // PostNominations is the resolver for the postNominations field.
-func (r *mutationResolver) PostNominations(ctx context.Context, department entity.Department, works []string) ([]*entity.Nomination, error) {
-	voterID := entity.CtxUserFromContext(ctx).VoterID
-	var nomis []*entity.Nomination
-	for _, work := range works {
-		nomi, err := entity.NewNomination(voterID, department, work)
-		if err != nil {
-			return nil, err
-		}
-
-		nomis = append(nomis, nomi)
-	}
-	err := r.Repository.WithTx(ctx, func(ctx context.Context) error {
-		for _, nomi := range nomis {
-			err := r.Repository.Nomination().Create(ctx, nomi)
-			if err != nil && !ierr.IsErrCode(err, ierr.CodeDuplicatedObject) {
-				return err
-			}
-		}
-		return nil
-	})
-	return nomis, err
-}
-
-// DeleteNomination is the resolver for the deleteNomination field.
-func (r *mutationResolver) DeleteNomination(ctx context.Context, id uint) (*bool, error) {
-	voterID := entity.CtxUserFromContext(ctx).VoterID
-	nomi, err := r.Repository.Nomination().GetByID(ctx, id)
+func (r *mutationResolver) PostNomination(ctx context.Context, department entity.Department, work string) ([]*entity.Nomination, error) {
+	nomi, err := entity.NewNomination(department, work)
 	if err != nil {
 		return nil, err
 	}
-	if nomi.VoterID != voterID {
-		return nil, ierr.Forbidden(ierr.NotYourData)
-	}
-	err = r.Repository.Nomination().Delete(ctx, id)
-	return toPtr(err == nil), err
-}
-
-// NewWork is the resolver for the newWork field.
-func (r *mutationResolver) NewWork(ctx context.Context, input entity.WorkInput) (*entity.Work, error) {
-	work, err := entity.NewWork(input)
-	if err != nil {
+	err = r.Repository.Nomination().Create(ctx, nomi)
+	if err != nil && !ierr.IsErrCode(err, ierr.CodeDuplicatedObject) {
 		return nil, err
 	}
-	if err := r.Repository.Work().Create(ctx, work); err != nil {
-		return nil, err
-	}
-	return work, nil
-}
-
-// WorkAddAlias is the resolver for the workAddAlias field.
-func (r *mutationResolver) WorkAddAlias(ctx context.Context, id uint, alias []string) (*entity.Work, error) {
-	work, err := r.Repository.Work().GetByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	work.AddAlias(alias)
-	err = r.Repository.WithTx(ctx, func(ctx context.Context) error {
-		if err := r.Repository.Work().UpdateOne(ctx, id, &port.WorkUpdate{Alias: work.Alias}); err != nil {
-			return err
-		}
-		query := &port.NominationQuery{Department: work.Department, WorkNames: alias}
-		update := &port.NominationUpdate{WorkID: id}
-		if err := r.Repository.Nomination().UpdateMany(ctx, query, update); err != nil {
-			return err
-		}
-		return nil
-	})
-	return work, nil
+	return r.Resolver.Query().Nominations(ctx, &department)
 }
 
 // PostBallot is the resolver for the postBallot field.

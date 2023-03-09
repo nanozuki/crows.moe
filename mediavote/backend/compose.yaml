@@ -1,6 +1,6 @@
 services:
   server:
-    image: golang:latest
+    image: docker.io/library/golang:latest
     environment:
       - 'MEDIAVOTE_PORT=8080'
       - 'MEDIAVOTE_ADMIN_KEY=1234'
@@ -16,14 +16,18 @@ services:
       - redis
     volumes:
       - .:/usr/src/myapp
-      - ./testdata/gomod:/go/pkg
+      - ./testdata/gopath:/go
     working_dir: /usr/src/myapp
-    command: ['go', 'run', 'main.go']
   postgres:
-    image: postgres:latest
+    image: docker.io/library/postgres:latest
     environment:
       - POSTGRES_USER=pguser
       - POSTGRES_PASSWORD=pgpasswd
       - POSTGRES_DB=pguser
+    ports:
+      - 5432:5432
   redis:
-    image: redis:latest
+    image: docker.io/library/redis:latest
+    command: ['redis-server', '--loglevel', 'verbose']
+    ports:
+      - 6379:6379

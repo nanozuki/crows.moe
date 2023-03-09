@@ -3,7 +3,6 @@ schema {
   mutation: Mutation
 }
 
-directive @isAdmin on FIELD_DEFINITION
 directive @hasAuth on FIELD_DEFINITION
 
 type Query {
@@ -15,13 +14,7 @@ type Query {
 }
 
 type Mutation {
-  postNominations(department: Department!, works: [String!]): [Nomination!]
-    @hasAuth
-  deleteNomination(id: ID!): Boolean @isAdmin
-
-  newWork(input: WorkInput!): Work @isAdmin
-  workAddAlias(id: ID!, alias: [String!]): Work @isAdmin
-
+  postNomination(department: Department!, work: String!): [Nomination!]
   postBallot(input: BallotInput!): Ballot @hasAuth
 }
 
@@ -34,17 +27,10 @@ type Voter {
 
 type Nomination {
   id: ID!
-  voterID: ID!
   department: Department!
   workName: String!
   workID: ID
   work: Work
-}
-
-input WorkInput {
-  department: Department!
-  nameCN: String!
-  nameOrigin: String!
 }
 
 type Work {

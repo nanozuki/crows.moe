@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
 	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/env"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -40,12 +41,17 @@ func (s *Server) loadCtxUser(next echo.HandlerFunc) echo.HandlerFunc {
 
 func (s *Server) getCtxUserByCookie(c echo.Context) *entity.CtxUser {
 	sessionCookie, err := c.Cookie(SessionCookieName)
-	if err != nil || sessionCookie.Value == "" {
+	if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
+		log.Info().Msg("Get no cookie from head")
 		return &entity.CtxUser{}
 	}
+	log.Info().Msgf("Get cookie from head: session=%s, err=%v", sessionCookie.Value, err)
 	session, err := s.AuthService.GetSession(c.Request().Context(), sessionCookie.Value)
+	log.Info().Msgf("Get seesion by cookie: session=%v, err=%v", session, err)
 	if err != nil {
 		return &entity.CtxUser{}
 	}
-	return entity.NewFromSession(session)
+	ctxUser := entity.NewFromSession(session)
+	log.Info().Msgf("Generate user in context: user=%v", *ctxUser)
+	return ctxUser
 }

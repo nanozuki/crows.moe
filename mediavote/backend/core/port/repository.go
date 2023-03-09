@@ -11,7 +11,7 @@ import (
 type EntityRepository[ID, Entity, Query, Update any] interface {
 	GetByID(ctx context.Context, id ID) (*Entity, error)
 	Search(ctx context.Context, query *Query) ([]*Entity, error)
-	Create(ctx context.Context, nomi *Entity) error
+	Create(ctx context.Context, entity *Entity) error
 	UpdateOne(ctx context.Context, id uint, update *Update) error
 	UpdateMany(ctx context.Context, query *Query, update *Update) error
 	Delete(ctx context.Context, id uint) error
@@ -29,6 +29,7 @@ type CacheRepository[C Cacher] interface {
 
 type Repository interface {
 	WithTx(ctx context.Context, fn func(context.Context) error, opts ...*sql.TxOptions) error
+	Reset() error
 
 	Ballot() EntityRepository[uint, entity.Ballot, BallotQuery, BallotUpdate]
 	Nomination() EntityRepository[uint, entity.Nomination, NominationQuery, NominationUpdate]

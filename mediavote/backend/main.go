@@ -6,7 +6,7 @@ import (
 )
 
 //go:generate go run -mod=mod github.com/99designs/gqlgen generate
-//go:generate go run -mod=mod github.com/google/wire/cmd/wire ./server
+//go:generate go run -mod=mod github.com/google/wire/cmd/wire ./tools/inj
 
 func main() {
 	server := generic.Must(inj.InitServer())
