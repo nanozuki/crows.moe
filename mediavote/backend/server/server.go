@@ -4,6 +4,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/service/auth"
 	"github.com/nanozuki/crows.moe/mediavote/backend/graph"
 	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/env"
@@ -21,6 +22,10 @@ func (s *Server) Run() {
 		Directives: s.GqlDirectives,
 	}))
 	e := echo.New()
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:3000", "https://crows.moe"},
+		AllowHeaders: []string{"*"},
+	}))
 	e.Use(s.loadCtxUser)
 
 	e.Any("/", echo.WrapHandler(playground.Handler("Mediavote GraphQL playground", "/query")))

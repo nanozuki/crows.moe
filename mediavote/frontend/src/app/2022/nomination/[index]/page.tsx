@@ -1,20 +1,24 @@
-import { notFound } from 'next/navigation';
-import TabLine from '@app/shared/TabLine';
-import Title from '@app/shared/Title';
-import ToNextButton from '@app/shared/ToNextButton';
-import ToPrevButton from '@app/shared/ToPrevButton';
-import { ReactNode } from 'react';
-import NomItem from './NomItem';
-import PostForm from './PostForm';
+import { notFound } from "next/navigation";
+import TabLine from "@app/shared/TabLine";
+import Title from "@app/shared/Title";
+import ToNextButton from "@app/shared/ToNextButton";
+import ToPrevButton from "@app/shared/ToPrevButton";
+import { ReactNode } from "react";
+import NomList from "./NomList";
+import { Department } from "@gqlgen/graphql";
+import { doc } from "@gql/init";
+import { srvQuery } from "@app/shared/gql";
 
 interface DepartmentInfo {
   name: string;
+  dept: Department;
   intro: ReactNode;
 }
 
 const departments: DepartmentInfo[] = [
   {
-    name: 'TV动画',
+    name: "TV动画",
+    dept: Department.TvAnime,
     intro: (
       <div className="text-subtle mt-1 mb-1">
         <p className="mt-1 mb-1">
@@ -31,7 +35,8 @@ const departments: DepartmentInfo[] = [
     ),
   },
   {
-    name: '其他动画',
+    name: "其他动画",
+    dept: Department.NonTvAnime,
     intro: (
       <div className="text-subtle mt-1 mb-1">
         <p className="mt-1 mb-1">
@@ -49,7 +54,8 @@ const departments: DepartmentInfo[] = [
     ),
   },
   {
-    name: '漫画',
+    name: "漫画",
+    dept: Department.Manga,
     intro: (
       <div className="text-subtle mt-1 mb-1">
         <p className="mt-1 mb-1">
@@ -59,7 +65,8 @@ const departments: DepartmentInfo[] = [
     ),
   },
   {
-    name: '电子游戏',
+    name: "电子游戏",
+    dept: Department.Game,
     intro: (
       <div className="text-subtle mt-1 mb-1">
         <p className="mt-1 mb-1">
@@ -70,7 +77,8 @@ const departments: DepartmentInfo[] = [
     ),
   },
   {
-    name: '小说',
+    name: "小说",
+    dept: Department.Novel,
     intro: (
       <div className="text-subtle mt-1 mb-1">
         <p className="mt-1 mb-1">
@@ -78,19 +86,6 @@ const departments: DepartmentInfo[] = [
         </p>
       </div>
     ),
-  },
-];
-
-const nominationExamples = [
-  { name: '孤独摇滚', alias: [] },
-  { name: '派对咖孔明', alias: ['派对浪客诸葛孔明'] },
-  {
-    name: '明日同学的水手服',
-    alias: ['明日酱的水手服', '明日ちゃんのセーラー服'],
-  },
-  {
-    name: '战神：诸神黄昏',
-    alias: ['战神5', '北欧战神2', 'God of War: Ragnarök'],
   },
 ];
 
@@ -139,13 +134,15 @@ interface NominationPageProps {
   params: { index: string };
 }
 
-export default function Page({ params }: NominationPageProps) {
+export default async function Page({ params }: NominationPageProps) {
   const { index: department } = params;
   const idx = parseInt(department);
   if (isNaN(idx) || idx < 1 || idx > 5) {
     notFound();
   }
+
   const info = departments[idx - 1];
+  const data = await srvQuery(doc.getNominations, { dept: info.dept });
   return (
     <div>
       <Title year="2022" to="/"></Title>
@@ -164,13 +161,11 @@ export default function Page({ params }: NominationPageProps) {
         </p>
         {info.intro}
       </div>
-      <div className="mt-8 mb-8">
-        {nominationExamples.map((nomi) => {
-          const props = { ...nomi, className: 'mt-4' };
-          return <NomItem key={nomi.name} {...props} />;
-        })}
-        <PostForm className="mt-2 mb-4" />
-      </div>
+      <NomList
+        className="mt-8 mb-8"
+        dept={info.dept}
+        noms={data.nominations || new Array()}
+      />
       <div className="flex flex-row mt-12 mb-4 gap-x-2">
         <ToPrevDP idx={idx} />
         <ToNextDP idx={idx} />
@@ -182,10 +177,10 @@ export default function Page({ params }: NominationPageProps) {
 
 export async function generateStaticParams() {
   return [
-    { index: '1' },
-    { index: '2' },
-    { index: '3' },
-    { index: '4' },
-    { index: '5' },
+    { index: "1" },
+    { index: "2" },
+    { index: "3" },
+    { index: "4" },
+    { index: "5" },
   ];
 }

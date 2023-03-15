@@ -5,12 +5,14 @@ specifiers:
   '@graphql-codegen/cli': 3.2.2
   '@graphql-codegen/client-preset': 2.1.1
   '@graphql-codegen/introspection': 3.0.1
+  '@graphql-typed-document-node/core': ^3.1.2
   '@iconify-json/material-symbols': ^1.1.32
   '@next/font': 13.1.4
   '@svgr/core': ^6.5.1
   '@types/node': 18.11.18
   '@types/react': 18.0.27
   '@types/react-dom': 18.0.10
+  '@urql/core': ^3.2.2
   autoprefixer: ^10.4.13
   eslint: 8.32.0
   eslint-config-next: 13.1.4
@@ -23,12 +25,14 @@ specifiers:
   tailwindcss: ^3.2.4
   typescript: 4.9.4
   unplugin-icons: ^0.15.3
+  urql: ^3.0.4
 
 dependencies:
   '@next/font': 13.1.4
   '@types/node': 18.11.18
   '@types/react': 18.0.27
   '@types/react-dom': 18.0.10
+  '@urql/core': 3.2.2_graphql@16.6.0
   eslint: 8.32.0
   eslint-config-next: 13.1.4_7uibuqfxkfaozanbtbziikiqje
   graphql: 16.6.0
@@ -36,12 +40,14 @@ dependencies:
   react: 18.2.0
   react-aria: 3.23.1_biqbaboplfbrettd7655fr4n2y
   react-dom: 18.2.0_react@18.2.0
+  urql: 3.0.4_onqnqwb3ubg5opvemcqf7c2qhy
 
 devDependencies:
   '@babel/core': 7.21.0
   '@graphql-codegen/cli': 3.2.2_2cxytq6ybal6r75smbo2bi6m2m
   '@graphql-codegen/client-preset': 2.1.1_graphql@16.6.0
   '@graphql-codegen/introspection': 3.0.1_graphql@16.6.0
+  '@graphql-typed-document-node/core': 3.1.2_graphql@16.6.0
   '@iconify-json/material-symbols': 1.1.32
   '@svgr/core': 6.5.1
   autoprefixer: 10.4.13_postcss@8.4.21
@@ -3027,6 +3033,15 @@ packages:
     dependencies:
       '@typescript-eslint/types': 5.48.2
       eslint-visitor-keys: 3.3.0
+    dev: false
+
+  /@urql/core/3.2.2_graphql@16.6.0:
+    resolution: {integrity: sha512-i046Cz8cZ4xIzGMTyHZrbdgzcFMcKD7+yhCAH5FwWBRjcKrc+RjEOuR9X5AMuBvr8c6IAaE92xAqa4wmlGfWTQ==}
+    peerDependencies:
+      graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+    dependencies:
+      graphql: 16.6.0
+      wonka: 6.2.4
     dev: false
 
   /@whatwg-node/events/0.0.2:
@@ -6508,6 +6523,18 @@ packages:
       braces: 3.0.2
     dev: true
 
+  /urql/3.0.4_onqnqwb3ubg5opvemcqf7c2qhy:
+    resolution: {integrity: sha512-okmQKQ9pF4t8O8iCC5gH9acqfFji5lkhW3nLBjx8WKDd2zZG7PXoUpUK19VQEMK87L6VFBOO/XZ52MMKFEI0AA==}
+    peerDependencies:
+      graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+      react: '>= 16.8.0'
+    dependencies:
+      '@urql/core': 3.2.2_graphql@16.6.0
+      graphql: 16.6.0
+      react: 18.2.0
+      wonka: 6.2.4
+    dev: false
+
   /util-deprecate/1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
     dev: true
@@ -6603,6 +6630,10 @@ packages:
     hasBin: true
     dependencies:
       isexe: 2.0.0
+
+  /wonka/6.2.4:
+    resolution: {integrity: sha512-+q0VMDFqLzu+NAOdhmebQb46Fprip1zV1I/AhKYG4MAtru03R5L6MU89XQK59YDiPL7ELDZEEgZTGtCJ0BWL6g==}
+    dev: false
 
   /word-wrap/1.2.3:
     resolution: {integrity: sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==}
