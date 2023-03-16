@@ -1,3 +1,5 @@
+user: '${UID}:${GID}'
+userns_mode: 'host'
 services:
   server:
     image: docker.io/library/golang:latest

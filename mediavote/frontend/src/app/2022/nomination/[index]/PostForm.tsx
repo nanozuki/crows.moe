@@ -1,12 +1,11 @@
-"use client";
+'use client';
 
-import { useTextField } from "react-aria";
-import { useButton } from "react-aria";
-import { ReactNode, useRef, useState } from "react";
-import { useMutation } from "urql";
-import { doc } from "@gql/init";
-import { Department } from "@gqlgen/graphql";
-import { useRouter } from "next/navigation";
+import { useTextField } from 'react-aria';
+import { useButton } from 'react-aria';
+import { ReactNode, useRef, useState } from 'react';
+import { useMutation } from 'urql';
+import { doc } from '@gql/init';
+import { Department, Nomination } from '@gqlgen/graphql';
 
 interface WorkNameInputProps {
   className?: string;
@@ -16,7 +15,7 @@ interface WorkNameInputProps {
   placeholder?: string;
 
   onChange: (value: string) => void;
-  text: string;
+  value: string;
 }
 
 function WorkNameInput(props: WorkNameInputProps) {
@@ -45,8 +44,8 @@ function WorkNameInput(props: WorkNameInputProps) {
       )}
       <input
         className={
-          "block w-full h-10 mt-1 px-2 rounded bg-surface border-text border-2 " +
-          "focus:border-rose focus-visible:border-rose outline-none shadow-none"
+          'block w-full h-10 mt-1 px-2 rounded bg-surface border-text border-2 ' +
+          'focus:border-rose focus-visible:border-rose outline-none shadow-none'
         }
         ref={ref}
         {...inputProps}
@@ -59,6 +58,7 @@ interface SubmitButtonProps {
   className?: string;
   children?: ReactNode;
   onClick: (e: Event) => void;
+  fetching: boolean;
 }
 
 function SubmitButton(props: SubmitButtonProps) {
@@ -66,7 +66,12 @@ function SubmitButton(props: SubmitButtonProps) {
   let { buttonProps } = useButton(props, ref);
 
   return (
-    <button className={`${props.className}`} ref={ref} {...buttonProps}>
+    <button
+      className={`${props.className}`}
+      ref={ref}
+      disabled={props.fetching}
+      {...buttonProps}
+    >
       <p>提交提名</p>
     </button>
   );
@@ -75,22 +80,21 @@ function SubmitButton(props: SubmitButtonProps) {
 interface PostFormProps {
   className?: string;
   dept: Department;
+  setNoms: (noms: Nomination[]) => void;
 }
 
 export default function PostForm(props: PostFormProps) {
-  const router = useRouter();
-  const [text, setText] = useState("");
-  const [errMessage, setErrMessage] = useState<string | undefined>();
-  const [_, post] = useMutation(doc.addNomination);
+  const [inputText, setInputText] = useState('');
+  const [{ fetching, error }, post] = useMutation(doc.addNomination);
   const onClick = async (e: Event) => {
-    const result = await post({ dept: props.dept, work: text });
-    if (result.error) {
-      setErrMessage(result.error.toString());
-    } else {
-      setErrMessage(undefined);
+    e.preventDefault();
+    const result = await post({ dept: props.dept, work: inputText });
+    if (!result.error) {
+      props.setNoms(result.data?.postNomination || new Array());
+      setInputText('');
     }
-    router.refresh();
   };
+  const btnBg = fetching ? 'bg-muted' : 'bg-pine';
   return (
     <div
       className={`flex flex-col wide:flex-row gap-2 items-end ${props.className}`}
@@ -98,13 +102,14 @@ export default function PostForm(props: PostFormProps) {
       <WorkNameInput
         className="w-full"
         label="作品名称"
-        text={text}
-        onChange={setText}
-        errorMessage={errMessage}
+        value={inputText}
+        onChange={setInputText}
+        errorMessage={error && error.toString()}
       />
       <SubmitButton
-        className="bg-pine text-base w-full wide:w-[10rem] px-8 h-10 rounded"
+        className={`${btnBg} text-base w-full wide:w-[10rem] px-8 h-10 rounded`}
         onClick={onClick}
+        fetching={fetching}
       />
     </div>
   );

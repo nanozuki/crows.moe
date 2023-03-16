@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import NomItem from "./NomItem";
-import PostForm from "./PostForm";
-import { Department, type Nomination } from "@gqlgen/graphql";
-import { type NomItemProps } from "./NomItem";
+import { useState } from 'react';
+import NomItem from './NomItem';
+import PostForm from './PostForm';
+import { Department, type Nomination } from '@gqlgen/graphql';
+import { type NomItemProps } from './NomItem';
 
 interface NomListProps {
   className?: string;
@@ -40,21 +40,24 @@ function nomsToNomItemProps(noms: Nomination[]): NomItemProps[] {
       alias: names.slice(1),
     });
   }
-  console.log("items: ", props);
+  console.log('items: ', props);
   return props;
 }
 
 export default function NomList({ className, noms, dept }: NomListProps) {
-  console.log("get noms: ", noms);
-  const [nomsState, _] = useState(nomsToNomItemProps(noms));
-  console.log("nom state", nomsState);
+  console.log('get noms: ', noms);
+  const [nomsState, setNomsState] = useState(nomsToNomItemProps(noms));
+  console.log('nom state', nomsState);
+  const setNoms = (noms: Nomination[]): void => {
+    setNomsState(nomsToNomItemProps(noms));
+  };
   return (
     <div className={`${className}`}>
       {nomsState.map((nom) => {
-        const props = { ...nom, className: "mt-4" };
+        const props = { ...nom, className: 'mt-4' };
         return <NomItem key={nom.name} {...props} />;
       })}
-      <PostForm className="mt-2 mb-4" dept={dept} />
+      <PostForm className="mt-2 mb-4" dept={dept} setNoms={setNoms} />
     </div>
   );
 }

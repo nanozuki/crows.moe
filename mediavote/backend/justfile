@@ -13,11 +13,11 @@ test-all:
 test MODEL:
 	podman-compose run server go test {{proj}}{{MODEL}}
 
+run:
+	podman-compose up
+
 down:
 	podman-compose down -v
 
 gen:
 	go generate
-
-run:
-	podman-compose up
