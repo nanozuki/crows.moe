@@ -1,6 +1,7 @@
 package ierr
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -40,6 +41,14 @@ func Is(err error, target *Error) bool {
 		return false
 	}
 	return e.Code == target.Code && cmp.Equal(e.Fields, target.Fields)
+}
+
+func IsErrCode(err error, code string) bool {
+	ie := &Error{}
+	if ok := errors.As(err, &ie); !ok {
+		return false
+	}
+	return ie.Code == code
 }
 
 type F map[string]string

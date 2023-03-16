@@ -20,6 +20,6 @@ func unwrapPtr[T any](pt *T) T {
 	return *pt
 }
 
-func toPtr[T any](t T) *T {
-	return &t
-}
+// func toPtr[T any](t T) *T {
+// 	return &t
+// }

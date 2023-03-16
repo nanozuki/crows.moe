@@ -64,7 +64,6 @@ func (r *Repository) Nomination() port.EntityRepository[uint, entity.Nomination,
 		ModelToEntity: func(m *Nomination) *entity.Nomination {
 			return &entity.Nomination{
 				ID:         m.ID,
-				VoterID:    m.VoterID,
 				Department: m.Department,
 				WorkName:   m.WorkName,
 				WorkID:     nullInt64ToIDPtr(m.WorkID),
@@ -73,7 +72,6 @@ func (r *Repository) Nomination() port.EntityRepository[uint, entity.Nomination,
 		EntityToModel: func(e *entity.Nomination) *Nomination {
 			return &Nomination{
 				Model:      gorm.Model{ID: e.ID},
-				VoterID:    e.VoterID,
 				Department: e.Department,
 				WorkName:   e.WorkName,
 				WorkID:     idPtrToNullInt64(e.WorkID),

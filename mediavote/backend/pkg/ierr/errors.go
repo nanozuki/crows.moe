@@ -12,6 +12,7 @@ const (
 	CodeAlreadyLoggedIn     = "AlreadyLoggedIn"
 	CodeNameOrPinError      = "NameOrPinError"
 	CodeNotFound            = "NotFound"
+	CodeDuplicatedObject    = "CodeDuplicatedObject"
 )
 
 func InternalServerError(err error) *Error {
@@ -91,4 +92,11 @@ func NotFound(object string, query F) *Error {
 	}
 	e.Fields = query.Set("object", object)
 	return e
+}
+func DuplicatedObject(object string) *Error {
+	return &Error{
+		Code:    CodeDuplicatedObject,
+		Fields:  map[string]string{"object": object},
+		Message: fmt.Sprintf("new %s is duplicated", object),
+	}
 }

@@ -16,10 +16,4 @@ var DirectiveRoot = graph.DirectiveRoot{
 		}
 		return next(ctx)
 	},
-	IsAdmin: func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error) {
-		if !entity.CtxUserFromContext(ctx).IsAdmin {
-			return nil, ierr.Forbidden(ierr.NotAdmin)
-		}
-		return next(ctx)
-	},
 }

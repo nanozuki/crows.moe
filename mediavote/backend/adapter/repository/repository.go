@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/go-redis/redis/v9"
@@ -11,6 +13,7 @@ import (
 	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/env"
 	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/generic"
 	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
+	"github.com/rs/zerolog/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -53,6 +56,22 @@ func (r *Repository) WithTx(ctx context.Context, fn func(context.Context) error,
 		innerCtx := context.WithValue(ctx, dbCtxkey, tx)
 		return fn(innerCtx)
 	}, opts...)
+}
+
+func (r Repository) Reset() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+	db := r.getDB(ctx)
+	if err := db.Exec("DROP SCHEMA public CASCADE").Error; err != nil {
+		return err
+	}
+	if err := db.Exec("CREATE SCHEMA public").Error; err != nil {
+		return err
+	}
+	if err := db.AutoMigrate(models...); err != nil {
+		return err
+	}
+	return r.rds.FlushAll(ctx).Err()
 }
 
 var models = []interface{}{
@@ -102,7 +121,11 @@ func (er EntityRepository[ID, Entity, Query, Update, Model]) Search(ctx context.
 
 func (er EntityRepository[ID, Entity, Query, Update, Model]) Create(ctx context.Context, entity *Entity) error {
 	m := er.EntityToModel(entity)
-	if err := er.getDB(ctx).Create(entity).Error; err != nil {
+	if err := er.getDB(ctx).Create(m).Error; err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "duplicate") {
+			object := reflect.TypeOf(entity).Elem().Name()
+			return ierr.DuplicatedObject(object)
+		}
 		return err
 	}
 	*entity = *(er.ModelToEntity(m))
@@ -141,16 +164,19 @@ type CacheRepository[C port.Cacher] struct {
 
 func (cr CacheRepository[C]) Set(ctx context.Context, value C) error {
 	data := jsonMarshal(value)
+	log.Info().Msgf("set to cache, key=%s, value=%s", value.Key(), string(data))
 	err := cr.rds.Set(ctx, value.Key(), string(data), time.Until(value.ExpireTime())).Err()
 	return err
 }
 
 func (cr CacheRepository[C]) Get(ctx context.Context, key string) (C, error) {
 	data, err := cr.rds.Get(ctx, key).Result()
+	log.Info().Msgf("get from cache, key=%s, value=%s, err=%v", key, string(data), err)
 	var c C
 	if err != nil {
 		return c, nil
 	}
 	err = json.Unmarshal([]byte(data), &c)
+	log.Info().Msgf("get from cache, unmarshal to object=%v, err=%v", c, err)
 	return c, err
 }

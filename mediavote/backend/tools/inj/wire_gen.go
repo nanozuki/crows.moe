@@ -27,14 +27,36 @@ func InitServer() (*server.Server, error) {
 	service := &auth.Service{
 		Repository: repositoryRepository,
 	}
-	server := &server.Server{
+	serverServer := &server.Server{
 		GqlResolvers:  resolver,
 		GqlDirectives: directiveRoot,
 		AuthService:   service,
 	}
-	return server, nil
+	return serverServer, nil
 }
 
 var (
 	_wireDirectiveRootValue = gql.DirectiveRoot
 )
+
+func InitAuthService() (*auth.Service, error) {
+	repositoryRepository, err := repository.NewRepository()
+	if err != nil {
+		return nil, err
+	}
+	service := &auth.Service{
+		Repository: repositoryRepository,
+	}
+	return service, nil
+}
+
+func InitGqlResolver() (*gql.Resolver, error) {
+	repositoryRepository, err := repository.NewRepository()
+	if err != nil {
+		return nil, err
+	}
+	resolver := &gql.Resolver{
+		Repository: repositoryRepository,
+	}
+	return resolver, nil
+}

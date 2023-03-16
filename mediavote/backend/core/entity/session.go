@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -52,7 +53,11 @@ func NewFromSession(session *Session) *CtxUser {
 }
 
 func CtxUserFromContext(ctx context.Context) *CtxUser {
-	raw, _ := ctx.Value(userCtxKey).(*CtxUser)
+	raw, ok := ctx.Value(userCtxKey).(*CtxUser)
+	log.Info().Msgf("get user from context, user=%v, ok=%v", raw, ok)
+	if !ok {
+		return &CtxUser{}
+	}
 	return raw
 }
 
