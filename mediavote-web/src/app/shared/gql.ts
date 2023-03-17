@@ -1,12 +1,12 @@
-import { clientOpt } from "@gql/init";
-import { createClient } from "@urql/core";
+import { clientOpt } from '@gql/init';
+import { createClient } from '@urql/core';
 import {
   type AnyVariables,
   TypedDocumentNode,
   OperationContext,
-} from "@urql/core";
+} from '@urql/core';
 
-import { type DocumentNode } from "graphql";
+import { type DocumentNode } from 'graphql';
 
 const client = createClient(clientOpt());
 

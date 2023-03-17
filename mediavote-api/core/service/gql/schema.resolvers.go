@@ -6,17 +6,17 @@ package gql
 
 import (
 	"context"
-	"fmt"
+	"time"
 
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/port"
-	"github.com/nanozuki/crows.moe/mediavote/backend/graph"
-	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/port"
+	"github.com/nanozuki/crows.moe/mediavote-api/graph"
+	"github.com/nanozuki/crows.moe/mediavote-api/pkg/ierr"
 )
 
 // PostNominations is the resolver for the postNominations field.
-func (r *mutationResolver) PostNomination(ctx context.Context, department entity.Department, work string) ([]*entity.Nomination, error) {
-	nomi, err := entity.NewNomination(department, work)
+func (r *mutationResolver) PostNomination(ctx context.Context, department entity.Department, workName string) ([]*entity.Nomination, error) {
+	nomi, err := entity.NewNomination(department, workName)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (r *mutationResolver) PostNomination(ctx context.Context, department entity
 	if err != nil && !ierr.IsErrCode(err, ierr.CodeDuplicatedObject) {
 		return nil, err
 	}
-	return r.Resolver.Query().Nominations(ctx, &department)
+	return r.Resolver.Query().Nominations(ctx, department)
 }
 
 // PostBallot is the resolver for the postBallot field.
@@ -64,25 +64,39 @@ func (r *nominationResolver) Work(ctx context.Context, obj *entity.Nomination) (
 	if obj.WorkID == nil {
 		return nil, nil
 	}
-	return r.Repository.Work().GetByID(ctx, unwrapPtr(obj.WorkID))
+	return r.Repository.Work().GetByID(ctx, *obj.WorkID)
 }
 
-// Voter is the resolver for the voter field.
-func (r *queryResolver) Voter(ctx context.Context) (*entity.Voter, error) {
-	voterID := entity.CtxUserFromContext(ctx).VoterID
-	return r.Repository.Voter().GetByID(ctx, voterID)
+// Years is the resolver for the years field.
+func (r *queryResolver) Years(ctx context.Context) ([]*entity.AnnualInfo, error) {
+	return r.Repository.AnnualInfo().Search(ctx, &port.AnnualInfoQuery{Latest: true})
+}
+
+// ThisYear is the resolver for the thisYear field.
+func (r *queryResolver) ThisYear(ctx context.Context) (*entity.AnnualInfo, error) {
+	years, err := r.Repository.AnnualInfo().Search(ctx, &port.AnnualInfoQuery{Latest: true, Limit: 1})
+	if err != nil {
+		return nil, err
+	}
+	if len(years) == 0 {
+		return &entity.AnnualInfo{Year: time.Now().Year(), Stage: entity.StageNotYet}, nil
+	}
+	return years[0], nil
+}
+
+// Awards is the resolver for the awards field.
+func (r *queryResolver) Awards(ctx context.Context, year int) ([]*entity.Ranking, error) {
+	return r.Repository.Ranking().Search(ctx, &port.RankingQuery{Year: year})
+}
+
+// Ballot is the resolver for the ballot field.
+func (r *queryResolver) Ballot(ctx context.Context, year int) ([]*entity.Ballot, error) {
+	return r.Repository.Ballot().Search(ctx, &port.BallotQuery{Year: year})
 }
 
 // Nominations is the resolver for the nominations field.
-func (r *queryResolver) Nominations(ctx context.Context, department *entity.Department) ([]*entity.Nomination, error) {
-	return r.Repository.Nomination().Search(ctx, &port.NominationQuery{
-		Department: unwrapPtr(department),
-	})
-}
-
-// Works is the resolver for the works field.
-func (r *queryResolver) Works(ctx context.Context, department *entity.Department) ([]*entity.Work, error) {
-	return r.Repository.Work().Search(ctx, &port.WorkQuery{Department: unwrapPtr(department)})
+func (r *queryResolver) Nominations(ctx context.Context, department entity.Department) ([]*entity.Nomination, error) {
+	return r.Repository.Nomination().Search(ctx, &port.NominationQuery{Department: department})
 }
 
 // Ranking is the resolver for the ranking field.
@@ -97,14 +111,10 @@ func (r *queryResolver) Ranking(ctx context.Context, department entity.Departmen
 	return rankings[0], nil
 }
 
-// Rankings is the resolver for the rankings field.
-func (r *queryResolver) Rankings(ctx context.Context) ([]*entity.Ranking, error) {
-	return r.Repository.Ranking().Search(ctx, &port.RankingQuery{})
-}
-
-// Years is the resolver for the years field.
-func (r *queryResolver) Years(ctx context.Context) ([]*entity.AnnualInfo, error) {
-	panic(fmt.Errorf("not implemented: Years - years"))
+// Voter is the resolver for the voter field.
+func (r *queryResolver) Voter(ctx context.Context) (*entity.Voter, error) {
+	voterID := entity.CtxUserFromContext(ctx).VoterID
+	return r.Repository.Voter().GetByID(ctx, voterID)
 }
 
 // Ballot is the resolver for the ballot field.

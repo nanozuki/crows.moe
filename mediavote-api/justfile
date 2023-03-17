@@ -2,19 +2,19 @@
 
 set shell := ["fish", "-c"]
 
-proj := "github.com/nanozuki/crows.moe/mediavote/backend/"
+proj := "github.com/nanozuki/crows.moe/mediavote-api/"
 
 default:
 	just --list
 
 test-all:
-	podman-compose run server go test ./...
+	ENV=testing podman-compose run server go test ./...
 
 test MODEL:
-	podman-compose run server go test {{proj}}{{MODEL}}
+	ENV=testing podman-compose run server go test {{proj}}{{MODEL}}
 
 run:
-	podman-compose up
+	ENV=dev podman-compose up
 
 down:
 	podman-compose down -v

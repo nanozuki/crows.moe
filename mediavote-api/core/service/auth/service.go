@@ -3,9 +3,9 @@ package auth
 import (
 	"context"
 
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/port"
-	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/port"
+	"github.com/nanozuki/crows.moe/mediavote-api/pkg/ierr"
 	"github.com/rs/zerolog/log"
 )
 

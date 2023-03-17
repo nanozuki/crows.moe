@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
+	"github.com/nanozuki/crows.moe/mediavote-api/pkg/ierr"
 )
 
 func (s *Server) Register(c echo.Context) error {

@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
 )
 
 type EntityRepository[ID, Entity, Query, Update any] interface {
@@ -31,6 +31,7 @@ type Repository interface {
 	WithTx(ctx context.Context, fn func(context.Context) error, opts ...*sql.TxOptions) error
 	Reset() error
 
+	AnnualInfo() EntityRepository[uint, entity.AnnualInfo, AnnualInfoQuery, AnnualInfoUpdate]
 	Ballot() EntityRepository[uint, entity.Ballot, BallotQuery, BallotUpdate]
 	Nomination() EntityRepository[uint, entity.Nomination, NominationQuery, NominationUpdate]
 	Ranking() EntityRepository[uint, entity.Ranking, RankingQuery, RankingUpdate]
@@ -39,9 +40,17 @@ type Repository interface {
 	Work() EntityRepository[uint, entity.Work, WorkQuery, WorkUpdate]
 }
 
+type AnnualInfoQuery struct {
+	Limit  int
+	Latest bool
+}
+
+type AnnualInfoUpdate struct{}
+
 type BallotQuery struct {
 	VoterID    uint
 	Department entity.Department
+	Year       int
 }
 
 type BallotUpdate struct {
@@ -61,6 +70,7 @@ type NominationUpdate struct {
 
 type RankingQuery struct {
 	Department entity.Department
+	Year       int
 }
 
 type RankingUpdate struct {

@@ -5,16 +5,78 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"time"
 
-	"github.com/lib/pq"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/port"
-	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/port"
+	"github.com/nanozuki/crows.moe/mediavote-api/pkg/ierr"
 	"gorm.io/gorm"
 )
 
+type AnnualInfo struct {
+	gorm.Model
+	Year               int
+	NominationsStartAt time.Time
+	VoteStartAt        time.Time
+	AwardsStartAt      time.Time
+}
+
+func (i *AnnualInfo) Stage() entity.Stage {
+	now := time.Now()
+	if now.After(i.AwardsStartAt) {
+		return entity.StageAwards
+	}
+	if now.After(i.VoteStartAt) {
+		return entity.StageVote
+	}
+	if now.After(i.NominationsStartAt) {
+		return entity.StageNominations
+	}
+	return entity.StageNotYet
+}
+
+func (r *Repository) AnnualInfo() port.EntityRepository[uint, entity.AnnualInfo, port.AnnualInfoQuery, port.AnnualInfoUpdate] {
+	return EntityRepository[uint, entity.AnnualInfo, port.AnnualInfoQuery, port.AnnualInfoUpdate, AnnualInfo]{
+		Repository: r,
+		ModelToEntity: func(m *AnnualInfo) *entity.AnnualInfo {
+			return &entity.AnnualInfo{
+				ID:                 m.ID,
+				Year:               m.Year,
+				Stage:              m.Stage(),
+				NominationsStartAt: m.NominationsStartAt,
+				VoteStartAt:        m.VoteStartAt,
+				AwardsStartAt:      m.AwardsStartAt,
+			}
+		},
+		EntityToModel: func(e *entity.AnnualInfo) *AnnualInfo {
+			return &AnnualInfo{
+				Model:              gorm.Model{ID: e.ID},
+				Year:               e.Year,
+				NominationsStartAt: e.NominationsStartAt,
+				VoteStartAt:        e.VoteStartAt,
+				AwardsStartAt:      e.AwardsStartAt,
+			}
+		},
+		QueryToDB: func(db *gorm.DB, query *port.AnnualInfoQuery) *gorm.DB {
+			if query.Latest {
+				db = db.Order("year desc")
+			} else {
+				db = db.Order("year")
+			}
+			if query.Limit > 0 {
+				db = db.Limit(query.Limit)
+			}
+			return db
+		},
+		UpdateToDB: func(db *gorm.DB, update *port.AnnualInfoUpdate) *gorm.DB {
+			panic("can't modity annual info by program")
+		},
+	}
+}
+
 type Ballot struct {
 	gorm.Model
+	Year       int               `gorm:"index"`
 	VoterID    uint              `gorm:"index:idx_ballot_voter_dp,unique,priority:1"`
 	Department entity.Department `gorm:"size:15;index:idx_ballot_voter_dp,unique,priority:2"`
 	Candidates []byte            `gorm:"type:jsonb"`
@@ -42,6 +104,7 @@ func (r *Repository) Ballot() port.EntityRepository[uint, entity.Ballot, port.Ba
 		QueryToDB: func(db *gorm.DB, query *port.BallotQuery) *gorm.DB {
 			db = whereEq(db, "voter_id", query.VoterID)
 			db = whereEq(db, "department", query.Department)
+			db = whereEq(db, "year", query.Year)
 			return db
 		},
 		UpdateToDB: func(db *gorm.DB, update *port.BallotUpdate) *gorm.DB {
@@ -169,7 +232,6 @@ type Work struct {
 	Department entity.Department `gorm:"size:15"`
 	NameCN     string            `gorm:"size:255"`
 	NameOrigin string            `gorm:"size:255"`
-	Alias      pq.StringArray    `gorm:"type:text[][]"`
 }
 
 func (r *Repository) Work() port.EntityRepository[uint, entity.Work, port.WorkQuery, port.WorkUpdate] {
@@ -181,7 +243,6 @@ func (r *Repository) Work() port.EntityRepository[uint, entity.Work, port.WorkQu
 				Department: m.Department,
 				NameCN:     m.NameCN,
 				NameOrigin: m.NameOrigin,
-				Alias:      m.Alias,
 			}
 		},
 		EntityToModel: func(e *entity.Work) *Work {
@@ -190,7 +251,6 @@ func (r *Repository) Work() port.EntityRepository[uint, entity.Work, port.WorkQu
 				Department: e.Department,
 				NameCN:     e.NameCN,
 				NameOrigin: e.NameOrigin,
-				Alias:      e.Alias,
 			}
 		},
 		QueryToDB: func(db *gorm.DB, query *port.WorkQuery) *gorm.DB {
@@ -223,21 +283,21 @@ func jsonUnmarshal[T any](data []byte) T {
 }
 
 func updateCol[T any](db *gorm.DB, column string, value T) *gorm.DB {
-	if reflect.ValueOf(&value).Elem().IsZero() { // TODO: test this
+	if reflect.ValueOf(value).IsZero() { // TODO: test this
 		return db
 	}
 	return db.Update(column, value)
 }
 
 func whereEq[T any](db *gorm.DB, column string, value T) *gorm.DB {
-	if reflect.ValueOf(&value).Elem().IsZero() {
+	if reflect.ValueOf(value).IsZero() {
 		return db
 	}
 	return db.Where(fmt.Sprintf("%s = ?", column), value)
 }
 
 func whereIn[T any](db *gorm.DB, column string, value []T) *gorm.DB {
-	if reflect.ValueOf(&value).Elem().IsZero() {
+	if reflect.ValueOf(value).IsZero() {
 		return db
 	}
 	return db.Where(fmt.Sprintf("%s in ?", column), value)

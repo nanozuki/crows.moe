@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
-	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/env"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
+	"github.com/nanozuki/crows.moe/mediavote-api/pkg/env"
 	"github.com/rs/zerolog/log"
 )
 

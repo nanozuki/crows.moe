@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 
-	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
+	"github.com/nanozuki/crows.moe/mediavote-api/pkg/ierr"
 )
 
 type Voter struct {

@@ -14,6 +14,12 @@ export type Scalars = {
   Float: number;
 };
 
+export type AnnualInfo = {
+  __typename?: 'AnnualInfo';
+  Stage: Stage;
+  Year: Scalars['Int'];
+};
+
 export type Ballot = {
   __typename?: 'Ballot';
   candidates: Array<WorkRanking>;
@@ -49,7 +55,7 @@ export type MutationPostBallotArgs = {
 
 export type MutationPostNominationArgs = {
   department: Department;
-  work: Scalars['String'];
+  workName: Scalars['String'];
 };
 
 export type Nomination = {
@@ -63,16 +69,28 @@ export type Nomination = {
 
 export type Query = {
   __typename?: 'Query';
+  awards?: Maybe<Array<Ranking>>;
+  ballot?: Maybe<Array<Ballot>>;
   nominations?: Maybe<Array<Nomination>>;
   ranking?: Maybe<Ranking>;
-  rankings?: Maybe<Array<Ranking>>;
+  thisYear: AnnualInfo;
   voter?: Maybe<Voter>;
-  works?: Maybe<Array<Work>>;
+  years?: Maybe<Array<AnnualInfo>>;
+};
+
+
+export type QueryAwardsArgs = {
+  year: Scalars['Int'];
+};
+
+
+export type QueryBallotArgs = {
+  year: Scalars['Int'];
 };
 
 
 export type QueryNominationsArgs = {
-  department?: InputMaybe<Department>;
+  department: Department;
 };
 
 
@@ -80,16 +98,18 @@ export type QueryRankingArgs = {
   department: Department;
 };
 
-
-export type QueryWorksArgs = {
-  department?: InputMaybe<Department>;
-};
-
 export type Ranking = {
   __typename?: 'Ranking';
   department: Department;
   rankings?: Maybe<Array<WorkRanking>>;
 };
+
+export enum Stage {
+  Awards = 'Awards',
+  Nominations = 'Nominations',
+  NotYet = 'NotYet',
+  Vote = 'Vote'
+}
 
 export type Voter = {
   __typename?: 'Voter';
@@ -111,7 +131,6 @@ export type VoterNominationsArgs = {
 
 export type Work = {
   __typename?: 'Work';
-  alias?: Maybe<Array<Scalars['String']>>;
   department: Department;
   id: Scalars['ID'];
   nameCN: Scalars['String'];
@@ -121,8 +140,7 @@ export type Work = {
 export type WorkRanking = {
   __typename?: 'WorkRanking';
   Ranking: Scalars['Int'];
-  Work?: Maybe<Work>;
-  WorkID: Scalars['ID'];
+  Work: Work;
 };
 
 export type WorkRankingInput = {
@@ -131,7 +149,7 @@ export type WorkRankingInput = {
 };
 
 export type GetNominationsQueryVariables = Exact<{
-  dept?: InputMaybe<Department>;
+  dept: Department;
 }>;
 
 
@@ -139,12 +157,12 @@ export type GetNominationsQuery = { __typename?: 'Query', nominations?: Array<{ 
 
 export type AddNominationMutationVariables = Exact<{
   dept: Department;
-  work: Scalars['String'];
+  workName: Scalars['String'];
 }>;
 
 
 export type AddNominationMutation = { __typename?: 'Mutation', postNomination?: Array<{ __typename?: 'Nomination', id: string, workName: string, work?: { __typename?: 'Work', nameCN: string, nameOrigin: string } | null }> | null };
 
 
-export const GetNominationsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetNominations"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dept"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Department"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nominations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"department"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dept"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"workName"}},{"kind":"Field","name":{"kind":"Name","value":"work"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nameCN"}},{"kind":"Field","name":{"kind":"Name","value":"nameOrigin"}}]}}]}}]}}]} as unknown as DocumentNode<GetNominationsQuery, GetNominationsQueryVariables>;
-export const AddNominationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddNomination"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dept"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Department"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"work"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postNomination"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"department"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dept"}}},{"kind":"Argument","name":{"kind":"Name","value":"work"},"value":{"kind":"Variable","name":{"kind":"Name","value":"work"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"workName"}},{"kind":"Field","name":{"kind":"Name","value":"work"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nameCN"}},{"kind":"Field","name":{"kind":"Name","value":"nameOrigin"}}]}}]}}]}}]} as unknown as DocumentNode<AddNominationMutation, AddNominationMutationVariables>;
+export const GetNominationsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetNominations"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dept"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Department"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nominations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"department"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dept"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"workName"}},{"kind":"Field","name":{"kind":"Name","value":"work"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nameCN"}},{"kind":"Field","name":{"kind":"Name","value":"nameOrigin"}}]}}]}}]}}]} as unknown as DocumentNode<GetNominationsQuery, GetNominationsQueryVariables>;
+export const AddNominationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddNomination"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dept"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Department"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postNomination"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"department"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dept"}}},{"kind":"Argument","name":{"kind":"Name","value":"workName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workName"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"workName"}},{"kind":"Field","name":{"kind":"Name","value":"work"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nameCN"}},{"kind":"Field","name":{"kind":"Name","value":"nameOrigin"}}]}}]}}]}}]} as unknown as DocumentNode<AddNominationMutation, AddNominationMutationVariables>;

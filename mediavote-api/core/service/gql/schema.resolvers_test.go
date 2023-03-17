@@ -5,10 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/port"
-	"github.com/nanozuki/crows.moe/mediavote/backend/graph"
-	"github.com/nanozuki/crows.moe/mediavote/backend/tools/inj"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/port"
+	"github.com/nanozuki/crows.moe/mediavote-api/graph"
+	"github.com/nanozuki/crows.moe/mediavote-api/tools/inj"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -68,14 +68,9 @@ func Test_Nominations(t *testing.T) {
 			assert.Equal(t, want[tn.Department], gotNoms)
 		}
 		for dept, noms := range want {
-			gotNoms, err := qry.Nominations(ctx, &dept)
+			gotNoms, err := qry.Nominations(ctx, dept)
 			require.NoError(t, err)
 			assert.Equal(t, noms, gotNoms)
-		}
-		{
-			gotNoms, err := qry.Nominations(ctx, nil)
-			require.NoError(t, err)
-			assert.Equal(t, testNoms, gotNoms)
 		}
 	})
 	t.Run("bind to work", func(t *testing.T) {
@@ -83,7 +78,6 @@ func Test_Nominations(t *testing.T) {
 			Department: entity.DepartmentTVAnime,
 			NameCN:     "WorkA",
 			NameOrigin: "WorkA",
-			Alias:      []string{"A1", "A2"},
 		}
 		wantNoms := []*entity.Nomination{
 			{
@@ -115,7 +109,7 @@ func Test_Nominations(t *testing.T) {
 
 		t.Run("check nom work_id", func(t *testing.T) {
 			dept := entity.DepartmentTVAnime
-			gotNoms, err := qry.Nominations(ctx, &dept)
+			gotNoms, err := qry.Nominations(ctx, dept)
 			require.NoError(t, err)
 			assert.Equal(t, wantNoms, gotNoms)
 		})

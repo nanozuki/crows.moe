@@ -1,6 +1,8 @@
 package ierr
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	CodeInternalServerError = "InternalServerError"
@@ -12,7 +14,8 @@ const (
 	CodeAlreadyLoggedIn     = "AlreadyLoggedIn"
 	CodeNameOrPinError      = "NameOrPinError"
 	CodeNotFound            = "NotFound"
-	CodeDuplicatedObject    = "CodeDuplicatedObject"
+	CodeDuplicatedObject    = "DuplicatedObject"
+	CodeAtWrongStage        = "AtWrongStage"
 )
 
 func InternalServerError(err error) *Error {
@@ -49,6 +52,13 @@ func RequiredEnvMissed(env string) *Error {
 
 func NoAuth() *Error {
 	return &Error{Code: CodeNoAuth}
+}
+
+func AtWrongStage(want string) *Error {
+	return &Error{
+		Code:    CodeAtWrongStage,
+		Message: fmt.Sprintf("Current stage is not %s", want),
+	}
 }
 
 type Reason string

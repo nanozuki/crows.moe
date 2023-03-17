@@ -7,10 +7,10 @@
 package inj
 
 import (
-	"github.com/nanozuki/crows.moe/mediavote/backend/adapter/repository"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/service/auth"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/service/gql"
-	"github.com/nanozuki/crows.moe/mediavote/backend/server"
+	"github.com/nanozuki/crows.moe/mediavote-api/adapter/repository"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/service/auth"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/service/gql"
+	"github.com/nanozuki/crows.moe/mediavote-api/server"
 )
 
 // Injectors from wire.go:
@@ -20,24 +20,19 @@ func InitServer() (*server.Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	resolver := &gql.Resolver{
-		Repository: repositoryRepository,
+	resolver, err := gql.NewResolver(repositoryRepository)
+	if err != nil {
+		return nil, err
 	}
-	directiveRoot := _wireDirectiveRootValue
 	service := &auth.Service{
 		Repository: repositoryRepository,
 	}
 	serverServer := &server.Server{
-		GqlResolvers:  resolver,
-		GqlDirectives: directiveRoot,
-		AuthService:   service,
+		Resolver:    resolver,
+		AuthService: service,
 	}
 	return serverServer, nil
 }
-
-var (
-	_wireDirectiveRootValue = gql.DirectiveRoot
-)
 
 func InitAuthService() (*auth.Service, error) {
 	repositoryRepository, err := repository.NewRepository()

@@ -5,21 +5,18 @@ package inj
 
 import (
 	"github.com/google/wire"
-	"github.com/nanozuki/crows.moe/mediavote/backend/adapter/repository"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/port"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/service/auth"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/service/gql"
-	"github.com/nanozuki/crows.moe/mediavote/backend/graph"
-	"github.com/nanozuki/crows.moe/mediavote/backend/server"
+	"github.com/nanozuki/crows.moe/mediavote-api/adapter/repository"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/port"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/service/auth"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/service/gql"
+	"github.com/nanozuki/crows.moe/mediavote-api/server"
 )
 
 func InitServer() (*server.Server, error) {
 	wire.Build(
 		wire.Struct(new(server.Server), "*"),
-		wire.Struct(new(gql.Resolver), "*"),
-		wire.Bind(new(graph.ResolverRoot), new(*gql.Resolver)),
-		wire.Value(gql.DirectiveRoot),
 		wire.Struct(new(auth.Service), "*"),
+		gql.NewResolver,
 		repository.NewRepository,
 		wire.Bind(new(port.Repository), new(*repository.Repository)),
 	)

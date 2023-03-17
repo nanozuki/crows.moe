@@ -1,4 +1,4 @@
-module github.com/nanozuki/crows.moe/mediavote/backend
+module github.com/nanozuki/crows.moe/mediavote-api
 
 go 1.19
 
@@ -8,7 +8,6 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/google/wire v0.5.0
 	github.com/labstack/echo/v4 v4.9.1
-	github.com/lib/pq v1.10.7
 	github.com/rs/zerolog v1.15.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.8.1
@@ -38,6 +37,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
+	github.com/lib/pq v1.10.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
+	"github.com/nanozuki/crows.moe/mediavote-api/pkg/ierr"
 )
 
 func Port() string        { return get("PORT") }
@@ -18,6 +18,8 @@ func RedisDB() int        { return getMapOr("REDIS_DB", 0, strconv.Atoi) }
 
 const (
 	EnvProd = "production"
+	EnvTest = "testing"
+	EnvDev  = "dev"
 )
 
 const envPrefix = "MEDIAVOTE_"

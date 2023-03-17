@@ -4,19 +4,37 @@ schema {
 }
 
 directive @hasAuth on FIELD_DEFINITION
+directive @inNominationsStage on FIELD_DEFINITION
+directive @inVoteStage on FIELD_DEFINITION
 
 type Query {
-  voter: Voter @hasAuth
-  nominations(department: Department): [Nomination!]
-  works(department: Department): [Work!]
-  ranking(department: Department!): Ranking
-  rankings: [Ranking!]
   years: [AnnualInfo!]
+  thisYear: AnnualInfo!
+  awards(year: Int!): [Ranking!]
+  ballot(year: Int!): [Ballot!]
+
+  nominations(department: Department!): [Nomination!] @inNominationsStage
+
+  ranking(department: Department!): Ranking @inVoteStage
+  voter: Voter @inVoteStage @hasAuth
 }
 
 type Mutation {
-  postNomination(department: Department!, work: String!): [Nomination!]
-  postBallot(input: BallotInput!): Ballot @hasAuth
+  postNomination(department: Department!, workName: String!): [Nomination!]
+    @inNominationsStage
+  postBallot(input: BallotInput!): Ballot @inVoteStage @hasAuth
+}
+
+type AnnualInfo {
+  Year: Int!
+  Stage: Stage!
+}
+
+enum Stage {
+  NotYet
+  Nominations
+  Vote
+  Awards
 }
 
 type Voter {
@@ -39,12 +57,16 @@ type Work {
   department: Department!
   nameCN: String!
   nameOrigin: String!
-  alias: [String!]
 }
 
 input BallotInput {
   department: Department!
   candidates: [WorkRankingInput!]!
+}
+
+input WorkRankingInput {
+  Ranking: Int!
+  WorkID: ID!
 }
 
 type Ballot {
@@ -54,20 +76,14 @@ type Ballot {
   candidates: [WorkRanking!]!
 }
 
-input WorkRankingInput {
-  Ranking: Int!
-  WorkID: ID!
+type Ranking {
+  department: Department!
+  rankings: [WorkRanking!]
 }
 
 type WorkRanking {
   Ranking: Int!
-  WorkID: ID!
-  Work: Work
-}
-
-type Ranking {
-  department: Department!
-  rankings: [WorkRanking!]
+  Work: Work!
 }
 
 enum Department {
@@ -76,16 +92,4 @@ enum Department {
   Manga
   Game
   Novel
-}
-
-type AnnualInfo {
-  Year: Int!
-  Stage: Stage!
-}
-
-enum Stage {
-  NotYet
-  Nominations
-  Vote
-  Awards
 }

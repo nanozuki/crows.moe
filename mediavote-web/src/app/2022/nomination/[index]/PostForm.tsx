@@ -88,7 +88,7 @@ export default function PostForm(props: PostFormProps) {
   const [{ fetching, error }, post] = useMutation(doc.addNomination);
   const onClick = async (e: Event) => {
     e.preventDefault();
-    const result = await post({ dept: props.dept, work: inputText });
+    const result = await post({ dept: props.dept, workName: inputText });
     if (!result.error) {
       props.setNoms(result.data?.postNomination || new Array());
       setInputText('');

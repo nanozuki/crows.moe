@@ -6,7 +6,7 @@ services:
     environment:
       - 'MEDIAVOTE_PORT=8080'
       - 'MEDIAVOTE_ADMIN_KEY=1234'
-      - 'MEDIAVOTE_ENV=testing'
+      - 'MEDIAVOTE_ENV=${ENV}'
       - 'MEDIAVOTE_PG_DSN=postgres://pguser:pgpasswd@postgres:5432/pguser'
       - 'MEDIAVOTE_REDIS_ADDR=redis:6379'
       - 'MEDIAVOTE_REDIS_DB=0'

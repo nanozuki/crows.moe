@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
-	"github.com/nanozuki/crows.moe/mediavote/backend/tools/inj"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
+	"github.com/nanozuki/crows.moe/mediavote-api/tools/inj"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

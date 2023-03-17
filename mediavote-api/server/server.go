@@ -8,21 +8,21 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/service/auth"
-	"github.com/nanozuki/crows.moe/mediavote/backend/graph"
-	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/env"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/service/auth"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/service/gql"
+	"github.com/nanozuki/crows.moe/mediavote-api/graph"
+	"github.com/nanozuki/crows.moe/mediavote-api/pkg/env"
 )
 
 type Server struct {
-	GqlResolvers  graph.ResolverRoot
-	GqlDirectives graph.DirectiveRoot
-	AuthService   *auth.Service
+	Resolver    *gql.Resolver
+	AuthService *auth.Service
 }
 
-func (s *Server) Run() {
+func (s *Server) Run() error {
 	gqlSrv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers:  s.GqlResolvers,
-		Directives: s.GqlDirectives,
+		Resolvers:  s.Resolver,
+		Directives: s.Resolver.DirectiveRoot(),
 	}))
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -49,5 +49,5 @@ func (s *Server) Run() {
 	e.POST("/register", s.Register)
 	e.POST("/login", s.Login)
 
-	e.Logger.Fatal(e.Start(":" + env.Port()))
+	return e.Start(":" + env.Port())
 }

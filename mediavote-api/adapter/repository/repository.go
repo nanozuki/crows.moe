@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v9"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/port"
-	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/env"
-	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/generic"
-	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/port"
+	"github.com/nanozuki/crows.moe/mediavote-api/pkg/env"
+	"github.com/nanozuki/crows.moe/mediavote-api/pkg/generic"
+	"github.com/nanozuki/crows.moe/mediavote-api/pkg/ierr"
 	"github.com/rs/zerolog/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -59,6 +59,9 @@ func (r *Repository) WithTx(ctx context.Context, fn func(context.Context) error,
 }
 
 func (r Repository) Reset() error {
+	if env.IsProd() {
+		panic("can't reset repository in production!")
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 	db := r.getDB(ctx)
@@ -75,6 +78,7 @@ func (r Repository) Reset() error {
 }
 
 var models = []interface{}{
+	AnnualInfo{},
 	Ballot{},
 	Nomination{},
 	Ranking{},

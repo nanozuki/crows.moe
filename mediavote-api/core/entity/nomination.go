@@ -1,6 +1,6 @@
 package entity
 
-import "github.com/nanozuki/crows.moe/mediavote/backend/pkg/ierr"
+import "github.com/nanozuki/crows.moe/mediavote-api/pkg/ierr"
 
 type Nomination struct {
 	ID         uint       `json:"id"`

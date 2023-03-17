@@ -1,8 +1,7 @@
-import { graphql } from "@gqlgen";
-import { GraphQLBoolean } from "graphql";
+import { graphql } from '@gqlgen';
 
 const getNominations = graphql(`
-  query GetNominations($dept: Department) {
+  query GetNominations($dept: Department!) {
     nominations(department: $dept) {
       id
       workName
@@ -15,8 +14,8 @@ const getNominations = graphql(`
 `);
 
 const addNomination = graphql(`
-  mutation AddNomination($dept: Department!, $work: String!) {
-    postNomination(department: $dept, work: $work) {
+  mutation AddNomination($dept: Department!, $workName: String!) {
+    postNomination(department: $dept, workName: $workName) {
       id
       workName
       work {

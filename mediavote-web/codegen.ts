@@ -1,17 +1,17 @@
-import type { CodegenConfig } from "@graphql-codegen/cli";
+import type { CodegenConfig } from '@graphql-codegen/cli';
 
 const config: CodegenConfig = {
   overwrite: true,
-  schema: "../backend/graph/schema.graphqls",
-  documents: ["./src/gql/**.ts"],
+  schema: '../mediavote-api/graph/schema.graphql',
+  documents: ['./src/gql/**.ts'],
   ignoreNoDocuments: true,
   generates: {
-    "src/gqlgen/": {
-      preset: "client",
+    'src/gqlgen/': {
+      preset: 'client',
       plugins: [],
     },
-    "./graphql.schema.json": {
-      plugins: ["introspection"],
+    './graphql.schema.json': {
+      plugins: ['introspection'],
     },
   },
 };

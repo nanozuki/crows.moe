@@ -14,7 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -45,7 +45,9 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	HasAuth func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	HasAuth            func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	InNominationsStage func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	InVoteStage        func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -63,7 +65,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		PostBallot     func(childComplexity int, input entity.BallotInput) int
-		PostNomination func(childComplexity int, department entity.Department, work string) int
+		PostNomination func(childComplexity int, department entity.Department, workName string) int
 	}
 
 	Nomination struct {
@@ -75,11 +77,12 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Nominations func(childComplexity int, department *entity.Department) int
+		Awards      func(childComplexity int, year int) int
+		Ballot      func(childComplexity int, year int) int
+		Nominations func(childComplexity int, department entity.Department) int
 		Ranking     func(childComplexity int, department entity.Department) int
-		Rankings    func(childComplexity int) int
+		ThisYear    func(childComplexity int) int
 		Voter       func(childComplexity int) int
-		Works       func(childComplexity int, department *entity.Department) int
 		Years       func(childComplexity int) int
 	}
 
@@ -96,7 +99,6 @@ type ComplexityRoot struct {
 	}
 
 	Work struct {
-		Alias      func(childComplexity int) int
 		Department func(childComplexity int) int
 		ID         func(childComplexity int) int
 		NameCN     func(childComplexity int) int
@@ -106,24 +108,24 @@ type ComplexityRoot struct {
 	WorkRanking struct {
 		Ranking func(childComplexity int) int
 		Work    func(childComplexity int) int
-		WorkID  func(childComplexity int) int
 	}
 }
 
 type MutationResolver interface {
-	PostNomination(ctx context.Context, department entity.Department, work string) ([]*entity.Nomination, error)
+	PostNomination(ctx context.Context, department entity.Department, workName string) ([]*entity.Nomination, error)
 	PostBallot(ctx context.Context, input entity.BallotInput) (*entity.Ballot, error)
 }
 type NominationResolver interface {
 	Work(ctx context.Context, obj *entity.Nomination) (*entity.Work, error)
 }
 type QueryResolver interface {
-	Voter(ctx context.Context) (*entity.Voter, error)
-	Nominations(ctx context.Context, department *entity.Department) ([]*entity.Nomination, error)
-	Works(ctx context.Context, department *entity.Department) ([]*entity.Work, error)
-	Ranking(ctx context.Context, department entity.Department) (*entity.Ranking, error)
-	Rankings(ctx context.Context) ([]*entity.Ranking, error)
 	Years(ctx context.Context) ([]*entity.AnnualInfo, error)
+	ThisYear(ctx context.Context) (*entity.AnnualInfo, error)
+	Awards(ctx context.Context, year int) ([]*entity.Ranking, error)
+	Ballot(ctx context.Context, year int) ([]*entity.Ballot, error)
+	Nominations(ctx context.Context, department entity.Department) ([]*entity.Nomination, error)
+	Ranking(ctx context.Context, department entity.Department) (*entity.Ranking, error)
+	Voter(ctx context.Context) (*entity.Voter, error)
 }
 type VoterResolver interface {
 	Ballot(ctx context.Context, obj *entity.Voter, department entity.Department) (*entity.Ballot, error)
@@ -212,7 +214,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.PostNomination(childComplexity, args["department"].(entity.Department), args["work"].(string)), true
+		return e.complexity.Mutation.PostNomination(childComplexity, args["department"].(entity.Department), args["workName"].(string)), true
 
 	case "Nomination.department":
 		if e.complexity.Nomination.Department == nil {
@@ -249,6 +251,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Nomination.WorkName(childComplexity), true
 
+	case "Query.awards":
+		if e.complexity.Query.Awards == nil {
+			break
+		}
+
+		args, err := ec.field_Query_awards_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Awards(childComplexity, args["year"].(int)), true
+
+	case "Query.ballot":
+		if e.complexity.Query.Ballot == nil {
+			break
+		}
+
+		args, err := ec.field_Query_ballot_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Ballot(childComplexity, args["year"].(int)), true
+
 	case "Query.nominations":
 		if e.complexity.Query.Nominations == nil {
 			break
@@ -259,7 +285,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Nominations(childComplexity, args["department"].(*entity.Department)), true
+		return e.complexity.Query.Nominations(childComplexity, args["department"].(entity.Department)), true
 
 	case "Query.ranking":
 		if e.complexity.Query.Ranking == nil {
@@ -273,12 +299,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Ranking(childComplexity, args["department"].(entity.Department)), true
 
-	case "Query.rankings":
-		if e.complexity.Query.Rankings == nil {
+	case "Query.thisYear":
+		if e.complexity.Query.ThisYear == nil {
 			break
 		}
 
-		return e.complexity.Query.Rankings(childComplexity), true
+		return e.complexity.Query.ThisYear(childComplexity), true
 
 	case "Query.voter":
 		if e.complexity.Query.Voter == nil {
@@ -286,18 +312,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Voter(childComplexity), true
-
-	case "Query.works":
-		if e.complexity.Query.Works == nil {
-			break
-		}
-
-		args, err := ec.field_Query_works_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Works(childComplexity, args["department"].(*entity.Department)), true
 
 	case "Query.years":
 		if e.complexity.Query.Years == nil {
@@ -358,13 +372,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Voter.Nominations(childComplexity, args["department"].(entity.Department)), true
 
-	case "Work.alias":
-		if e.complexity.Work.Alias == nil {
-			break
-		}
-
-		return e.complexity.Work.Alias(childComplexity), true
-
 	case "Work.department":
 		if e.complexity.Work.Department == nil {
 			break
@@ -406,13 +413,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.WorkRanking.Work(childComplexity), true
-
-	case "WorkRanking.WorkID":
-		if e.complexity.WorkRanking.WorkID == nil {
-			break
-		}
-
-		return e.complexity.WorkRanking.WorkID(childComplexity), true
 
 	}
 	return 0, false
@@ -509,7 +509,7 @@ func (ec *executionContext) field_Mutation_postBallot_args(ctx context.Context, 
 	var arg0 entity.BallotInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNBallotInput2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐBallotInput(ctx, tmp)
+		arg0, err = ec.unmarshalNBallotInput2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐBallotInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -524,21 +524,21 @@ func (ec *executionContext) field_Mutation_postNomination_args(ctx context.Conte
 	var arg0 entity.Department
 	if tmp, ok := rawArgs["department"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("department"))
-		arg0, err = ec.unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx, tmp)
+		arg0, err = ec.unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐDepartment(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["department"] = arg0
 	var arg1 string
-	if tmp, ok := rawArgs["work"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("work"))
+	if tmp, ok := rawArgs["workName"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workName"))
 		arg1, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["work"] = arg1
+	args["workName"] = arg1
 	return args, nil
 }
 
@@ -557,13 +557,43 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_awards_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["year"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["year"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_ballot_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["year"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["year"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_nominations_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *entity.Department
+	var arg0 entity.Department
 	if tmp, ok := rawArgs["department"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("department"))
-		arg0, err = ec.unmarshalODepartment2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx, tmp)
+		arg0, err = ec.unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐDepartment(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -578,22 +608,7 @@ func (ec *executionContext) field_Query_ranking_args(ctx context.Context, rawArg
 	var arg0 entity.Department
 	if tmp, ok := rawArgs["department"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("department"))
-		arg0, err = ec.unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["department"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_works_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *entity.Department
-	if tmp, ok := rawArgs["department"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("department"))
-		arg0, err = ec.unmarshalODepartment2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx, tmp)
+		arg0, err = ec.unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐDepartment(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -608,7 +623,7 @@ func (ec *executionContext) field_Voter_ballot_args(ctx context.Context, rawArgs
 	var arg0 entity.Department
 	if tmp, ok := rawArgs["department"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("department"))
-		arg0, err = ec.unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx, tmp)
+		arg0, err = ec.unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐDepartment(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -623,7 +638,7 @@ func (ec *executionContext) field_Voter_nominations_args(ctx context.Context, ra
 	var arg0 entity.Department
 	if tmp, ok := rawArgs["department"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("department"))
-		arg0, err = ec.unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx, tmp)
+		arg0, err = ec.unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐDepartment(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -728,7 +743,7 @@ func (ec *executionContext) _AnnualInfo_Stage(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Stage(), nil
+		return obj.Stage, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -742,14 +757,14 @@ func (ec *executionContext) _AnnualInfo_Stage(ctx context.Context, field graphql
 	}
 	res := resTmp.(entity.Stage)
 	fc.Result = res
-	return ec.marshalNStage2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐStage(ctx, field.Selections, res)
+	return ec.marshalNStage2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐStage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AnnualInfo_Stage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AnnualInfo",
 		Field:      field,
-		IsMethod:   true,
+		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Stage does not have child fields")
@@ -874,7 +889,7 @@ func (ec *executionContext) _Ballot_department(ctx context.Context, field graphq
 	}
 	res := resTmp.(entity.Department)
 	fc.Result = res
-	return ec.marshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx, field.Selections, res)
+	return ec.marshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐDepartment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Ballot_department(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -918,7 +933,7 @@ func (ec *executionContext) _Ballot_candidates(ctx context.Context, field graphq
 	}
 	res := resTmp.([]*entity.WorkRanking)
 	fc.Result = res
-	return ec.marshalNWorkRanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWorkRankingᚄ(ctx, field.Selections, res)
+	return ec.marshalNWorkRanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWorkRankingᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Ballot_candidates(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -931,8 +946,6 @@ func (ec *executionContext) fieldContext_Ballot_candidates(ctx context.Context, 
 			switch field.Name {
 			case "Ranking":
 				return ec.fieldContext_WorkRanking_Ranking(ctx, field)
-			case "WorkID":
-				return ec.fieldContext_WorkRanking_WorkID(ctx, field)
 			case "Work":
 				return ec.fieldContext_WorkRanking_Work(ctx, field)
 			}
@@ -955,8 +968,28 @@ func (ec *executionContext) _Mutation_postNomination(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().PostNomination(rctx, fc.Args["department"].(entity.Department), fc.Args["work"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().PostNomination(rctx, fc.Args["department"].(entity.Department), fc.Args["workName"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.InNominationsStage == nil {
+				return nil, errors.New("directive inNominationsStage is not implemented")
+			}
+			return ec.directives.InNominationsStage(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*entity.Nomination); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nanozuki/crows.moe/mediavote-api/core/entity.Nomination`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -967,7 +1000,7 @@ func (ec *executionContext) _Mutation_postNomination(ctx context.Context, field 
 	}
 	res := resTmp.([]*entity.Nomination)
 	fc.Result = res
-	return ec.marshalONomination2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐNominationᚄ(ctx, field.Selections, res)
+	return ec.marshalONomination2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐNominationᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_postNomination(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1024,13 +1057,19 @@ func (ec *executionContext) _Mutation_postBallot(ctx context.Context, field grap
 			return ec.resolvers.Mutation().PostBallot(rctx, fc.Args["input"].(entity.BallotInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.InVoteStage == nil {
+				return nil, errors.New("directive inVoteStage is not implemented")
+			}
+			return ec.directives.InVoteStage(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.HasAuth == nil {
 				return nil, errors.New("directive hasAuth is not implemented")
 			}
-			return ec.directives.HasAuth(ctx, nil, directive0)
+			return ec.directives.HasAuth(ctx, nil, directive1)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -1040,7 +1079,7 @@ func (ec *executionContext) _Mutation_postBallot(ctx context.Context, field grap
 		if data, ok := tmp.(*entity.Ballot); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nanozuki/crows.moe/mediavote/backend/core/entity.Ballot`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nanozuki/crows.moe/mediavote-api/core/entity.Ballot`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1051,7 +1090,7 @@ func (ec *executionContext) _Mutation_postBallot(ctx context.Context, field grap
 	}
 	res := resTmp.(*entity.Ballot)
 	fc.Result = res
-	return ec.marshalOBallot2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐBallot(ctx, field.Selections, res)
+	return ec.marshalOBallot2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐBallot(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_postBallot(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1160,7 +1199,7 @@ func (ec *executionContext) _Nomination_department(ctx context.Context, field gr
 	}
 	res := resTmp.(entity.Department)
 	fc.Result = res
-	return ec.marshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx, field.Selections, res)
+	return ec.marshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐDepartment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Nomination_department(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1286,7 +1325,7 @@ func (ec *executionContext) _Nomination_work(ctx context.Context, field graphql.
 	}
 	res := resTmp.(*entity.Work)
 	fc.Result = res
-	return ec.marshalOWork2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWork(ctx, field.Selections, res)
+	return ec.marshalOWork2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWork(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Nomination_work(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1305,8 +1344,6 @@ func (ec *executionContext) fieldContext_Nomination_work(ctx context.Context, fi
 				return ec.fieldContext_Work_nameCN(ctx, field)
 			case "nameOrigin":
 				return ec.fieldContext_Work_nameOrigin(ctx, field)
-			case "alias":
-				return ec.fieldContext_Work_alias(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Work", field.Name)
 		},
@@ -1314,8 +1351,8 @@ func (ec *executionContext) fieldContext_Nomination_work(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_voter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_voter(ctx, field)
+func (ec *executionContext) _Query_years(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_years(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1327,28 +1364,8 @@ func (ec *executionContext) _Query_voter(ctx context.Context, field graphql.Coll
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Voter(rctx)
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.HasAuth == nil {
-				return nil, errors.New("directive hasAuth is not implemented")
-			}
-			return ec.directives.HasAuth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*entity.Voter); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nanozuki/crows.moe/mediavote/backend/core/entity.Voter`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Years(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1357,12 +1374,167 @@ func (ec *executionContext) _Query_voter(ctx context.Context, field graphql.Coll
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*entity.Voter)
+	res := resTmp.([]*entity.AnnualInfo)
 	fc.Result = res
-	return ec.marshalOVoter2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐVoter(ctx, field.Selections, res)
+	return ec.marshalOAnnualInfo2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐAnnualInfoᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_voter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_years(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Year":
+				return ec.fieldContext_AnnualInfo_Year(ctx, field)
+			case "Stage":
+				return ec.fieldContext_AnnualInfo_Stage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AnnualInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_thisYear(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_thisYear(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ThisYear(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entity.AnnualInfo)
+	fc.Result = res
+	return ec.marshalNAnnualInfo2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐAnnualInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_thisYear(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Year":
+				return ec.fieldContext_AnnualInfo_Year(ctx, field)
+			case "Stage":
+				return ec.fieldContext_AnnualInfo_Stage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AnnualInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_awards(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_awards(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Awards(rctx, fc.Args["year"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*entity.Ranking)
+	fc.Result = res
+	return ec.marshalORanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐRankingᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_awards(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "department":
+				return ec.fieldContext_Ranking_department(ctx, field)
+			case "rankings":
+				return ec.fieldContext_Ranking_rankings(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Ranking", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_awards_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_ballot(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_ballot(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Ballot(rctx, fc.Args["year"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*entity.Ballot)
+	fc.Result = res
+	return ec.marshalOBallot2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐBallotᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_ballot(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1371,16 +1543,27 @@ func (ec *executionContext) fieldContext_Query_voter(ctx context.Context, field 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Voter_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Voter_name(ctx, field)
-			case "ballot":
-				return ec.fieldContext_Voter_ballot(ctx, field)
-			case "nominations":
-				return ec.fieldContext_Voter_nominations(ctx, field)
+				return ec.fieldContext_Ballot_id(ctx, field)
+			case "voterID":
+				return ec.fieldContext_Ballot_voterID(ctx, field)
+			case "department":
+				return ec.fieldContext_Ballot_department(ctx, field)
+			case "candidates":
+				return ec.fieldContext_Ballot_candidates(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Voter", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Ballot", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_ballot_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -1398,8 +1581,28 @@ func (ec *executionContext) _Query_nominations(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Nominations(rctx, fc.Args["department"].(*entity.Department))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Nominations(rctx, fc.Args["department"].(entity.Department))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.InNominationsStage == nil {
+				return nil, errors.New("directive inNominationsStage is not implemented")
+			}
+			return ec.directives.InNominationsStage(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*entity.Nomination); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nanozuki/crows.moe/mediavote-api/core/entity.Nomination`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1410,7 +1613,7 @@ func (ec *executionContext) _Query_nominations(ctx context.Context, field graphq
 	}
 	res := resTmp.([]*entity.Nomination)
 	fc.Result = res
-	return ec.marshalONomination2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐNominationᚄ(ctx, field.Selections, res)
+	return ec.marshalONomination2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐNominationᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_nominations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1449,70 +1652,6 @@ func (ec *executionContext) fieldContext_Query_nominations(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_works(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_works(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Works(rctx, fc.Args["department"].(*entity.Department))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*entity.Work)
-	fc.Result = res
-	return ec.marshalOWork2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWorkᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_works(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Work_id(ctx, field)
-			case "department":
-				return ec.fieldContext_Work_department(ctx, field)
-			case "nameCN":
-				return ec.fieldContext_Work_nameCN(ctx, field)
-			case "nameOrigin":
-				return ec.fieldContext_Work_nameOrigin(ctx, field)
-			case "alias":
-				return ec.fieldContext_Work_alias(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Work", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_works_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_ranking(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_ranking(ctx, field)
 	if err != nil {
@@ -1526,8 +1665,28 @@ func (ec *executionContext) _Query_ranking(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Ranking(rctx, fc.Args["department"].(entity.Department))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Ranking(rctx, fc.Args["department"].(entity.Department))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.InVoteStage == nil {
+				return nil, errors.New("directive inVoteStage is not implemented")
+			}
+			return ec.directives.InVoteStage(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*entity.Ranking); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nanozuki/crows.moe/mediavote-api/core/entity.Ranking`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1538,7 +1697,7 @@ func (ec *executionContext) _Query_ranking(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*entity.Ranking)
 	fc.Result = res
-	return ec.marshalORanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐRanking(ctx, field.Selections, res)
+	return ec.marshalORanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐRanking(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_ranking(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1571,8 +1730,8 @@ func (ec *executionContext) fieldContext_Query_ranking(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_rankings(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_rankings(ctx, field)
+func (ec *executionContext) _Query_voter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_voter(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1584,55 +1743,34 @@ func (ec *executionContext) _Query_rankings(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Rankings(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*entity.Ranking)
-	fc.Result = res
-	return ec.marshalORanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐRankingᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_rankings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "department":
-				return ec.fieldContext_Ranking_department(ctx, field)
-			case "rankings":
-				return ec.fieldContext_Ranking_rankings(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Ranking", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_years(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_years(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Voter(rctx)
 		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Years(rctx)
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.InVoteStage == nil {
+				return nil, errors.New("directive inVoteStage is not implemented")
+			}
+			return ec.directives.InVoteStage(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAuth == nil {
+				return nil, errors.New("directive hasAuth is not implemented")
+			}
+			return ec.directives.HasAuth(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*entity.Voter); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nanozuki/crows.moe/mediavote-api/core/entity.Voter`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1641,12 +1779,12 @@ func (ec *executionContext) _Query_years(ctx context.Context, field graphql.Coll
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*entity.AnnualInfo)
+	res := resTmp.(*entity.Voter)
 	fc.Result = res
-	return ec.marshalOAnnualInfo2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐAnnualInfoᚄ(ctx, field.Selections, res)
+	return ec.marshalOVoter2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐVoter(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_years(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_voter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1654,12 +1792,16 @@ func (ec *executionContext) fieldContext_Query_years(ctx context.Context, field 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "Year":
-				return ec.fieldContext_AnnualInfo_Year(ctx, field)
-			case "Stage":
-				return ec.fieldContext_AnnualInfo_Stage(ctx, field)
+			case "id":
+				return ec.fieldContext_Voter_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Voter_name(ctx, field)
+			case "ballot":
+				return ec.fieldContext_Voter_ballot(ctx, field)
+			case "nominations":
+				return ec.fieldContext_Voter_nominations(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type AnnualInfo", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Voter", field.Name)
 		},
 	}
 	return fc, nil
@@ -1822,7 +1964,7 @@ func (ec *executionContext) _Ranking_department(ctx context.Context, field graph
 	}
 	res := resTmp.(entity.Department)
 	fc.Result = res
-	return ec.marshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx, field.Selections, res)
+	return ec.marshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐDepartment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Ranking_department(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1863,7 +2005,7 @@ func (ec *executionContext) _Ranking_rankings(ctx context.Context, field graphql
 	}
 	res := resTmp.([]*entity.WorkRanking)
 	fc.Result = res
-	return ec.marshalOWorkRanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWorkRankingᚄ(ctx, field.Selections, res)
+	return ec.marshalOWorkRanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWorkRankingᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Ranking_rankings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1876,8 +2018,6 @@ func (ec *executionContext) fieldContext_Ranking_rankings(ctx context.Context, f
 			switch field.Name {
 			case "Ranking":
 				return ec.fieldContext_WorkRanking_Ranking(ctx, field)
-			case "WorkID":
-				return ec.fieldContext_WorkRanking_WorkID(ctx, field)
 			case "Work":
 				return ec.fieldContext_WorkRanking_Work(ctx, field)
 			}
@@ -2000,7 +2140,7 @@ func (ec *executionContext) _Voter_ballot(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*entity.Ballot)
 	fc.Result = res
-	return ec.marshalOBallot2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐBallot(ctx, field.Selections, res)
+	return ec.marshalOBallot2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐBallot(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Voter_ballot(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2062,7 +2202,7 @@ func (ec *executionContext) _Voter_nominations(ctx context.Context, field graphq
 	}
 	res := resTmp.([]*entity.Nomination)
 	fc.Result = res
-	return ec.marshalONomination2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐNominationᚄ(ctx, field.Selections, res)
+	return ec.marshalONomination2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐNominationᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Voter_nominations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2173,7 +2313,7 @@ func (ec *executionContext) _Work_department(ctx context.Context, field graphql.
 	}
 	res := resTmp.(entity.Department)
 	fc.Result = res
-	return ec.marshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx, field.Selections, res)
+	return ec.marshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐDepartment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Work_department(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2277,47 +2417,6 @@ func (ec *executionContext) fieldContext_Work_nameOrigin(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Work_alias(ctx context.Context, field graphql.CollectedField, obj *entity.Work) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Work_alias(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Alias, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Work_alias(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Work",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _WorkRanking_Ranking(ctx context.Context, field graphql.CollectedField, obj *entity.WorkRanking) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkRanking_Ranking(ctx, field)
 	if err != nil {
@@ -2362,50 +2461,6 @@ func (ec *executionContext) fieldContext_WorkRanking_Ranking(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkRanking_WorkID(ctx context.Context, field graphql.CollectedField, obj *entity.WorkRanking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkRanking_WorkID(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.WorkID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(uint)
-	fc.Result = res
-	return ec.marshalNID2uint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkRanking_WorkID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkRanking",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _WorkRanking_Work(ctx context.Context, field graphql.CollectedField, obj *entity.WorkRanking) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkRanking_Work(ctx, field)
 	if err != nil {
@@ -2427,11 +2482,14 @@ func (ec *executionContext) _WorkRanking_Work(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*entity.Work)
 	fc.Result = res
-	return ec.marshalOWork2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWork(ctx, field.Selections, res)
+	return ec.marshalNWork2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWork(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_WorkRanking_Work(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2450,8 +2508,6 @@ func (ec *executionContext) fieldContext_WorkRanking_Work(ctx context.Context, f
 				return ec.fieldContext_Work_nameCN(ctx, field)
 			case "nameOrigin":
 				return ec.fieldContext_Work_nameOrigin(ctx, field)
-			case "alias":
-				return ec.fieldContext_Work_alias(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Work", field.Name)
 		},
@@ -4250,7 +4306,7 @@ func (ec *executionContext) unmarshalInputBallotInput(ctx context.Context, obj i
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("department"))
-			it.Department, err = ec.unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx, v)
+			it.Department, err = ec.unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐDepartment(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4258,7 +4314,7 @@ func (ec *executionContext) unmarshalInputBallotInput(ctx context.Context, obj i
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("candidates"))
-			it.Candidates, err = ec.unmarshalNWorkRankingInput2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWorkRankingInputᚄ(ctx, v)
+			it.Candidates, err = ec.unmarshalNWorkRankingInput2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWorkRankingInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4520,7 +4576,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "voter":
+		case "years":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -4529,7 +4585,70 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_voter(ctx, field)
+				res = ec._Query_years(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "thisYear":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_thisYear(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "awards":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_awards(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "ballot":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_ballot(ctx, field)
 				return res
 			}
 
@@ -4560,26 +4679,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "works":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_works(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
 		case "ranking":
 			field := field
 
@@ -4600,7 +4699,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "rankings":
+		case "voter":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -4609,27 +4708,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_rankings(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
-		case "years":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_years(ctx, field)
+				res = ec._Query_voter(ctx, field)
 				return res
 			}
 
@@ -4802,10 +4881,6 @@ func (ec *executionContext) _Work(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "alias":
-
-			out.Values[i] = ec._Work_alias(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4834,13 +4909,6 @@ func (ec *executionContext) _WorkRanking(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "WorkID":
-
-			out.Values[i] = ec._WorkRanking_WorkID(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
 		case "Work":
 			field := field
 
@@ -4851,6 +4919,9 @@ func (ec *executionContext) _WorkRanking(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._WorkRanking_Work(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -5187,7 +5258,11 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNAnnualInfo2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐAnnualInfo(ctx context.Context, sel ast.SelectionSet, v *entity.AnnualInfo) graphql.Marshaler {
+func (ec *executionContext) marshalNAnnualInfo2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐAnnualInfo(ctx context.Context, sel ast.SelectionSet, v entity.AnnualInfo) graphql.Marshaler {
+	return ec._AnnualInfo(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAnnualInfo2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐAnnualInfo(ctx context.Context, sel ast.SelectionSet, v *entity.AnnualInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5197,7 +5272,17 @@ func (ec *executionContext) marshalNAnnualInfo2ᚖgithubᚗcomᚋnanozukiᚋcrow
 	return ec._AnnualInfo(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNBallotInput2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐBallotInput(ctx context.Context, v interface{}) (entity.BallotInput, error) {
+func (ec *executionContext) marshalNBallot2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐBallot(ctx context.Context, sel ast.SelectionSet, v *entity.Ballot) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Ballot(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNBallotInput2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐBallotInput(ctx context.Context, v interface{}) (entity.BallotInput, error) {
 	res, err := ec.unmarshalInputBallotInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -5217,13 +5302,13 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx context.Context, v interface{}) (entity.Department, error) {
+func (ec *executionContext) unmarshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐDepartment(ctx context.Context, v interface{}) (entity.Department, error) {
 	var res entity.Department
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx context.Context, sel ast.SelectionSet, v entity.Department) graphql.Marshaler {
+func (ec *executionContext) marshalNDepartment2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐDepartment(ctx context.Context, sel ast.SelectionSet, v entity.Department) graphql.Marshaler {
 	return v
 }
 
@@ -5257,7 +5342,7 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNNomination2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐNomination(ctx context.Context, sel ast.SelectionSet, v *entity.Nomination) graphql.Marshaler {
+func (ec *executionContext) marshalNNomination2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐNomination(ctx context.Context, sel ast.SelectionSet, v *entity.Nomination) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5267,7 +5352,7 @@ func (ec *executionContext) marshalNNomination2ᚖgithubᚗcomᚋnanozukiᚋcrow
 	return ec._Nomination(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNRanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐRanking(ctx context.Context, sel ast.SelectionSet, v *entity.Ranking) graphql.Marshaler {
+func (ec *executionContext) marshalNRanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐRanking(ctx context.Context, sel ast.SelectionSet, v *entity.Ranking) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5277,13 +5362,13 @@ func (ec *executionContext) marshalNRanking2ᚖgithubᚗcomᚋnanozukiᚋcrows�
 	return ec._Ranking(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNStage2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐStage(ctx context.Context, v interface{}) (entity.Stage, error) {
+func (ec *executionContext) unmarshalNStage2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐStage(ctx context.Context, v interface{}) (entity.Stage, error) {
 	var res entity.Stage
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNStage2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐStage(ctx context.Context, sel ast.SelectionSet, v entity.Stage) graphql.Marshaler {
+func (ec *executionContext) marshalNStage2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐStage(ctx context.Context, sel ast.SelectionSet, v entity.Stage) graphql.Marshaler {
 	return v
 }
 
@@ -5302,7 +5387,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNWork2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWork(ctx context.Context, sel ast.SelectionSet, v *entity.Work) graphql.Marshaler {
+func (ec *executionContext) marshalNWork2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWork(ctx context.Context, sel ast.SelectionSet, v entity.Work) graphql.Marshaler {
+	return ec._Work(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNWork2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWork(ctx context.Context, sel ast.SelectionSet, v *entity.Work) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5312,7 +5401,7 @@ func (ec *executionContext) marshalNWork2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmo
 	return ec._Work(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNWorkRanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWorkRankingᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.WorkRanking) graphql.Marshaler {
+func (ec *executionContext) marshalNWorkRanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWorkRankingᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.WorkRanking) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -5336,7 +5425,7 @@ func (ec *executionContext) marshalNWorkRanking2ᚕᚖgithubᚗcomᚋnanozukiᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNWorkRanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWorkRanking(ctx, sel, v[i])
+			ret[i] = ec.marshalNWorkRanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWorkRanking(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5356,7 +5445,7 @@ func (ec *executionContext) marshalNWorkRanking2ᚕᚖgithubᚗcomᚋnanozukiᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNWorkRanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWorkRanking(ctx context.Context, sel ast.SelectionSet, v *entity.WorkRanking) graphql.Marshaler {
+func (ec *executionContext) marshalNWorkRanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWorkRanking(ctx context.Context, sel ast.SelectionSet, v *entity.WorkRanking) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5366,7 +5455,7 @@ func (ec *executionContext) marshalNWorkRanking2ᚖgithubᚗcomᚋnanozukiᚋcro
 	return ec._WorkRanking(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNWorkRankingInput2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWorkRankingInputᚄ(ctx context.Context, v interface{}) ([]*entity.WorkRankingInput, error) {
+func (ec *executionContext) unmarshalNWorkRankingInput2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWorkRankingInputᚄ(ctx context.Context, v interface{}) ([]*entity.WorkRankingInput, error) {
 	var vSlice []interface{}
 	if v != nil {
 		vSlice = graphql.CoerceList(v)
@@ -5375,7 +5464,7 @@ func (ec *executionContext) unmarshalNWorkRankingInput2ᚕᚖgithubᚗcomᚋnano
 	res := make([]*entity.WorkRankingInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNWorkRankingInput2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWorkRankingInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNWorkRankingInput2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWorkRankingInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -5383,7 +5472,7 @@ func (ec *executionContext) unmarshalNWorkRankingInput2ᚕᚖgithubᚗcomᚋnano
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNWorkRankingInput2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWorkRankingInput(ctx context.Context, v interface{}) (*entity.WorkRankingInput, error) {
+func (ec *executionContext) unmarshalNWorkRankingInput2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWorkRankingInput(ctx context.Context, v interface{}) (*entity.WorkRankingInput, error) {
 	res, err := ec.unmarshalInputWorkRankingInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -5641,7 +5730,7 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
-func (ec *executionContext) marshalOAnnualInfo2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐAnnualInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.AnnualInfo) graphql.Marshaler {
+func (ec *executionContext) marshalOAnnualInfo2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐAnnualInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.AnnualInfo) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5668,7 +5757,7 @@ func (ec *executionContext) marshalOAnnualInfo2ᚕᚖgithubᚗcomᚋnanozukiᚋc
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAnnualInfo2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐAnnualInfo(ctx, sel, v[i])
+			ret[i] = ec.marshalNAnnualInfo2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐAnnualInfo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5688,7 +5777,54 @@ func (ec *executionContext) marshalOAnnualInfo2ᚕᚖgithubᚗcomᚋnanozukiᚋc
 	return ret
 }
 
-func (ec *executionContext) marshalOBallot2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐBallot(ctx context.Context, sel ast.SelectionSet, v *entity.Ballot) graphql.Marshaler {
+func (ec *executionContext) marshalOBallot2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐBallotᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.Ballot) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBallot2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐBallot(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalOBallot2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐBallot(ctx context.Context, sel ast.SelectionSet, v *entity.Ballot) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5721,22 +5857,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalODepartment2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx context.Context, v interface{}) (*entity.Department, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(entity.Department)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalODepartment2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐDepartment(ctx context.Context, sel ast.SelectionSet, v *entity.Department) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
-}
-
 func (ec *executionContext) unmarshalOID2ᚖuint(ctx context.Context, v interface{}) (*uint, error) {
 	if v == nil {
 		return nil, nil
@@ -5753,7 +5873,7 @@ func (ec *executionContext) marshalOID2ᚖuint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) marshalONomination2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐNominationᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.Nomination) graphql.Marshaler {
+func (ec *executionContext) marshalONomination2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐNominationᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.Nomination) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5780,7 +5900,7 @@ func (ec *executionContext) marshalONomination2ᚕᚖgithubᚗcomᚋnanozukiᚋc
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNNomination2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐNomination(ctx, sel, v[i])
+			ret[i] = ec.marshalNNomination2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐNomination(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5800,7 +5920,7 @@ func (ec *executionContext) marshalONomination2ᚕᚖgithubᚗcomᚋnanozukiᚋc
 	return ret
 }
 
-func (ec *executionContext) marshalORanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐRankingᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.Ranking) graphql.Marshaler {
+func (ec *executionContext) marshalORanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐRankingᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.Ranking) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5827,7 +5947,7 @@ func (ec *executionContext) marshalORanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrow
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNRanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐRanking(ctx, sel, v[i])
+			ret[i] = ec.marshalNRanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐRanking(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5847,49 +5967,11 @@ func (ec *executionContext) marshalORanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrow
 	return ret
 }
 
-func (ec *executionContext) marshalORanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐRanking(ctx context.Context, sel ast.SelectionSet, v *entity.Ranking) graphql.Marshaler {
+func (ec *executionContext) marshalORanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐRanking(ctx context.Context, sel ast.SelectionSet, v *entity.Ranking) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Ranking(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
@@ -5908,68 +5990,21 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOVoter2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐVoter(ctx context.Context, sel ast.SelectionSet, v *entity.Voter) graphql.Marshaler {
+func (ec *executionContext) marshalOVoter2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐVoter(ctx context.Context, sel ast.SelectionSet, v *entity.Voter) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Voter(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOWork2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWorkᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.Work) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNWork2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWork(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalOWork2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWork(ctx context.Context, sel ast.SelectionSet, v *entity.Work) graphql.Marshaler {
+func (ec *executionContext) marshalOWork2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWork(ctx context.Context, sel ast.SelectionSet, v *entity.Work) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Work(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOWorkRanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWorkRankingᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.WorkRanking) graphql.Marshaler {
+func (ec *executionContext) marshalOWorkRanking2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWorkRankingᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.WorkRanking) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5996,7 +6031,7 @@ func (ec *executionContext) marshalOWorkRanking2ᚕᚖgithubᚗcomᚋnanozukiᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNWorkRanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐWorkRanking(ctx, sel, v[i])
+			ret[i] = ec.marshalNWorkRanking2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚑapiᚋcoreᚋentityᚐWorkRanking(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)

@@ -5,5 +5,4 @@ type Work struct {
 	Department Department `json:"department"`
 	NameCN     string     `json:"nameCN"`
 	NameOrigin string     `json:"nameOrigin"`
-	Alias      []string   `json:"alias"`
 }

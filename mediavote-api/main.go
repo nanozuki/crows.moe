@@ -1,14 +1,19 @@
 package main
 
 import (
-	"github.com/nanozuki/crows.moe/mediavote/backend/pkg/generic"
-	"github.com/nanozuki/crows.moe/mediavote/backend/tools/inj"
+	"github.com/nanozuki/crows.moe/mediavote-api/tools/inj"
+	"github.com/rs/zerolog/log"
 )
 
 //go:generate go run -mod=mod github.com/99designs/gqlgen generate
 //go:generate go run -mod=mod github.com/google/wire/cmd/wire ./tools/inj
 
 func main() {
-	server := generic.Must(inj.InitServer())
-	server.Run()
+	server, err := inj.InitServer()
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	if err := server.Run(); err != nil {
+		log.Fatal().Msg(err.Error())
+	}
 }
