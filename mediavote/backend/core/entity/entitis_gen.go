@@ -64,3 +64,48 @@ func (e *Department) UnmarshalGQL(v interface{}) error {
 func (e Department) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type Stage string
+
+const (
+	StageNotYet      Stage = "NotYet"
+	StageNominations Stage = "Nominations"
+	StageVote        Stage = "Vote"
+	StageAwards      Stage = "Awards"
+)
+
+var AllStage = []Stage{
+	StageNotYet,
+	StageNominations,
+	StageVote,
+	StageAwards,
+}
+
+func (e Stage) IsValid() bool {
+	switch e {
+	case StageNotYet, StageNominations, StageVote, StageAwards:
+		return true
+	}
+	return false
+}
+
+func (e Stage) String() string {
+	return string(e)
+}
+
+func (e *Stage) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Stage(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Stage", str)
+	}
+	return nil
+}
+
+func (e Stage) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}

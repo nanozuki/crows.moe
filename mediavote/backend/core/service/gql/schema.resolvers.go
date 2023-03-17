@@ -6,6 +6,7 @@ package gql
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/entity"
 	"github.com/nanozuki/crows.moe/mediavote/backend/core/port"
@@ -99,6 +100,11 @@ func (r *queryResolver) Ranking(ctx context.Context, department entity.Departmen
 // Rankings is the resolver for the rankings field.
 func (r *queryResolver) Rankings(ctx context.Context) ([]*entity.Ranking, error) {
 	return r.Repository.Ranking().Search(ctx, &port.RankingQuery{})
+}
+
+// Years is the resolver for the years field.
+func (r *queryResolver) Years(ctx context.Context) ([]*entity.AnnualInfo, error) {
+	panic(fmt.Errorf("not implemented: Years - years"))
 }
 
 // Ballot is the resolver for the ballot field.

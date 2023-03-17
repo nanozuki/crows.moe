@@ -23,9 +23,9 @@ function nomsToNomItemProps(noms: Nomination[]): NomItemProps[] {
       const alias = aliasMap.get(nom.work.nameCN);
       if (!alias) {
         const set: Set<string> = new Set();
-        set.add(nom.work.nameCN);
-        set.add(nom.work.nameOrigin);
-        set.add(nom.workName);
+        [nom.work.nameCN, nom.work.nameOrigin, nom.workName].forEach((n) =>
+          set.add(n)
+        );
         aliasMap.set(nom.work.nameCN, set);
       } else {
         alias.add(nom.workName);

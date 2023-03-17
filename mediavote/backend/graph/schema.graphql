@@ -11,6 +11,7 @@ type Query {
   works(department: Department): [Work!]
   ranking(department: Department!): Ranking
   rankings: [Ranking!]
+  years: [AnnualInfo!]
 }
 
 type Mutation {
@@ -75,4 +76,16 @@ enum Department {
   Manga
   Game
   Novel
+}
+
+type AnnualInfo {
+  Year: Int!
+  Stage: Stage!
+}
+
+enum Stage {
+  NotYet
+  Nominations
+  Vote
+  Awards
 }

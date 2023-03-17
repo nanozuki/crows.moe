@@ -51,16 +51,3 @@ func (s *Server) Run() {
 
 	e.Logger.Fatal(e.Start(":" + env.Port()))
 }
-
-/*
-Accept-Encoding: gzip, deflate, br
-Referer: http://localhost:3000/
-Content-Length: 312
-Origin: http://localhost:3000
-Connection: keep-alive
-Sec-Fetch-Dest: empty
-Sec-Fetch-Mode: cors
-Sec-Fetch-Site: cross-site
-DNT: 1
-Sec-GPC: 1
-*/

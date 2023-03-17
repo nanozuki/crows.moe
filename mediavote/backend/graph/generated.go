@@ -49,6 +49,11 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	AnnualInfo struct {
+		Stage func(childComplexity int) int
+		Year  func(childComplexity int) int
+	}
+
 	Ballot struct {
 		Candidates func(childComplexity int) int
 		Department func(childComplexity int) int
@@ -75,6 +80,7 @@ type ComplexityRoot struct {
 		Rankings    func(childComplexity int) int
 		Voter       func(childComplexity int) int
 		Works       func(childComplexity int, department *entity.Department) int
+		Years       func(childComplexity int) int
 	}
 
 	Ranking struct {
@@ -117,6 +123,7 @@ type QueryResolver interface {
 	Works(ctx context.Context, department *entity.Department) ([]*entity.Work, error)
 	Ranking(ctx context.Context, department entity.Department) (*entity.Ranking, error)
 	Rankings(ctx context.Context) ([]*entity.Ranking, error)
+	Years(ctx context.Context) ([]*entity.AnnualInfo, error)
 }
 type VoterResolver interface {
 	Ballot(ctx context.Context, obj *entity.Voter, department entity.Department) (*entity.Ballot, error)
@@ -140,6 +147,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AnnualInfo.Stage":
+		if e.complexity.AnnualInfo.Stage == nil {
+			break
+		}
+
+		return e.complexity.AnnualInfo.Stage(childComplexity), true
+
+	case "AnnualInfo.Year":
+		if e.complexity.AnnualInfo.Year == nil {
+			break
+		}
+
+		return e.complexity.AnnualInfo.Year(childComplexity), true
 
 	case "Ballot.candidates":
 		if e.complexity.Ballot.Candidates == nil {
@@ -277,6 +298,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Works(childComplexity, args["department"].(*entity.Department)), true
+
+	case "Query.years":
+		if e.complexity.Query.Years == nil {
+			break
+		}
+
+		return e.complexity.Query.Years(childComplexity), true
 
 	case "Ranking.department":
 		if e.complexity.Ranking.Department == nil {
@@ -455,7 +483,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
 }
 
-//go:embed "schema.graphqls"
+//go:embed "schema.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -467,7 +495,7 @@ func sourceData(filename string) string {
 }
 
 var sources = []*ast.Source{
-	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
+	{Name: "schema.graphql", Input: sourceData("schema.graphql"), BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -641,6 +669,94 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _AnnualInfo_Year(ctx context.Context, field graphql.CollectedField, obj *entity.AnnualInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AnnualInfo_Year(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Year, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AnnualInfo_Year(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AnnualInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AnnualInfo_Stage(ctx context.Context, field graphql.CollectedField, obj *entity.AnnualInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AnnualInfo_Stage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Stage(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(entity.Stage)
+	fc.Result = res
+	return ec.marshalNStage2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐStage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AnnualInfo_Stage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AnnualInfo",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Stage does not have child fields")
+		},
+	}
+	return fc, nil
+}
 
 func (ec *executionContext) _Ballot_id(ctx context.Context, field graphql.CollectedField, obj *entity.Ballot) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Ballot_id(ctx, field)
@@ -1497,6 +1613,53 @@ func (ec *executionContext) fieldContext_Query_rankings(ctx context.Context, fie
 				return ec.fieldContext_Ranking_rankings(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Ranking", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_years(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_years(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Years(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*entity.AnnualInfo)
+	fc.Result = res
+	return ec.marshalOAnnualInfo2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐAnnualInfoᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_years(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Year":
+				return ec.fieldContext_AnnualInfo_Year(ctx, field)
+			case "Stage":
+				return ec.fieldContext_AnnualInfo_Stage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AnnualInfo", field.Name)
 		},
 	}
 	return fc, nil
@@ -4149,6 +4312,41 @@ func (ec *executionContext) unmarshalInputWorkRankingInput(ctx context.Context, 
 
 // region    **************************** object.gotpl ****************************
 
+var annualInfoImplementors = []string{"AnnualInfo"}
+
+func (ec *executionContext) _AnnualInfo(ctx context.Context, sel ast.SelectionSet, obj *entity.AnnualInfo) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, annualInfoImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AnnualInfo")
+		case "Year":
+
+			out.Values[i] = ec._AnnualInfo_Year(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "Stage":
+
+			out.Values[i] = ec._AnnualInfo_Stage(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var ballotImplementors = []string{"Ballot"}
 
 func (ec *executionContext) _Ballot(ctx context.Context, sel ast.SelectionSet, obj *entity.Ballot) graphql.Marshaler {
@@ -4412,6 +4610,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_rankings(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "years":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_years(ctx, field)
 				return res
 			}
 
@@ -4969,6 +5187,16 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) marshalNAnnualInfo2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐAnnualInfo(ctx context.Context, sel ast.SelectionSet, v *entity.AnnualInfo) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AnnualInfo(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNBallotInput2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐBallotInput(ctx context.Context, v interface{}) (entity.BallotInput, error) {
 	res, err := ec.unmarshalInputBallotInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5047,6 +5275,16 @@ func (ec *executionContext) marshalNRanking2ᚖgithubᚗcomᚋnanozukiᚋcrows�
 		return graphql.Null
 	}
 	return ec._Ranking(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNStage2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐStage(ctx context.Context, v interface{}) (entity.Stage, error) {
+	var res entity.Stage
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNStage2githubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐStage(ctx context.Context, sel ast.SelectionSet, v entity.Stage) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -5401,6 +5639,53 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalOAnnualInfo2ᚕᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐAnnualInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.AnnualInfo) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAnnualInfo2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐAnnualInfo(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalOBallot2ᚖgithubᚗcomᚋnanozukiᚋcrowsᚗmoeᚋmediavoteᚋbackendᚋcoreᚋentityᚐBallot(ctx context.Context, sel ast.SelectionSet, v *entity.Ballot) graphql.Marshaler {
