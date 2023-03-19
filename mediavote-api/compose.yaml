@@ -2,7 +2,7 @@ user: '${UID}:${GID}'
 userns_mode: 'host'
 services:
   server:
-    image: docker.io/library/golang:latest
+    image: docker.io/library/golang:1.20-bullseye
     environment:
       - 'MEDIAVOTE_PORT=8080'
       - 'MEDIAVOTE_ADMIN_KEY=1234'

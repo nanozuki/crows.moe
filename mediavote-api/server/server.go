@@ -43,11 +43,11 @@ func (s *Server) Run() error {
 		AllowCredentials: true,
 	}))
 	e.Use(s.loadCtxUser)
-
-	e.Any("/", echo.WrapHandler(playground.Handler("Mediavote GraphQL playground", "/query")))
-	e.Any("/query", echo.WrapHandler(gqlSrv))
-	e.POST("/register", s.Register)
-	e.POST("/login", s.Login)
+	api := e.Group("/api")
+	api.Any("/", echo.WrapHandler(playground.Handler("Mediavote GraphQL playground", "/query")))
+	api.Any("/query", echo.WrapHandler(gqlSrv))
+	api.POST("/register", s.Register)
+	api.POST("/login", s.Login)
 
 	return e.Start(":" + env.Port())
 }
