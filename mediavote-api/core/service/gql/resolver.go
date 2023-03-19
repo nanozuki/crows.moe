@@ -65,7 +65,6 @@ func (r *Resolver) initDevExampleData() error {
 		{
 			Department: entity.DepartmentTVAnime,
 			WorkName:   "明日同学的水手服",
-			WorkID:     &works[1].ID,
 		},
 		{
 			Department: entity.DepartmentGame,

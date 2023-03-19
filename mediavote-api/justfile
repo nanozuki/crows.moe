@@ -21,3 +21,7 @@ down:
 
 gen:
 	go generate
+
+build-image TAG:
+	podman build -t ghcr.io/nanozuki/mediavote-api:{{TAG}} .
+	podman push ghcr.io/nanozuki/mediavote-api:{{TAG}}

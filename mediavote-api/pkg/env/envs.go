@@ -9,7 +9,6 @@ import (
 )
 
 func Port() string        { return get("PORT") }
-func AdminKey() string    { return get("ADMIN_KEY") }
 func Environment() string { return get("ENV") }
 func IsProd() bool        { return get("ENV") == EnvProd }
 func PgDSN() string       { return get("PG_DSN") }
