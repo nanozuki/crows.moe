@@ -8,20 +8,20 @@ default:
 	just --list
 
 test-all:
-	ENV=testing podman-compose run server go test ./...
+	ENV=testing docker-compose run server go test ./...
 
 test MODEL:
-	ENV=testing podman-compose run server go test {{proj}}{{MODEL}}
+	ENV=testing docker-compose run server go test {{proj}}{{MODEL}}
 
 run:
-	ENV=dev podman-compose up
+	ENV=dev docker-compose up
 
 down:
-	podman-compose down -v
+	docker-compose down -v
 
 gen:
 	go generate
 
 build-image TAG:
-	podman build -t ghcr.io/nanozuki/mediavote-api:{{TAG}} .
-	podman push ghcr.io/nanozuki/mediavote-api:{{TAG}}
+	docker build --platform=linux/amd64 -t ghcr.io/nanozuki/mediavote-api:{{TAG}} .
+	docker push ghcr.io/nanozuki/mediavote-api:{{TAG}}
