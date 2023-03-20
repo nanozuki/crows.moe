@@ -40,14 +40,11 @@ function nomsToNomItemProps(noms: Nomination[]): NomItemProps[] {
       alias: names.slice(1),
     });
   }
-  console.log('items: ', props);
   return props;
 }
 
 export default function NomList({ className, noms, dept }: NomListProps) {
-  console.log('get noms: ', noms);
   const [nomsState, setNomsState] = useState(nomsToNomItemProps(noms));
-  console.log('nom state', nomsState);
   const setNoms = (noms: Nomination[]): void => {
     setNomsState(nomsToNomItemProps(noms));
   };

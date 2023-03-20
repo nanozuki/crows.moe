@@ -1,13 +1,13 @@
-import { notFound } from "next/navigation";
-import TabLine from "@app/shared/TabLine";
-import Title from "@app/shared/Title";
-import ToNextButton from "@app/shared/ToNextButton";
-import ToPrevButton from "@app/shared/ToPrevButton";
-import { ReactNode } from "react";
-import NomList from "./NomList";
-import { Department } from "@gqlgen/graphql";
-import { doc } from "@gql/init";
-import { srvQuery } from "@app/shared/gql";
+import { notFound } from 'next/navigation';
+import TabLine from '@app/shared/TabLine';
+import Title from '@app/shared/Title';
+import ToNextButton from '@app/shared/ToNextButton';
+import ToPrevButton from '@app/shared/ToPrevButton';
+import { ReactNode } from 'react';
+import NomList from './NomList';
+import { Department } from '@gqlgen/graphql';
+import { doc } from '@gql/init';
+import { srvQuery } from '@app/shared/gql';
 
 interface DepartmentInfo {
   name: string;
@@ -17,7 +17,7 @@ interface DepartmentInfo {
 
 const departments: DepartmentInfo[] = [
   {
-    name: "TV动画",
+    name: 'TV动画',
     dept: Department.TvAnime,
     intro: (
       <div className="text-subtle mt-1 mb-1">
@@ -35,7 +35,7 @@ const departments: DepartmentInfo[] = [
     ),
   },
   {
-    name: "其他动画",
+    name: '其他动画',
     dept: Department.NonTvAnime,
     intro: (
       <div className="text-subtle mt-1 mb-1">
@@ -54,7 +54,7 @@ const departments: DepartmentInfo[] = [
     ),
   },
   {
-    name: "漫画",
+    name: '漫画',
     dept: Department.Manga,
     intro: (
       <div className="text-subtle mt-1 mb-1">
@@ -65,7 +65,7 @@ const departments: DepartmentInfo[] = [
     ),
   },
   {
-    name: "电子游戏",
+    name: '电子游戏',
     dept: Department.Game,
     intro: (
       <div className="text-subtle mt-1 mb-1">
@@ -77,7 +77,7 @@ const departments: DepartmentInfo[] = [
     ),
   },
   {
-    name: "小说",
+    name: '小说',
     dept: Department.Novel,
     intro: (
       <div className="text-subtle mt-1 mb-1">

@@ -1,0 +1,12 @@
+# vi:ft=make
+
+set shell := ["fish", "-c"]
+
+proj := "github.com/nanozuki/crows.moe/mediavote-web/"
+
+default:
+	just --list
+
+build-image TAG:
+	docker build --platform=linux/amd64 -t ghcr.io/nanozuki/mediavote-web:{{TAG}} .
+	docker push ghcr.io/nanozuki/mediavote-web:{{TAG}}
