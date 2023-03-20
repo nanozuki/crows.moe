@@ -14,6 +14,7 @@ func IsProd() bool        { return get("ENV") == EnvProd }
 func PgDSN() string       { return get("PG_DSN") }
 func RedisAddr() string   { return get("REDIS_ADDR") }
 func RedisDB() int        { return getMapOr("REDIS_DB", 0, strconv.Atoi) }
+func RedisPasswd() string { return getOr("REDIS_PASSWD", "") }
 
 const (
 	EnvProd = "production"
@@ -45,6 +46,16 @@ func get(name string) string {
 		e := os.Getenv(envPrefix + name)
 		if e == "" {
 			panic(ierr.RequiredEnvMissed(envPrefix + name))
+		}
+		return e
+	})
+}
+
+func getOr(name string, fallback string) string {
+	return getOnce(name, func() string {
+		e := os.Getenv(envPrefix + name)
+		if e == "" {
+			return fallback
 		}
 		return e
 	})

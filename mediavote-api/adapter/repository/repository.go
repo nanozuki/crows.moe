@@ -43,8 +43,9 @@ func NewRepository() (*Repository, error) {
 	}
 	{
 		r.rds = redis.NewClient(&redis.Options{
-			Addr: env.RedisAddr(),
-			DB:   env.RedisDB(),
+			Addr:     env.RedisAddr(),
+			DB:       env.RedisDB(),
+			Password: env.RedisPasswd(),
 		})
 	}
 	return r, nil
