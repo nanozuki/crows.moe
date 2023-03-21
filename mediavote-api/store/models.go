@@ -53,8 +53,8 @@ func (y *Year) Stage() Stage {
 }
 
 type Department struct {
-	Dept  DepartmentName `firestore:"dept,omitempty"`
-	Works []*Work        `firestore:"works,omitempty"`
+	Dept  DepartmentName `firestore:"dept,omitempty" json:"dept,omitempty"`
+	Works []*Work        `firestore:"works,omitempty" json:"works,omitempty"`
 }
 
 func (d *Department) ID() string {

@@ -15,7 +15,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@google-cloud/firestore": "^6.5.0",
     "@next/font": "13.1.4",
     "@types/node": "18.11.18",
     "@types/react": "18.0.27",
@@ -29,6 +28,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.21.0",
+    "@iconify-json/material-symbols": "^1.1.32",
     "@svgr/core": "^6.5.1",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.21",

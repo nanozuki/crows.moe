@@ -3,9 +3,9 @@
 import { useTextField } from 'react-aria';
 import { useButton } from 'react-aria';
 import { ReactNode, useRef, useState } from 'react';
-import { useMutation } from 'urql';
-import { doc } from '@gql/init';
-import { Department, Nomination } from '@gqlgen/graphql';
+import { DepartmentName, Work } from '@app/shared/models';
+import { addNomination } from '@app/shared/apis';
+import { KeyboardEvent } from 'react';
 
 interface WorkNameInputProps {
   className?: string;
@@ -14,7 +14,8 @@ interface WorkNameInputProps {
   errorMessage?: string;
   placeholder?: string;
 
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
+  onKeyDown?: (e: KeyboardEvent) => void;
   value: string;
 }
 
@@ -79,19 +80,35 @@ function SubmitButton(props: SubmitButtonProps) {
 
 interface PostFormProps {
   className?: string;
-  dept: Department;
-  setNoms: (noms: Nomination[]) => void;
+  dept: DepartmentName;
+  setNoms: (noms: Work[]) => void;
 }
 
 export default function PostForm(props: PostFormProps) {
   const [inputText, setInputText] = useState('');
-  const [{ fetching, error }, post] = useMutation(doc.addNomination);
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const post = async () => {
+    setFetching(true);
+    try {
+      const works = await addNomination(props.dept, inputText);
+      setError(undefined);
+      setInputText('');
+      props.setNoms(works);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setFetching(false);
+    }
+  };
   const onClick = async (e: Event) => {
     e.preventDefault();
-    const result = await post({ dept: props.dept, workName: inputText });
-    if (!result.error) {
-      props.setNoms(result.data?.postNomination || new Array());
-      setInputText('');
+    await post();
+  };
+  const onKeyDown = async (e: KeyboardEvent) => {
+    e.preventDefault();
+    if (e.key === 'Enter') {
+      post();
     }
   };
   const btnBg = fetching ? 'bg-muted' : 'bg-pine';
@@ -104,6 +121,7 @@ export default function PostForm(props: PostFormProps) {
         label="作品名称"
         value={inputText}
         onChange={setInputText}
+        onKeyDown={onKeyDown}
         errorMessage={error && error.toString()}
       />
       <SubmitButton
