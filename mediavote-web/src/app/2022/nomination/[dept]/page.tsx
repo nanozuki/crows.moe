@@ -178,10 +178,4 @@ export default async function Page({ params }: NominationPageProps) {
   );
 }
 
-// export async function generateStaticParams() {
-//   return [
-//     { dept: DepartmentName.Anime },
-//     { dept: DepartmentName.MangaAndNovel },
-//     { dept: DepartmentName.Game },
-//   ];
-// }
+export const dynamic = 'force-dynamic';

@@ -9,13 +9,13 @@ function url(op: string): string {
 }
 
 export async function getYears(): Promise<Year[]> {
-  const res = await fetch(url('/years'));
+  const res = await fetch(url('/years'), { cache: 'no-store' });
   const jsonRes: { years: Year[] } = await res.json();
   return jsonRes.years;
 }
 
 export async function getCurrentYear(): Promise<Year> {
-  const res = await fetch(url('/years'));
+  const res = await fetch(url('/years'), { cache: 'no-store' });
   const jsonRes: Year = await res.json();
   return jsonRes;
 }
@@ -23,7 +23,9 @@ export async function getCurrentYear(): Promise<Year> {
 export async function getNominations(
   deptName: DepartmentName
 ): Promise<Work[]> {
-  const res = await fetch(url(`/nominations/${deptName}`));
+  const res = await fetch(url(`/nominations/${deptName}`), {
+    cache: 'no-store',
+  });
   const jsonRes: Department = await res.json();
   return jsonRes.works || [];
 }
@@ -36,6 +38,7 @@ export async function addNomination(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ work_name: workName }),
+    cache: 'no-store',
   });
   const jsonRes: Department = await res.json();
   console.log('json res: ', jsonRes);
