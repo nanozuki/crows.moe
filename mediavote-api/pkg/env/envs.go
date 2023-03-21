@@ -2,12 +2,13 @@ package env
 
 import (
 	"os"
+	"strconv"
 	"sync"
 
 	"github.com/rs/zerolog/log"
 )
 
-func Port() string        { return Get("PORT") }
+func Port() int           { return GetMapOr("PORT", 8080, strconv.Atoi) }
 func Environment() string { return Get("ENV") }
 func IsProd() bool        { return Get("ENV") == EnvProd }
 

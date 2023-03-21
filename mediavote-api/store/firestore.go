@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/firestore"
+	"github.com/nanozuki/crows.moe/mediavote-api/pkg/env"
 	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/api/iterator"
@@ -20,6 +21,9 @@ func newClient() *firestore.Client {
 	client, err := firestore.NewClient(ctx, ProjectID)
 	if err != nil {
 		log.Fatal().Msgf("connect firestore: %v", err)
+	}
+	if env.Environment() == env.EnvDev {
+		loadDevData(client)
 	}
 	return client
 }
@@ -45,4 +49,19 @@ func readDocs[T any](iter *firestore.DocumentIterator) ([]*T, error) {
 		ts = append(ts, readDoc[T](doc))
 	}
 	return ts, nil
+}
+
+func loadDevData(client *firestore.Client) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+	now := time.Now()
+	year := &Year{
+		Year:              2022,
+		NominationStartAt: now.Add(-7 * 24 * time.Hour),
+		VotingStartAt:     now.Add(7 * 24 * time.Hour),
+		AwardStartAt:      now.Add(14 * 24 * time.Hour),
+	}
+	if _, err := client.Collection(ColYear).Doc(year.ID()).Set(ctx, year); err != nil {
+		log.Fatal().Msgf("loadDevData failed: %v", err)
+	}
 }

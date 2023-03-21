@@ -9,6 +9,8 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var (
@@ -58,11 +60,11 @@ func GetCurrentYear(ctx context.Context) (*Year, error) {
 func GetOrNewDepartment(ctx context.Context, deptName DepartmentName) (*Department, error) {
 	docRef := yearRef(ctx).Collection(ColDepartment).Doc(deptName.String())
 	doc, err := docRef.Get(ctx)
+	if status.Code(err) == codes.NotFound {
+		return &Department{Dept: deptName}, nil
+	}
 	if err != nil {
 		return nil, terror.FirestoreError("find department").Wrap(err)
-	}
-	if !doc.Exists() {
-		return &Department{Dept: deptName}, nil
 	}
 	return readDoc[Department](doc), nil
 }
@@ -76,12 +78,13 @@ func SetDepartment(ctx context.Context, dept *Department) error {
 func CreateVoterAndSession(ctx context.Context, voter *Voter, session *Session) error {
 	ref := yearRef(ctx).Collection(ColVoter).Doc(voter.ID())
 	return client.RunTransaction(ctx, func(ctx context.Context, t *firestore.Transaction) error {
-		doc, err := ref.Get(ctx)
-		if err != nil {
-			return terror.FirestoreError("get voter").Wrap(err)
-		}
-		if doc.Exists() {
+		_, err := ref.Get(ctx)
+		switch {
+		case err == nil:
 			return terror.Duplicated("voter")
+		case status.Code(err) != codes.NotFound:
+			return terror.FirestoreError("get voter").Wrap(err)
+		default: // case status.Code(err) == codes.NotFound
 		}
 		if _, err := ref.Set(ctx, voter); err != nil {
 			return terror.FirestoreError("insert voter").Wrap(err)
@@ -99,7 +102,7 @@ func CheckVoter(ctx context.Context, name string, pinCode string) error {
 	if err != nil {
 		return terror.FirestoreError("get voter").Wrap(err)
 	}
-	if !doc.Exists() {
+	if status.Code(err) == codes.NotFound {
 		return terror.NotFound("voter")
 	}
 	voter := readDoc[Voter](doc)
@@ -123,7 +126,7 @@ func GetSession(ctx context.Context, key string) (*Session, error) {
 	if err != nil {
 		return nil, terror.FirestoreError("get session").Wrap(err)
 	}
-	if !doc.Exists() {
+	if status.Code(err) == codes.NotFound {
 		return nil, terror.InvalidToken()
 	}
 	session := readDoc[Session](doc)

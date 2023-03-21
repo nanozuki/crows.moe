@@ -190,9 +190,9 @@ func (e Stage) String() string {
 type DepartmentName string
 
 const (
-	Anime         DepartmentName = "TVAnime"
-	MangaAndNovel DepartmentName = "Manga&Novel"
-	Game          DepartmentName = "Game"
+	Anime         DepartmentName = "anime"
+	MangaAndNovel DepartmentName = "manga-novel"
+	Game          DepartmentName = "game"
 )
 
 var AllDepartment = []DepartmentName{
