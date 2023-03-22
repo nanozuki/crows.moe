@@ -1,3 +1,12 @@
+terraform {
+  backend "remote" {
+    organization = "crows-moe"
+    workspaces {
+      name = "crows-moe-gcloud"
+    }
+  }
+}
+
 provider "google" {
   project = "crows-moe"
   region  = "asia-east1"
@@ -86,7 +95,7 @@ resource "google_cloud_run_service" "mediavote-web" {
     }
     spec {
       containers {
-        image = "asia-east1-docker.pkg.dev/crows-moe/images/mediavote-web:1.0.3"
+        image = "asia-east1-docker.pkg.dev/crows-moe/images/mediavote-web:1.0.4"
         ports {
           container_port = 3000
         }
