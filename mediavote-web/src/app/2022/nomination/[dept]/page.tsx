@@ -105,9 +105,12 @@ function ToPrevDP({ className, idx }: ToPrevDPProps) {
   if (idx === 0) {
     return null;
   }
-  const prev = departments[idx - 1].dept;
+  const prev = departments[idx - 1];
   return (
-    <ToPrevButton to={`/2022/nomination/${prev}`} className={`${className}`} />
+    <ToPrevButton
+      to={`/2022/nomination/${prev.dept}`}
+      className={`${className}`}
+    />
   );
 }
 
@@ -126,12 +129,12 @@ function ToNextDP({ className, idx }: ToNextDPProps) {
       </div>
     );
   }
-  const next = departments[idx + 1].dept;
+  const next = departments[idx + 1];
   return (
     <ToNextButton
       className={`${className}`}
-      to={`/2022/nomination/${next}`}
-      label={`Next: ${departments[idx].title}部门`}
+      to={`/2022/nomination/${next.dept}`}
+      label={`Next: ${next.title}部门`}
     />
   );
 }
