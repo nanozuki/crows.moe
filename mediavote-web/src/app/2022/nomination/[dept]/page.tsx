@@ -154,7 +154,7 @@ export default async function Page({ params }: NominationPageProps) {
       <div className="mt-8 mb-8">
         <p className="font-serif font-bold text-2xl mt-1 mb-1">作品提名</p>
         <p className="text-xs text-muted mt-1 mb-1">
-          2023.3.22 10:00 - 2023.3.29 22:00
+          2023.3.22 10:00 - 2023.3.28 22:00
         </p>
         <p className="text-subtle mt-1 mb-1">
           提名所有观赏或体验过的、满足范围限定的作品。在提名阶段被提名的作品，将在投票阶段进行最终的投票和排序。

@@ -106,7 +106,6 @@ export default function PostForm(props: PostFormProps) {
     await post();
   };
   const onKeyDown = async (e: KeyboardEvent) => {
-    e.preventDefault();
     if (e.key === 'Enter') {
       post();
     }
