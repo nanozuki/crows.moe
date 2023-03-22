@@ -99,11 +99,9 @@ function TabLine({ page, className }: TabLineProps) {
   return (
     <div className={`flex flex-row ${className}`}>
       <TabHead className="w-[0.6875rem] h-2" />
-      <TabBar className="w-[calc(20%-0.375rem)] h-2 mr-0.5" state={state(1)} />
-      <TabBar className="w-[calc(20%-0.375rem)] h-2 mr-0.5" state={state(2)} />
-      <TabBar className="w-[calc(20%-0.375rem)] h-2 mr-0.5" state={state(3)} />
-      <TabBar className="w-[calc(20%-0.375rem)] h-2 mr-0.5" state={state(4)} />
-      <TabBar className="w-[calc(20%-0.375rem)] h-2" state={state(5)} />
+      <TabBar className="w-[calc((100%-30px)/3)] h-2 mr-0.5" state={state(0)} />
+      <TabBar className="w-[calc((100%-30px)/3)] h-2 mr-0.5" state={state(1)} />
+      <TabBar className="w-[calc((100%-30px)/3)] h-2" state={state(2)} />
       <TabTail className="w-[0.6875rem] h-2" />
     </div>
   );

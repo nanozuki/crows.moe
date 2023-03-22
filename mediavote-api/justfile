@@ -3,6 +3,7 @@
 set shell := ["fish", "-c"]
 
 proj := "github.com/nanozuki/crows.moe/mediavote-api/"
+image := "asia-east1-docker.pkg.dev/crows-moe/images/mediavote-api"
 
 default:
 	just --list
@@ -14,7 +15,8 @@ test MODEL:
 	ENV=testing docker-compose run server go test {{proj}}{{MODEL}}
 
 run:
-	ENV=dev docker-compose up
+	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_ENV=dev go run *.go
 
 down:
 	docker-compose down -v
@@ -23,5 +25,5 @@ gen:
 	go generate
 
 build-image TAG:
-	docker build --platform=linux/amd64 -t ghcr.io/nanozuki/mediavote-api:{{TAG}} .
-	docker push ghcr.io/nanozuki/mediavote-api:{{TAG}}
+	docker build --platform=linux/amd64 -t {{image}}:{{TAG}} .
+	docker push {{image}}:{{TAG}}

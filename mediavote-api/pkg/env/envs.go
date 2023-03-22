@@ -5,16 +5,12 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/nanozuki/crows.moe/mediavote-api/pkg/ierr"
+	"github.com/rs/zerolog/log"
 )
 
-func Port() string        { return get("PORT") }
-func Environment() string { return get("ENV") }
-func IsProd() bool        { return get("ENV") == EnvProd }
-func PgDSN() string       { return get("PG_DSN") }
-func RedisAddr() string   { return get("REDIS_ADDR") }
-func RedisDB() int        { return getMapOr("REDIS_DB", 0, strconv.Atoi) }
-func RedisPasswd() string { return getOr("REDIS_PASSWD", "") }
+func Port() int           { return GetMapOr("PORT", 8080, strconv.Atoi) }
+func Environment() string { return Get("ENV") }
+func IsProd() bool        { return Get("ENV") == EnvProd }
 
 const (
 	EnvProd = "production"
@@ -41,17 +37,17 @@ func getOnce[T any](name string, g func() T) T {
 	return value
 }
 
-func get(name string) string {
+func Get(name string) string {
 	return getOnce(name, func() string {
 		e := os.Getenv(envPrefix + name)
 		if e == "" {
-			panic(ierr.RequiredEnvMissed(envPrefix + name))
+			log.Fatal().Msgf("required env '%s', missed", name)
 		}
 		return e
 	})
 }
 
-func getOr(name string, fallback string) string {
+func GetOr(name string, fallback string) string {
 	return getOnce(name, func() string {
 		e := os.Getenv(envPrefix + name)
 		if e == "" {
@@ -61,7 +57,7 @@ func getOr(name string, fallback string) string {
 	})
 }
 
-func getMapOr[T any](name string, fallback T, f func(string) (T, error)) T {
+func GetMapOr[T any](name string, fallback T, f func(string) (T, error)) T {
 	return getOnce(name, func() T {
 		e := os.Getenv(envPrefix + name)
 		if e == "" {
@@ -69,7 +65,7 @@ func getMapOr[T any](name string, fallback T, f func(string) (T, error)) T {
 		}
 		t, err := f(e)
 		if err != nil {
-			panic(ierr.FormatError("name", e).From(err))
+			log.Fatal().Msgf("invalid env '%s'", name)
 		}
 		return t
 	})

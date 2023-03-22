@@ -1,5 +1,6 @@
 import Title from '@app/shared/Title';
 import ToNextButton from '@app/shared/ToNextButton';
+import { DepartmentName } from './shared/models';
 
 interface AnnualItemProps {
   year: number;
@@ -20,7 +21,11 @@ export default function Home() {
   return [
     <Title key="title" to="/" />,
     <main key="main">
-      <AnnualItem year={2022} to={'/2022/nomination/1'} state="作品提名" />
+      <AnnualItem
+        year={2022}
+        to={`/2022/nomination/${DepartmentName.Anime}`}
+        state="作品提名"
+      />
       <AnnualItem
         year={2021}
         to={'https://vote2021.crows.moe'}
@@ -29,3 +34,5 @@ export default function Home() {
     </main>,
   ];
 }
+
+export const revalidate = 3600;
