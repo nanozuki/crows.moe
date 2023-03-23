@@ -1,4 +1,10 @@
-import { Department, DepartmentName, Year, Work } from './models';
+import {
+  Department,
+  DepartmentName,
+  Year,
+  Work,
+  ErrorResponse,
+} from './models';
 
 function url(op: string): string {
   const prefix =
@@ -8,25 +14,37 @@ function url(op: string): string {
   return prefix + op;
 }
 
+async function call<T>(
+  input: RequestInfo | URL,
+  init?: RequestInit
+): Promise<T> {
+  const response = await fetch(input, init);
+  if (!response.ok) {
+    const errorResponse: ErrorResponse = await response.json();
+    throw Error(errorResponse.message);
+  }
+  const jsonResponse: T = await response.json();
+  return jsonResponse;
+}
+
 export async function getYears(): Promise<Year[]> {
-  const res = await fetch(url('/years'), { cache: 'no-store' });
-  const jsonRes: { years: Year[] } = await res.json();
+  const jsonRes: { years: Year[] } = await call(url('/years'), {
+    cache: 'no-store',
+  });
   return jsonRes.years;
 }
 
 export async function getCurrentYear(): Promise<Year> {
-  const res = await fetch(url('/years'), { cache: 'no-store' });
-  const jsonRes: Year = await res.json();
+  const jsonRes: Year = await call(url('/years'), { cache: 'no-store' });
   return jsonRes;
 }
 
 export async function getNominations(
   deptName: DepartmentName
 ): Promise<Work[]> {
-  const res = await fetch(url(`/nominations/${deptName}`), {
+  const jsonRes: Department = await call(url(`/nominations/${deptName}`), {
     cache: 'no-store',
   });
-  const jsonRes: Department = await res.json();
   return jsonRes.works || [];
 }
 
@@ -34,13 +52,11 @@ export async function addNomination(
   deptName: DepartmentName,
   workName: string
 ): Promise<Work[]> {
-  const res = await fetch(url(`/nominations/${deptName}`), {
+  const jsonRes: Department = await call(url(`/nominations/${deptName}`), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ work_name: workName }),
     cache: 'no-store',
   });
-  const jsonRes: Department = await res.json();
-  console.log('json res: ', jsonRes);
   return jsonRes.works || [];
 }

@@ -5,7 +5,7 @@ import { useButton } from 'react-aria';
 import { ReactNode, useRef, useState } from 'react';
 import { DepartmentName, Work } from '@app/shared/models';
 import { addNomination } from '@app/shared/apis';
-import { KeyboardEvent } from 'react';
+import { KeyboardEvent, FormEvent } from 'react';
 
 interface WorkNameInputProps {
   className?: string;
@@ -39,7 +39,7 @@ function WorkNameInput(props: WorkNameInputProps) {
         </div>
       )}
       {props.errorMessage && (
-        <div className="text-love text-xs ml-[0.625rem]" {...errorMessageProps}>
+        <div className="text-love ml-[0.625rem]" {...errorMessageProps}>
           {props.errorMessage}
         </div>
       )}
@@ -58,13 +58,13 @@ function WorkNameInput(props: WorkNameInputProps) {
 interface SubmitButtonProps {
   className?: string;
   children?: ReactNode;
-  onClick: (e: Event) => void;
   fetching: boolean;
 }
 
 function SubmitButton(props: SubmitButtonProps) {
   let ref = useRef<HTMLButtonElement>(null);
   let { buttonProps } = useButton(props, ref);
+  buttonProps.type = 'submit';
 
   return (
     <button
@@ -96,38 +96,32 @@ export default function PostForm(props: PostFormProps) {
       setInputText('');
       props.setNoms(works);
     } catch (e) {
-      setError((e as Error).message);
+      setError('错误: ' + (e as Error).message);
     } finally {
       setFetching(false);
     }
   };
-  const onClick = async (e: Event) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     await post();
   };
-  const onKeyDown = async (e: KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      post();
-    }
-  };
   const btnBg = fetching ? 'bg-muted' : 'bg-pine';
   return (
-    <div
+    <form
       className={`flex flex-col wide:flex-row gap-2 items-end ${props.className}`}
+      onSubmit={onSubmit}
     >
       <WorkNameInput
         className="w-full"
         label="作品名称"
         value={inputText}
         onChange={setInputText}
-        onKeyDown={onKeyDown}
         errorMessage={error && error.toString()}
       />
       <SubmitButton
         className={`${btnBg} text-base w-full wide:w-[10rem] px-8 h-10 rounded`}
-        onClick={onClick}
         fetching={fetching}
       />
-    </div>
+    </form>
   );
 }
