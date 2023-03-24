@@ -4,6 +4,7 @@ const nextConfig = {
     appDir: true,
   },
   reactStrictMode: true,
+  output: 'standalone',
   webpack(config) {
     config.plugins.push(
       require('unplugin-icons/webpack')({
