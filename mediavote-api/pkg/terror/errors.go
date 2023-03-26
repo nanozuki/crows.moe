@@ -26,6 +26,11 @@ func InvalidRequestBody() *Error {
 	return New(http.StatusBadRequest, "InvalidRequestBody", "")
 }
 
+func NotInStage(stage string) *Error {
+	msg := fmt.Sprintf("This operation available in stage: %s", stage)
+	return New(http.StatusBadRequest, "NotInRightStage", msg)
+}
+
 // 401
 
 func NoAuth() *Error {

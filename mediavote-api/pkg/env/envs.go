@@ -11,6 +11,7 @@ import (
 func Port() int           { return GetMapOr("PORT", 8080, strconv.Atoi) }
 func Environment() string { return Get("ENV") }
 func IsProd() bool        { return Get("ENV") == EnvProd }
+func DevStage() string    { return GetOr("DEV_STAGE", "Nomination") }
 
 const (
 	EnvProd = "production"
