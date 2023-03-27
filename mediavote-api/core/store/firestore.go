@@ -5,13 +5,32 @@ import (
 	"time"
 
 	"cloud.google.com/go/firestore"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
 	"github.com/nanozuki/crows.moe/mediavote-api/pkg/env"
 	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/api/iterator"
 )
 
-const ProjectID = "crows-moe"
+/* collections:
+mediavote_years: store yearly time infos
+	-> departments: {dept -> works[]}
+	-> voters:      {name -> {name, pinCode}}
+	-> sessions:    {key -> user}
+	-> ballots:     {dept,voteName -> rankings}
+	-> awards:      {dept -> rankings}
+*/
+
+const (
+	ProjectID = "crows-moe"
+
+	colYear       = "mediavote_years"
+	colDepartment = "departments"
+	colVoter      = "voters"
+	colSession    = "sessions"
+	colBallot     = "ballots"
+	colAwards     = "awards"
+)
 
 var client = newClient()
 
@@ -52,13 +71,13 @@ func LoadDevData() {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 	year := devYear()
-	if _, err := client.Collection(ColYear).Doc(year.ID()).Set(ctx, year); err != nil {
+	if _, err := client.Collection(colYear).Doc(year.ID()).Set(ctx, year); err != nil {
 		log.Fatal().Msgf("loadDevData failed: %v", err)
 	}
-	depts := []*Department{
+	depts := []*entity.Department{
 		{
-			Dept: Anime,
-			Works: []*Work{
+			Dept: entity.Anime,
+			Works: []*entity.Work{
 				{
 					Name:       "彻夜之歌",
 					OriginName: "よふかしのうた",
@@ -75,28 +94,26 @@ func LoadDevData() {
 			},
 		},
 		{
-			Dept: Game,
-			Works: []*Work{
+			Dept: entity.Game,
+			Works: []*entity.Work{
 				{
-					Name:       "原神",
-					OriginName: "原神",
-					Alias:      []string{"Genshin Impact"},
+					Name:       "艾尔登法环",
+					OriginName: "Elden Ring",
+					Alias:      []string{"エルデンリング"},
 				},
 				{
-					Name:       "崩坏3",
-					OriginName: "崩坏3",
-					Alias:      []string{"Honkai Impact 3rd"},
+					Name:       "战神：诸神黄昏",
+					OriginName: "God of War: Ragnarök",
 				},
 				{
-					Name:       "崩坏2",
-					OriginName: "崩坏2",
-					Alias:      []string{"Honkai Impact 2nd"},
+					Name:       "师父",
+					OriginName: "Sifu",
 				},
 			},
 		},
 		{
-			Dept: MangaAndNovel,
-			Works: []*Work{
+			Dept: entity.MangaAndNovel,
+			Works: []*entity.Work{
 				{
 					Name:       "继母的拖油瓶是我的前女友",
 					OriginName: "継母の連れ子が元カノだった",
@@ -120,26 +137,26 @@ func LoadDevData() {
 	}
 }
 
-func devYear() *Year {
-	stage := Stage(env.DevStage())
+func devYear() *entity.Year {
+	stage := entity.Stage(env.DevStage())
 	now := time.Now()
 	switch stage {
-	case StageNomination:
-		return &Year{
+	case entity.StageNomination:
+		return &entity.Year{
 			Year:              2022,
 			NominationStartAt: now.Add(-7 * 24 * time.Hour),
 			VotingStartAt:     now.Add(7 * 24 * time.Hour),
 			AwardStartAt:      now.Add(14 * 24 * time.Hour),
 		}
-	case StageVoting:
-		return &Year{
+	case entity.StageVoting:
+		return &entity.Year{
 			Year:              2022,
 			NominationStartAt: now.Add(-14 * 24 * time.Hour),
 			VotingStartAt:     now.Add(-7 * 24 * time.Hour),
 			AwardStartAt:      now.Add(7 * 24 * time.Hour),
 		}
-	case StageAward:
-		return &Year{
+	case entity.StageAward:
+		return &entity.Year{
 			Year:              2022,
 			NominationStartAt: now.Add(-21 * 24 * time.Hour),
 			VotingStartAt:     now.Add(-14 * 24 * time.Hour),

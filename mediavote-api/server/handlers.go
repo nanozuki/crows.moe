@@ -1,24 +1,22 @@
-package main
+package server
 
 import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/service"
 	"github.com/nanozuki/crows.moe/mediavote-api/pkg/env"
 	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
-	"github.com/nanozuki/crows.moe/mediavote-api/service"
-	"github.com/nanozuki/crows.moe/mediavote-api/store"
 )
 
 func RunServer() error {
 	e := echo.New()
 	api := e.Group("/mediavote/v1")
-	api.Use(CORS(), terror.ErrorHandler)
+	api.Use(CORS(), middleware.Logger(), terror.ErrorHandler, middleware.Recover())
 
 	api.GET("/years", func(c echo.Context) error {
 		years, err := service.GetYears(c.Request().Context())
@@ -61,7 +59,7 @@ func RunServer() error {
 
 	// nomination stage
 	api.GET("/nominations/:dept", func(c echo.Context) error {
-		deptName := store.DepartmentName(c.Param("dept"))
+		deptName := entity.DepartmentName(c.Param("dept"))
 		if !deptName.IsValid() {
 			return terror.InvalidValue("department")
 		}
@@ -70,9 +68,9 @@ func RunServer() error {
 			return err
 		}
 		return c.JSON(http.StatusOK, dept)
-	}, RequireStage(store.StageNomination))
+	})
 	api.POST("/nominations/:dept", func(c echo.Context) error {
-		deptName := store.DepartmentName(c.Param("dept"))
+		deptName := entity.DepartmentName(c.Param("dept"))
 		if !deptName.IsValid() {
 			return terror.InvalidValue("department")
 		}
@@ -90,7 +88,7 @@ func RunServer() error {
 			return err
 		}
 		return c.JSON(http.StatusOK, dept)
-	}, RequireStage(store.StageNomination))
+	}, RequireStage(entity.StageNomination))
 
 	// voting stage
 	api.POST("/voters", func(c echo.Context) error {
@@ -100,13 +98,13 @@ func RunServer() error {
 		if err := c.Bind(&req); err != nil {
 			return terror.InvalidRequestBody().Wrap(err)
 		}
-		session, err := service.NewVoter(c.Request().Context(), req.Name)
+		voter, session, err := service.NewVoter(c.Request().Context(), req.Name)
 		if err != nil {
 			return err
 		}
 		c.SetCookie(newCookie(session))
-		return c.JSON(http.StatusOK, map[string]any{})
-	}, RequireStage(store.StageVoting))
+		return c.JSON(http.StatusOK, voter)
+	}, RequireStage(entity.StageVoting))
 	api.POST("/sessions", func(c echo.Context) error {
 		var req struct {
 			Name string `json:"name"`
@@ -121,8 +119,8 @@ func RunServer() error {
 		}
 		c.SetCookie(newCookie(session))
 		return c.JSON(200, map[string]any{})
-	}, RequireStage(store.StageVoting))
-	api.PUT("/voters/ballot", func(c echo.Context) error {
+	}, RequireStage(entity.StageVoting))
+	api.PUT("/voters/ballots", func(c echo.Context) error {
 		sessionCookie, err := c.Cookie(SessionCookieName)
 		if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
 			return terror.NoAuth()
@@ -131,7 +129,7 @@ func RunServer() error {
 		if err != nil {
 			return err
 		}
-		var ballot store.Ballot
+		var ballot entity.Ballot
 		if err := c.Bind(&ballot); err != nil {
 			return terror.InvalidRequestBody().Wrap(err)
 		}
@@ -140,8 +138,8 @@ func RunServer() error {
 			return err
 		}
 		return c.JSON(http.StatusOK, &ballot)
-	}, RequireStage(store.StageVoting))
-	api.GET("/voters/ballot", func(c echo.Context) error {
+	}, RequireStage(entity.StageVoting))
+	api.GET("/voters/ballots/:dept", func(c echo.Context) error {
 		sessionCookie, err := c.Cookie(SessionCookieName)
 		if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
 			return terror.NoAuth()
@@ -150,69 +148,19 @@ func RunServer() error {
 		if err != nil {
 			return err
 		}
-		var req struct {
-			Dept store.DepartmentName `json:"dept"`
+		deptName := entity.DepartmentName(c.Param("dept"))
+		if deptName == "" {
+			return terror.RequiredFieldMissed("dept")
 		}
-		if err := c.Bind(&req); err != nil {
-			return terror.InvalidRequestBody().Wrap(err)
+		if !deptName.IsValid() {
+			return terror.InvalidValue("dept")
 		}
-		ballot, err := service.VoterGetBallot(c.Request().Context(), session.Name, req.Dept)
+		ballot, err := service.VoterGetBallot(c.Request().Context(), session.Name, deptName)
 		if err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, ballot)
-	}, RequireStage(store.StageVoting))
+	}, RequireStage(entity.StageVoting))
 
 	return e.Start(":" + fmt.Sprint(env.Port()))
-}
-
-func CORS() echo.MiddlewareFunc {
-	return middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOriginFunc: func(origin string) (bool, error) {
-			allow := strings.Contains(origin, "crows.moe") ||
-				strings.Contains(origin, "localhost") || strings.Contains(origin, "127.0.0.1")
-			return allow, nil
-		},
-		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
-		AllowHeaders: []string{
-			echo.HeaderAccept,
-			echo.HeaderAcceptEncoding,
-			echo.HeaderContentType,
-			echo.HeaderContentLength,
-			echo.HeaderConnection,
-		},
-		MaxAge:           86400,
-		AllowCredentials: true,
-	})
-}
-
-const (
-	SessionCookieName = "sessionid"
-	CookieExpires     = 30 * 24 * time.Hour
-)
-
-func newCookie(session *store.Session) *http.Cookie {
-	return &http.Cookie{
-		Name:     SessionCookieName,
-		Value:    session.Key,
-		Path:     "/",
-		Expires:  time.Now().Add(CookieExpires),
-		Secure:   env.IsProd(),
-		HttpOnly: true,
-	}
-}
-
-func RequireStage(stage store.Stage) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			year, err := service.GetCurrentYear(c.Request().Context())
-			if err != nil {
-				return err
-			}
-			if year.Stage() != stage {
-				return terror.NotInStage(stage.String())
-			}
-			return next(c)
-		}
-	}
 }
