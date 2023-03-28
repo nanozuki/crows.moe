@@ -14,9 +14,17 @@ test-all:
 test MODEL:
 	ENV=testing docker-compose run server go test {{proj}}{{MODEL}}
 
-run:
+run-nomination:
 	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
-	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_ENV=dev go run *.go
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_ENV=dev MEDIAVOTE_DEV_STAGE=Nomination go run *.go
+
+run-voting:
+	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_ENV=dev MEDIAVOTE_DEV_STAGE=Voting go run *.go
+
+run-award:
+	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_ENV=dev MEDIAVOTE_DEV_STAGE=Awrad go run *.go
 
 down:
 	docker-compose down -v

@@ -1,4 +1,4 @@
-package store
+package entity
 
 import (
 	"fmt"
@@ -7,24 +7,6 @@ import (
 
 	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
 	uuid "github.com/satori/go.uuid"
-)
-
-/* collections:
-mediavote_years: store yearly time infos
-	-> departments: {dept -> works[]}
-	-> voters:      {name -> {name, pinCode}}
-	-> sessions:    {key -> user}
-	-> ballots:     {dept,voteName -> rankings}
-	-> awards:      {dept -> rankings}
-*/
-
-const (
-	ColYear       = "mediavote_years"
-	ColDepartment = "departments"
-	ColVoter      = "voters"
-	ColSession    = "sessions"
-	ColBallot     = "ballots"
-	ColAwards     = "awards"
 )
 
 type Year struct {
@@ -85,8 +67,8 @@ func (d *Department) AddWork(name string) {
 }
 
 type Voter struct {
-	Name    string `firestore:"name,omitempty"`
-	PinCode string `firestore:"pin_code,omitempty"`
+	Name    string `firestore:"name,omitempty" json:"name,omitempty"`
+	PinCode string `firestore:"pin_code,omitempty" json:"pin_code,omitempty"`
 }
 
 func NewVoter(name string) (*Voter, error) {
@@ -101,12 +83,12 @@ func NewVoter(name string) (*Voter, error) {
 }
 
 func (v *Voter) ID() string {
-	return fmt.Sprintf("%s#%s", v.Name, v.PinCode)
+	return v.Name
 }
 
 type Session struct {
-	Key  string `firestore:"key,omitempty"`
-	Name string `firestore:"name,omitempty"`
+	Key  string `firestore:"key,omitempty" json:"key,omitempty"`
+	Name string `firestore:"name,omitempty" json:"name,omitempty"`
 }
 
 func NewSession(name string) *Session {
@@ -118,9 +100,9 @@ func (s *Session) ID() string {
 }
 
 type Ballot struct {
-	Voter    string         `firestore:"voter,omitempty"`
-	Dept     DepartmentName `firestore:"dept,omitempty"`
-	Rankings []RankingItem  `firestore:"rankings,omitempty"`
+	Voter    string         `firestore:"voter,omitempty" json:"voter,omitempty"`
+	Dept     DepartmentName `firestore:"dept,omitempty" json:"dept,omitempty"`
+	Rankings []RankingItem  `firestore:"rankings,omitempty" json:"rankings,omitempty"`
 }
 
 func (b *Ballot) ID() string {
@@ -129,7 +111,7 @@ func (b *Ballot) ID() string {
 
 func (b *Ballot) Validator(dept *Department) error {
 	for _, r := range b.Rankings {
-		if r.Ranking <= 1 {
+		if r.Ranking < 1 {
 			return terror.InvalidValue("ranking")
 		}
 		if !dept.HasWork(r.WorkName) {
@@ -146,69 +128,4 @@ type Awards struct {
 
 func (a *Awards) ID() string {
 	return a.Dept.String()
-}
-
-type Work struct {
-	Name       string   `firestore:"name,omitempty" json:"name,omitempty"`
-	OriginName string   `firestore:"origin_name,omitempty" json:"origin_name,omitempty"`
-	Alias      []string `firestore:"alias,omitempty" json:"alias,omitempty"`
-}
-
-type RankingItem struct {
-	Ranking  int    `firestore:"ranking,omitempty"`
-	WorkName string `firestore:"work_name,omitempty"`
-}
-
-type Stage string
-
-const (
-	StagePreparation Stage = "Preparation"
-	StageNomination  Stage = "Nomination"
-	StageVoting      Stage = "Voting"
-	StageAward       Stage = "Award"
-)
-
-var AllStage = []Stage{
-	StagePreparation,
-	StageNomination,
-	StageVoting,
-	StageAward,
-}
-
-func (e Stage) IsValid() bool {
-	switch e {
-	case StagePreparation, StageNomination, StageVoting, StageAward:
-		return true
-	}
-	return false
-}
-
-func (e Stage) String() string {
-	return string(e)
-}
-
-type DepartmentName string
-
-const (
-	Anime         DepartmentName = "anime"
-	MangaAndNovel DepartmentName = "manga-novel"
-	Game          DepartmentName = "game"
-)
-
-var AllDepartment = []DepartmentName{
-	Anime,
-	MangaAndNovel,
-	Game,
-}
-
-func (e DepartmentName) IsValid() bool {
-	switch e {
-	case Anime, MangaAndNovel, Game:
-		return true
-	}
-	return false
-}
-
-func (e DepartmentName) String() string {
-	return string(e)
 }

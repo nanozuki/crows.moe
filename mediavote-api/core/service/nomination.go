@@ -3,10 +3,11 @@ package service
 import (
 	"context"
 
-	"github.com/nanozuki/crows.moe/mediavote-api/store"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/store"
 )
 
-func AddNomination(ctx context.Context, deptName store.DepartmentName, workName string) (*store.Department, error) {
+func AddNomination(ctx context.Context, deptName entity.DepartmentName, workName string) (*entity.Department, error) {
 	dept, err := store.GetOrNewDepartment(ctx, deptName)
 	if err != nil {
 		return nil, err
@@ -18,7 +19,7 @@ func AddNomination(ctx context.Context, deptName store.DepartmentName, workName 
 	return dept, nil
 }
 
-func GetNominations(ctx context.Context, deptName store.DepartmentName) (*store.Department, error) {
+func GetNominations(ctx context.Context, deptName entity.DepartmentName) (*entity.Department, error) {
 	dept, err := store.GetOrNewDepartment(ctx, deptName)
 	if err != nil {
 		return nil, err

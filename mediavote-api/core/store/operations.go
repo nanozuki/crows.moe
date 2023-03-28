@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/firestore"
+	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
 	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc/codes"
@@ -14,7 +15,7 @@ import (
 )
 
 var (
-	currentYear     *Year
+	currentYear     *entity.Year
 	updatedAt       string
 	timeToUpdatedAt = func(t time.Time) string {
 		return t.Format("2006010215") // to hour string
@@ -27,12 +28,12 @@ func yearRef(ctx context.Context) *firestore.DocumentRef {
 	if err != nil {
 		log.Fatal().Msg("Can't get info of current year")
 	}
-	return client.Collection(ColYear).Doc(current.ID())
+	return client.Collection(colYear).Doc(current.ID())
 }
 
-func GetYears(ctx context.Context) ([]*Year, error) {
-	iter := client.Collection(ColYear).Documents(ctx)
-	years, err := readDocs[Year](iter)
+func GetYears(ctx context.Context) ([]*entity.Year, error) {
+	iter := client.Collection(colYear).Documents(ctx)
+	years, err := readDocs[entity.Year](iter)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +45,7 @@ func GetYears(ctx context.Context) ([]*Year, error) {
 	return years, nil
 }
 
-func GetCurrentYear(ctx context.Context) (*Year, error) {
+func GetCurrentYear(ctx context.Context) (*entity.Year, error) {
 	yearLock.Lock()
 	defer yearLock.Unlock()
 	if currentYear != nil && timeToUpdatedAt(time.Now()) == updatedAt {
@@ -57,28 +58,29 @@ func GetCurrentYear(ctx context.Context) (*Year, error) {
 	return currentYear, nil
 }
 
-func GetOrNewDepartment(ctx context.Context, deptName DepartmentName) (*Department, error) {
-	docRef := yearRef(ctx).Collection(ColDepartment).Doc(deptName.String())
+func GetOrNewDepartment(ctx context.Context, deptName entity.DepartmentName) (*entity.Department, error) {
+	docRef := yearRef(ctx).Collection(colDepartment).Doc(deptName.String())
 	doc, err := docRef.Get(ctx)
 	if status.Code(err) == codes.NotFound {
-		return &Department{Dept: deptName}, nil
+		return &entity.Department{Dept: deptName}, nil
 	}
 	if err != nil {
 		return nil, terror.FirestoreError("find department").Wrap(err)
 	}
-	return readDoc[Department](doc), nil
+	return readDoc[entity.Department](doc), nil
 }
 
-func SetDepartment(ctx context.Context, dept *Department) error {
-	docRef := yearRef(ctx).Collection(ColDepartment).Doc(dept.ID())
+func SetDepartment(ctx context.Context, dept *entity.Department) error {
+	docRef := yearRef(ctx).Collection(colDepartment).Doc(dept.ID())
 	_, err := docRef.Set(ctx, dept)
 	return terror.FirestoreError("set department").Wrap(err)
 }
 
-func CreateVoterAndSession(ctx context.Context, voter *Voter, session *Session) error {
-	ref := yearRef(ctx).Collection(ColVoter).Doc(voter.ID())
+func CreateVoterAndSession(ctx context.Context, voter *entity.Voter, session *entity.Session) error {
+	voterRef := yearRef(ctx).Collection(colVoter).Doc(voter.ID())
+	sessionRef := yearRef(ctx).Collection(colSession).Doc(session.ID())
 	return client.RunTransaction(ctx, func(ctx context.Context, t *firestore.Transaction) error {
-		_, err := ref.Get(ctx)
+		_, err := voterRef.Get(ctx)
 		switch {
 		case err == nil:
 			return terror.Duplicated("voter")
@@ -86,10 +88,10 @@ func CreateVoterAndSession(ctx context.Context, voter *Voter, session *Session) 
 			return terror.FirestoreError("get voter").Wrap(err)
 		default: // case status.Code(err) == codes.NotFound
 		}
-		if _, err := ref.Set(ctx, voter); err != nil {
+		if _, err := voterRef.Set(ctx, voter); err != nil {
 			return terror.FirestoreError("insert voter").Wrap(err)
 		}
-		if _, err := yearRef(ctx).Collection(ColSession).Doc(session.ID()).Set(ctx, session); err != nil {
+		if _, err := sessionRef.Set(ctx, session); err != nil {
 			return terror.FirestoreError("insert voter").Wrap(err)
 		}
 		return nil
@@ -97,7 +99,7 @@ func CreateVoterAndSession(ctx context.Context, voter *Voter, session *Session) 
 }
 
 func CheckVoter(ctx context.Context, name string, pinCode string) error {
-	ref := yearRef(ctx).Collection(ColVoter).Doc(name)
+	ref := yearRef(ctx).Collection(colVoter).Doc(name)
 	doc, err := ref.Get(ctx)
 	if err != nil {
 		return terror.FirestoreError("get voter").Wrap(err)
@@ -105,62 +107,65 @@ func CheckVoter(ctx context.Context, name string, pinCode string) error {
 	if status.Code(err) == codes.NotFound {
 		return terror.NotFound("voter")
 	}
-	voter := readDoc[Voter](doc)
+	voter := readDoc[entity.Voter](doc)
 	if voter.PinCode != pinCode {
 		return terror.InvalidPinCode()
 	}
 	return nil
 }
 
-func CreateSession(ctx context.Context, session *Session) error {
-	_, err := yearRef(ctx).Collection(ColSession).Doc(session.ID()).Set(ctx, session)
+func CreateSession(ctx context.Context, session *entity.Session) error {
+	_, err := yearRef(ctx).Collection(colSession).Doc(session.ID()).Set(ctx, session)
 	return terror.FirestoreError("insert voter").Wrap(err)
 }
 
-func GetSession(ctx context.Context, key string) (*Session, error) {
+func GetSession(ctx context.Context, key string) (*entity.Session, error) {
 	year, err := GetCurrentYear(ctx)
 	if err != nil {
 		return nil, err
 	}
-	doc, err := client.Collection(ColYear).Doc(year.ID()).Collection(ColSession).Doc(key).Get(ctx)
+	doc, err := client.Collection(colYear).Doc(year.ID()).Collection(colSession).Doc(key).Get(ctx)
 	if err != nil {
 		return nil, terror.FirestoreError("get session").Wrap(err)
 	}
 	if status.Code(err) == codes.NotFound {
 		return nil, terror.InvalidToken()
 	}
-	session := readDoc[Session](doc)
+	session := readDoc[entity.Session](doc)
 	return session, nil
 }
 
-func GetVoterBallot(ctx context.Context, voterName string, deptName DepartmentName) (*Ballot, error) {
-	id := (&Ballot{Voter: voterName, Dept: deptName}).ID()
-	doc, err := yearRef(ctx).Collection(ColBallot).Doc(id).Get(ctx)
+func GetVoterBallot(ctx context.Context, voterName string, deptName entity.DepartmentName) (*entity.Ballot, error) {
+	id := (&entity.Ballot{Voter: voterName, Dept: deptName}).ID()
+	doc, err := yearRef(ctx).Collection(colBallot).Doc(id).Get(ctx)
+	if status.Code(err) == codes.NotFound {
+		return nil, terror.NotFound("ballot")
+	}
 	if err != nil {
 		return nil, terror.FirestoreError("find voter's ballot")
 	}
-	return readDoc[Ballot](doc), nil
+	return readDoc[entity.Ballot](doc), nil
 }
 
-func SetVoterBallot(ctx context.Context, ballot *Ballot) error {
-	_, err := yearRef(ctx).Collection(ColBallot).Doc(ballot.ID()).Set(ctx, ballot)
+func SetVoterBallot(ctx context.Context, ballot *entity.Ballot) error {
+	_, err := yearRef(ctx).Collection(colBallot).Doc(ballot.ID()).Set(ctx, ballot)
 	return terror.FirestoreError("find voter's ballot").Wrap(err)
 }
 
-func GetBallotsByYear(ctx context.Context, year int) ([]*Ballot, error) {
-	id := (&Year{Year: year}).ID()
-	iter := client.Collection(ColYear).Doc(id).Collection(ColBallot).Documents(ctx)
-	ballots, err := readDocs[Ballot](iter)
+func GetBallotsByYear(ctx context.Context, year int) ([]*entity.Ballot, error) {
+	id := (&entity.Year{Year: year}).ID()
+	iter := client.Collection(colYear).Doc(id).Collection(colBallot).Documents(ctx)
+	ballots, err := readDocs[entity.Ballot](iter)
 	if err != nil {
 		return nil, err
 	}
 	return ballots, nil
 }
 
-func GetAwardsByYear(ctx context.Context, year int) ([]*Awards, error) {
-	id := (&Year{Year: year}).ID()
-	iter := client.Collection(ColYear).Doc(id).Collection(ColAwards).Documents(ctx)
-	awards, err := readDocs[Awards](iter)
+func GetAwardsByYear(ctx context.Context, year int) ([]*entity.Awards, error) {
+	id := (&entity.Year{Year: year}).ID()
+	iter := client.Collection(colYear).Doc(id).Collection(colAwards).Documents(ctx)
+	awards, err := readDocs[entity.Awards](iter)
 	if err != nil {
 		return nil, err
 	}
