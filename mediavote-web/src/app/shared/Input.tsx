@@ -22,10 +22,7 @@ export default function Input(props: InputProps) {
 
   return (
     <div className={`${props.className || ''}`}>
-      <label
-        className="block text-subtle text-sm ml-[0.625rem]"
-        {...labelProps}
-      >
+      <label className="block text-subtle text-sm" {...labelProps}>
         {label}
       </label>
       {props.description && (
@@ -40,7 +37,7 @@ export default function Input(props: InputProps) {
       )}
       <input
         className={
-          'block w-full h-10 mt-1 px-2 rounded bg-surface border-text border-2 ' +
+          'block w-full h-10 mt-1 px-2 rounded bg-surface border-pine border-2 ' +
           'focus:border-rose focus-visible:border-rose outline-none shadow-none'
         }
         ref={ref}

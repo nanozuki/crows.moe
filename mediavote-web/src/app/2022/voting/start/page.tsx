@@ -6,6 +6,8 @@ import {
   SmallText,
   multiLine,
 } from '@app/shared/article';
+import Button from '@app/shared/Button';
+import Input from '@app/shared/Input';
 import Title from '@app/shared/Title';
 
 export default async function Page() {
@@ -28,11 +30,20 @@ export default async function Page() {
           )}
         </Text>
       </div>
-      <div className="mt-8 mb-8">
+      <div className="mt-8 mb-8 mid:max-w-[20rem]">
         <Head2>新投票</Head2>
+        <div className="mt-4 mb-4">
+          <Input className="mt-1 mb-1" label="投票人ID" value="" />
+        </div>
+        <Button variant="primary">确定</Button>
       </div>
-      <div className="mt-8 mb-8">
+      <div className="mt-8 mb-8 mid:max-w-[20rem]">
         <Head2>查看和修改投票</Head2>
+        <div className="mt-4 mb-4">
+          <Input className="mt-1 mb-1" label="投票人ID" value="" />
+          <Input className="mt-1 mb-1" label="PIN Code" value="" />
+        </div>
+        <Button variant="primary">确定</Button>
       </div>
     </div>
   );

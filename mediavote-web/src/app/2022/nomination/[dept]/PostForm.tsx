@@ -34,7 +34,6 @@ export default function PostForm(props: PostFormProps) {
     e.preventDefault();
     await post();
   };
-  const btnBg = fetching ? 'bg-muted' : 'bg-pine';
   return (
     <form
       className={`flex flex-col wide:flex-row gap-2 items-end ${
@@ -49,11 +48,7 @@ export default function PostForm(props: PostFormProps) {
         onChange={setInputText}
         errorMessage={error && error.toString()}
       />
-      <Button
-        className={`${btnBg} text-base w-full wide:w-[10rem] px-8 h-10 rounded`}
-        disabled={fetching}
-        type="submit"
-      >
+      <Button variant="primary" disabled={fetching} type="submit">
         <p>提交提名</p>
       </Button>
     </form>

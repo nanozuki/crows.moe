@@ -38,6 +38,7 @@ module.exports = {
       serif: ['source-han-serif-sc', 'serif'],
     },
     screens: {
+      mid: '480px',
       wide: '672px', // 640 + 16*2
     },
   },

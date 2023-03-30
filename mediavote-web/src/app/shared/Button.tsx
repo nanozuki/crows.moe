@@ -7,6 +7,7 @@ interface ButtonProps {
   className?: string;
   children?: ReactNode;
   disabled?: boolean;
+  variant: 'primary' | 'secondary';
   type?: 'submit' | 'reset' | 'button' | undefined;
   onClick?: (e: Event) => void;
 }
@@ -14,13 +15,21 @@ interface ButtonProps {
 export default function Button(props: ButtonProps) {
   let ref = useRef<HTMLButtonElement>(null);
   let { buttonProps } = useButton(props, ref);
-  const { className, children, disabled, type } = props;
+  const { className, children, disabled, variant, type } = props;
+  let bg;
+  if (disabled) {
+    bg = 'bg-muted';
+  } else if (variant === 'secondary') {
+    bg = 'bg-love';
+  } else {
+    bg = 'bg-pine';
+  }
 
   return (
     <button
       {...buttonProps}
       ref={ref}
-      className={className}
+      className={`${bg} text-base w-full px-8 h-10 rounded ${className || ''}`}
       disabled={disabled}
       type={type}
     >
