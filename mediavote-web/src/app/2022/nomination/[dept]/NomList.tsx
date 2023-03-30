@@ -33,7 +33,7 @@ export default function NomList({ className, noms, dept }: NomListProps) {
     noms.map((nom) => nom.name)
   );
   return (
-    <div className={`${className}`}>
+    <div className={`${className || ''}`}>
       {nomsState.map((nom) => {
         const props = { ...nom, className: 'mt-4' };
         return <NomItem key={nom.name} {...props} />;

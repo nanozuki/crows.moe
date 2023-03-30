@@ -12,7 +12,7 @@ function TabBar({ className, state }: TabBarProps) {
   }
   return (
     <div
-      className={`${className} ${bg} [transform:matrix(1,0,-0.5,1,0,0)]`}
+      className={`${className || ''} ${bg} [transform:matrix(1,0,-0.5,1,0,0)]`}
     ></div>
   );
 }
@@ -24,7 +24,7 @@ interface TabHeadProps {
 function TabHead({ className }: TabHeadProps) {
   return (
     <svg
-      className={className}
+      className={className || ''}
       width="11"
       height="8"
       viewBox="0 0 11 8"
@@ -54,7 +54,7 @@ interface TabTailProps {
 function TabTail({ className }: TabTailProps) {
   return (
     <svg
-      className={className}
+      className={className || ''}
       width="11"
       height="8"
       viewBox="0 0 11 8"
@@ -97,7 +97,7 @@ function TabLine({ page, className }: TabLineProps) {
     }
   };
   return (
-    <div className={`flex flex-row ${className}`}>
+    <div className={`flex flex-row ${className || ''}`}>
       <TabHead className="w-[0.6875rem] h-2" />
       <TabBar className="w-[calc((100%-30px)/3)] h-2 mr-0.5" state={state(0)} />
       <TabBar className="w-[calc((100%-30px)/3)] h-2 mr-0.5" state={state(1)} />
