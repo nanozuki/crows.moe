@@ -4,16 +4,16 @@ import {
   Text,
   SmallText,
   multiLine,
-} from '@app/shared/article';
-import { notFound } from 'next/navigation';
-import TabLine from '@app/shared/TabLine';
-import Title from '@app/shared/Title';
-import ToNextButton from '@app/shared/ToNextButton';
-import ToPrevButton from '@app/shared/ToPrevButton';
-import { ReactNode } from 'react';
-import NomList from './NomList';
-import { DepartmentName, departmentNameIsValid } from '@app/shared/models';
-import { getNominations } from '@app/shared/apis';
+} from "@app/shared/article";
+import { notFound } from "next/navigation";
+import TabLine from "@app/shared/TabLine";
+import Title from "@app/shared/Title";
+import ToNextButton from "@app/shared/ToNextButton";
+import ToPrevButton from "@app/shared/ToPrevButton";
+import { ReactNode } from "react";
+import NomList from "./NomList";
+import { DepartmentName, departmentNameIsValid } from "@app/lib/models";
+import { getNominations } from "@app/lib/apis";
 
 interface DepartmentInfo {
   title: string;
@@ -23,15 +23,15 @@ interface DepartmentInfo {
 
 const departments: DepartmentInfo[] = [
   {
-    title: '动画',
+    title: "动画",
     dept: DepartmentName.Anime,
     intro: (
       <Text>
         {multiLine(
-          '范围为2022年内发布的动画作品。',
-          '包括在电视台或者流媒体平台以剧集形式播出过的动画作品、动画电影、剧场版、蓝光、OVA、短片、广告PV等。',
-          '跨年份的作品以2022年份内的部分来判断。也可以以中文字幕发布时间来计算。',
-          '2022年新发布的作品列表可以参考：'
+          "范围为2022年内发布的动画作品。",
+          "包括在电视台或者流媒体平台以剧集形式播出过的动画作品、动画电影、剧场版、蓝光、OVA、短片、广告PV等。",
+          "跨年份的作品以2022年份内的部分来判断。也可以以中文字幕发布时间来计算。",
+          "2022年新发布的作品列表可以参考："
         )}
         <HyperLink
           text="(wikipedia) 2022年日本动画列表"
@@ -46,14 +46,14 @@ const departments: DepartmentInfo[] = [
     ),
   },
   {
-    title: '漫画与文学',
+    title: "漫画与文学",
     dept: DepartmentName.MangaAndNovel,
     intro: (
       <Text>
         {multiLine(
-          '2022年内发表的漫画、小说、轻小说、视觉小说等以图片和文字承载的文学作品。',
-          '跨年份的作品以2022年份内的部分来判断。也可以以中文翻译发布的时间来计算。',
-          '2022年新发布的作品列表可以参考：'
+          "2022年内发表的漫画、小说、轻小说、视觉小说等以图片和文字承载的文学作品。",
+          "跨年份的作品以2022年份内的部分来判断。也可以以中文翻译发布的时间来计算。",
+          "2022年新发布的作品列表可以参考："
         )}
         <HyperLink
           text="(bangumi) 2022年漫画"
@@ -68,14 +68,14 @@ const departments: DepartmentInfo[] = [
     ),
   },
   {
-    title: '电子游戏',
+    title: "电子游戏",
     dept: DepartmentName.Game,
     intro: (
       <Text>
         {multiLine(
-          '2022年内发行的电子游戏作品或者已经发售游戏或者网络游戏的大型资料片。',
-          '如果中文版延后发售，也可以按中文版发售时间计算。',
-          '2022年新发布的作品列表可以参考：'
+          "2022年内发行的电子游戏作品或者已经发售游戏或者网络游戏的大型资料片。",
+          "如果中文版延后发售，也可以按中文版发售时间计算。",
+          "2022年新发布的作品列表可以参考："
         )}
         <HyperLink
           text="(metacritic) 2022年游戏列表"
@@ -104,7 +104,7 @@ function ToPrevDP({ className, idx }: ToPrevDPProps) {
   return (
     <ToPrevButton
       to={`/2022/nomination/${prev.dept}`}
-      className={`${className || ''}`}
+      className={`${className || ""}`}
     />
   );
 }
@@ -118,7 +118,9 @@ function ToNextDP({ className, idx }: ToNextDPProps) {
   if (idx === departments.length - 1) {
     return (
       <div
-        className={`flex flex-row items-center bg-highlight-low text-subtle h-10 pl-8 pr-8 rounded ${className || ''}`}
+        className={`flex flex-row items-center bg-highlight-low text-subtle h-10 pl-8 pr-8 rounded ${
+          className || ""
+        }`}
       >
         <p>完成</p>
       </div>
@@ -127,7 +129,7 @@ function ToNextDP({ className, idx }: ToNextDPProps) {
   const next = departments[idx + 1];
   return (
     <ToNextButton
-      className={`${className || ''}`}
+      className={`${className || ""}`}
       to={`/2022/nomination/${next.dept}`}
       label={`Next: ${next.title}部门`}
     />
@@ -154,8 +156,8 @@ export default async function Page({ params }: NominationPageProps) {
         <SmallText> 2023.3.22 10:00 - 2023.3.28 22:00 </SmallText>
         <Text>
           {multiLine(
-            '提名所有观赏或体验过的、满足范围限定的作品。在提名阶段被提名的作品，将在投票阶段进行最终的投票和排序。',
-            '提名阶段，可以随时打开这个页面检查和提交。'
+            "提名所有观赏或体验过的、满足范围限定的作品。在提名阶段被提名的作品，将在投票阶段进行最终的投票和排序。",
+            "提名阶段，可以随时打开这个页面检查和提交。"
           )}
         </Text>
       </div>
@@ -176,4 +178,4 @@ export default async function Page({ params }: NominationPageProps) {
   );
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";

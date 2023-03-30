@@ -4,7 +4,7 @@ import { useState } from 'react';
 import NomItem from './NomItem';
 import PostForm from './PostForm';
 import { type NomItemProps } from './NomItem';
-import { DepartmentName, Work } from '@app/shared/models';
+import { DepartmentName, Work } from '@app/lib/models';
 
 interface NomListProps {
   className?: string;

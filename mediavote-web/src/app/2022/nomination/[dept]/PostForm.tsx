@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { DepartmentName, Work } from '@app/shared/models';
-import { addNomination } from '@app/shared/apis';
+import { DepartmentName, Work } from '@app/lib/models';
+import { addNomination } from '@app/lib/apis';
 import { FormEvent } from 'react';
 import Input from '@app/shared/Input';
 import Button from '@app/shared/Button';

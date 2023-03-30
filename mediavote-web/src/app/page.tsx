@@ -1,6 +1,7 @@
 import Title from '@app/shared/Title';
 import ToNextButton from '@app/shared/ToNextButton';
-import { DepartmentName } from './shared/models';
+import { getCurrentYear } from './lib/apis';
+import { getRedirectUrlByStage, getStage, getStageName } from './lib/stage';
 
 interface AnnualItemProps {
   year: number;
@@ -17,15 +18,15 @@ function AnnualItem({ year, to, state }: AnnualItemProps) {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const year = await getCurrentYear();
+  const stage = getStage(year);
+  const to = await getRedirectUrlByStage(year);
+  console.log('year', year, 'stage', stage, 'to', to);
   return [
     <Title key="title" to="/" />,
     <main key="main">
-      <AnnualItem
-        year={2022}
-        to={`/2022/nomination/${DepartmentName.Anime}`}
-        state="作品提名"
-      />
+      <AnnualItem year={2022} to={to} state={getStageName(stage)} />
       <AnnualItem
         year={2021}
         to={'https://vote2021.crows.moe'}
