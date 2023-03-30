@@ -91,6 +91,24 @@ func RunServer() error {
 	}, RequireStage(entity.StageNomination))
 
 	// voting stage
+	api.GET("/voters", func(c echo.Context) error {
+		var res struct {
+			Name string `json:"name,omitempty"`
+		}
+		sessionCookie, err := c.Cookie(SessionCookieName)
+		if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
+			return c.JSON(200, &res)
+		}
+		session, err := service.GetSession(c.Request().Context(), sessionCookie.Value)
+		if terror.IsErrCode(err, "InvalidToken") {
+			return c.JSON(200, &res)
+		}
+		if err != nil {
+			return err
+		}
+		res.Name = session.Name
+		return c.JSON(200, &res)
+	}, RequireStage(entity.StageVoting))
 	api.POST("/voters", func(c echo.Context) error {
 		var req struct {
 			Name string `json:"name"`
