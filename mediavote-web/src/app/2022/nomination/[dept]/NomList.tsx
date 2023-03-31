@@ -28,10 +28,6 @@ export default function NomList({ className, noms, dept }: NomListProps) {
   const setNoms = (noms: Work[]): void => {
     setNomsState(nomsToNomItemProps(noms));
   };
-  console.log(
-    'work names: ',
-    noms.map((nom) => nom.name)
-  );
   return (
     <div className={`${className || ''}`}>
       {nomsState.map((nom) => {

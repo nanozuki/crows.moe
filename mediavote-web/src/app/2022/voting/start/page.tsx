@@ -1,22 +1,32 @@
+import { getCurrentYear } from '@app/lib/apis';
+import { DepartmentName, Stage } from '@app/lib/models';
+import { getYearInfo } from '@app/lib/stage';
 import {
   Head1,
-  Head2,
   HyperLink,
   Text,
   SmallText,
   multiLine,
 } from '@app/shared/article';
-import Button from '@app/shared/Button';
-import Input from '@app/shared/Input';
 import Title from '@app/shared/Title';
+import { redirect } from 'next/navigation';
+import VoterForm from './VoterForm';
 
 export default async function Page() {
+  // TODO: check current year === year in url
+  const year = await getCurrentYear();
+  const yearInfo = await getYearInfo(year);
+  if (yearInfo.stage !== Stage.Voting || yearInfo.voter) {
+    redirect(yearInfo.redirectTo);
+  }
   return (
     <div>
       <Title year="2022" to="/"></Title>
-      <div className="mt-8 mb-8">
-        <Head1>作品投票</Head1>
-        <SmallText> 2023.3.22 10:00 - 2023.3.28 22:00 </SmallText>
+      <div className="mt-8 mb-8 flex flex-col gap-y-4">
+        <div>
+          <Head1>作品投票</Head1>
+          <SmallText>{yearInfo.votingRange}</SmallText>
+        </div>
         <Text>
           投票采用
           <HyperLink
@@ -30,21 +40,9 @@ export default async function Page() {
           )}
         </Text>
       </div>
-      <div className="mt-8 mb-8 mid:max-w-[20rem]">
-        <Head2>新投票</Head2>
-        <div className="mt-4 mb-4">
-          <Input className="mt-1 mb-1" label="投票人ID" value="" />
-        </div>
-        <Button variant="primary">确定</Button>
-      </div>
-      <div className="mt-8 mb-8 mid:max-w-[20rem]">
-        <Head2>查看和修改投票</Head2>
-        <div className="mt-4 mb-4">
-          <Input className="mt-1 mb-1" label="投票人ID" value="" />
-          <Input className="mt-1 mb-1" label="PIN Code" value="" />
-        </div>
-        <Button variant="primary">确定</Button>
-      </div>
+      <VoterForm next={`/${yearInfo.year}/voting/${DepartmentName.Anime}`} />
     </div>
   );
 }
+
+export const dynamic = 'force-dynamic';

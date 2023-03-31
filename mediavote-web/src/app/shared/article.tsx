@@ -4,7 +4,7 @@ interface TextProps {
 }
 
 export function Text({ className, children }: TextProps) {
-  return <p className={`text-subtle mt-1 mb-1 ${className || ''}`}>{children}</p>;
+  return <p className={`text-subtle ${className || ''}`}>{children}</p>;
 }
 
 interface SmallTextProps {
@@ -13,9 +13,7 @@ interface SmallTextProps {
 }
 
 export function SmallText({ className, children }: SmallTextProps) {
-  return (
-    <p className={`text-xs text-muted mt-1 mb-1 ${className || ''}`}>{children}</p>
-  );
+  return <p className={`text-xs text-muted ${className || ''}`}>{children}</p>;
 }
 
 interface HyperLinkProps {
@@ -44,7 +42,7 @@ interface Head1Props {
 
 export function Head1({ className, children }: Head1Props) {
   return (
-    <p className={`font-serif font-bold text-2xl mt-1 mb-1 ${className || ''}`}>
+    <p className={`font-serif font-bold text-2xl ${className || ''}`}>
       {children}
     </p>
   );
@@ -57,7 +55,7 @@ interface Head2Props {
 
 export function Head2({ className, children }: Head2Props) {
   return (
-    <p className={`font-serif font-bold text-2xl mt-1 mb-1 ${className || ''}`}>
+    <p className={`font-serif font-bold text-2xl ${className || ''}`}>
       {children}
     </p>
   );

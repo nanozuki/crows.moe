@@ -15,6 +15,14 @@ const nextConfig = {
     );
     return config;
   },
+  async rewrites() {
+    return [
+      {
+        source: '/mediavote/v1/:path*',
+        destination: 'http://localhost:8080/mediavote/v1/:path*',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

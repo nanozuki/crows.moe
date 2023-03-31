@@ -26,12 +26,12 @@ export default function Input(props: InputProps) {
         {label}
       </label>
       {props.description && (
-        <div className="text-muted text-xs ml-[0.625rem]" {...descriptionProps}>
+        <div className="text-muted text-xs" {...descriptionProps}>
           {props.description}
         </div>
       )}
       {props.errorMessage && (
-        <div className="text-love ml-[0.625rem]" {...errorMessageProps}>
+        <div className="text-love" {...errorMessageProps}>
           {props.errorMessage}
         </div>
       )}

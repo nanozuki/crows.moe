@@ -12,7 +12,7 @@ function url(op: string): string {
   const prefix =
     process.env.NODE_ENV === 'production'
       ? 'https://api.crows.moe/mediavote/v1'
-      : 'http://127.0.0.1:8080/mediavote/v1';
+      : 'http://127.0.0.1:3000/mediavote/v1';
   return prefix + op;
 }
 
@@ -20,7 +20,9 @@ async function call<T>(
   input: RequestInfo | URL,
   init?: RequestInit
 ): Promise<T> {
-  const response = await fetch(input, init);
+  const opt = init || {};
+  opt.credentials = 'same-origin';
+  const response = await fetch(input, opt);
   if (!response.ok) {
     const errorResponse: ErrorResponse = await response.json();
     throw Error(errorResponse.message);
@@ -31,14 +33,14 @@ async function call<T>(
 
 export async function getYears(): Promise<Year[]> {
   const res: { years: Year[] } = await call(url('/years'), {
-    cache: 'no-store',
+    next: { revalidate: 3600 },
   });
   return res.years;
 }
 
 export async function getCurrentYear(): Promise<Year> {
   const res: Year = await call(url('/years/current'), {
-    cache: 'no-store',
+    next: { revalidate: 3600 },
   });
   return res;
 }
@@ -77,19 +79,16 @@ export async function newVoter(name: string): Promise<NewVoter> {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name }),
-    cache: 'no-store',
+    next: { revalidate: 3600 },
   });
   return res;
 }
 
-export async function loginVoter(
-  name: string,
-  pin_code: string
-): Promise<void> {
+export async function loginVoter(name: string, pin: string): Promise<void> {
   await call<{}>(url('/sessions'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, pin_code }),
+    body: JSON.stringify({ name, pin: pin }),
     cache: 'no-store',
   });
 }

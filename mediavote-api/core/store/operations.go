@@ -88,6 +88,7 @@ func CreateVoterAndSession(ctx context.Context, voter *entity.Voter, session *en
 			return terror.FirestoreError("get voter").Wrap(err)
 		default: // case status.Code(err) == codes.NotFound
 		}
+		log.Info().Msgf("create voter and session, voter = %+v, session = %+v", voter, session)
 		if _, err := voterRef.Set(ctx, voter); err != nil {
 			return terror.FirestoreError("insert voter").Wrap(err)
 		}
@@ -99,6 +100,7 @@ func CreateVoterAndSession(ctx context.Context, voter *entity.Voter, session *en
 }
 
 func CheckVoter(ctx context.Context, name string, pinCode string) error {
+	log.Info().Msgf("check voter, name = %s, pinCode = %s", name, pinCode)
 	ref := yearRef(ctx).Collection(colVoter).Doc(name)
 	doc, err := ref.Get(ctx)
 	if err != nil {

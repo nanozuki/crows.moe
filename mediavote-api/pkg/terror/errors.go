@@ -31,6 +31,10 @@ func NotInStage(stage string) *Error {
 	return New(http.StatusBadRequest, "NotInRightStage", msg)
 }
 
+func InvalidPinCode() *Error {
+	return New(http.StatusBadRequest, "InvalidPin", "")
+}
+
 // 401
 
 func NoAuth() *Error {
@@ -39,10 +43,6 @@ func NoAuth() *Error {
 
 func InvalidToken() *Error {
 	return New(http.StatusUnauthorized, "InvalidToken", "")
-}
-
-func InvalidPinCode() *Error {
-	return New(http.StatusUnauthorized, "InvalidPin", "")
 }
 
 // 404
