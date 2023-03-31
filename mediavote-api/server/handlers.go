@@ -23,14 +23,18 @@ func RunServer() error {
 		if err != nil {
 			return err
 		}
-		return c.JSON(http.StatusOK, map[string]any{"years": years})
+		res := &GetYearsResponse{}
+		for _, year := range years {
+			res.Years = append(res.Years, NewYearFromEntity(year))
+		}
+		return c.JSON(http.StatusOK, res)
 	})
 	api.GET("/years/current", func(c echo.Context) error {
 		year, err := service.GetCurrentYear(c.Request().Context())
 		if err != nil {
 			return err
 		}
-		return c.JSON(http.StatusOK, year)
+		return c.JSON(http.StatusOK, NewYearFromEntity(year))
 	})
 	api.GET("/awards/:year", func(c echo.Context) error {
 		yearStr := c.Param("year")
