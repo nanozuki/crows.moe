@@ -125,11 +125,11 @@ func GetSession(ctx context.Context, key string) (*entity.Session, error) {
 		return nil, err
 	}
 	doc, err := client.Collection(colYear).Doc(year.ID()).Collection(colSession).Doc(key).Get(ctx)
-	if err != nil {
-		return nil, terror.FirestoreError("get session").Wrap(err)
-	}
 	if status.Code(err) == codes.NotFound {
 		return nil, terror.InvalidToken()
+	}
+	if err != nil {
+		return nil, terror.FirestoreError("get session").Wrap(err)
 	}
 	session := readDoc[entity.Session](doc)
 	return session, nil

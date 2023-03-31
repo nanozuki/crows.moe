@@ -21,3 +21,21 @@ func NewYearFromEntity(year *entity.Year) *Year {
 type GetYearsResponse struct {
 	Years []*Year `json:"years,omitempty"`
 }
+
+type Ballot struct {
+	Rankings []entity.RankingItem `json:"rankings,omitempty"`
+}
+
+func NewBallotFromEntity(ballot *entity.Ballot) *Ballot {
+	return &Ballot{
+		Rankings: ballot.Rankings,
+	}
+}
+
+func (b *Ballot) ToEntity(voter string, dept entity.DepartmentName) *entity.Ballot {
+	return &entity.Ballot{
+		Voter:    voter,
+		Dept:     dept,
+		Rankings: b.Rankings,
+	}
+}

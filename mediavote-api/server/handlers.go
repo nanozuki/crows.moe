@@ -142,7 +142,7 @@ func RunServer() error {
 		c.SetCookie(newCookie(session))
 		return c.JSON(200, map[string]any{})
 	}, RequireStage(entity.StageVoting))
-	api.PUT("/voters/ballots", func(c echo.Context) error {
+	api.PUT("/voters/ballots/:dept", func(c echo.Context) error {
 		sessionCookie, err := c.Cookie(SessionCookieName)
 		if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
 			return terror.NoAuth()
@@ -151,12 +151,12 @@ func RunServer() error {
 		if err != nil {
 			return err
 		}
-		var ballot entity.Ballot
+		var ballot Ballot
 		if err := c.Bind(&ballot); err != nil {
 			return terror.InvalidRequestBody().Wrap(err)
 		}
-		ballot.Voter = session.Name
-		if err := service.VoterEditBallot(c.Request().Context(), &ballot); err != nil {
+		entity := ballot.ToEntity(session.Name, entity.DepartmentName(c.Param("dept")))
+		if err := service.VoterEditBallot(c.Request().Context(), entity); err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, &ballot)
@@ -177,11 +177,11 @@ func RunServer() error {
 		if !deptName.IsValid() {
 			return terror.InvalidValue("dept")
 		}
-		ballot, err := service.VoterGetBallot(c.Request().Context(), session.Name, deptName)
+		entity, err := service.VoterGetBallot(c.Request().Context(), session.Name, deptName)
 		if err != nil {
 			return err
 		}
-		return c.JSON(http.StatusOK, ballot)
+		return c.JSON(http.StatusOK, NewBallotFromEntity(entity))
 	}, RequireStage(entity.StageVoting))
 
 	return e.Start(":" + fmt.Sprint(env.Port()))
