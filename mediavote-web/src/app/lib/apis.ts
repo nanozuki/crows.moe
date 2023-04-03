@@ -12,7 +12,7 @@ function url(op: string): string {
   const prefix =
     process.env.NODE_ENV === 'production'
       ? 'https://api.crows.moe/mediavote/v1'
-      : 'http://127.0.0.1:3000/mediavote/v1';
+      : 'https://api.local.dev:8000/mediavote/v1';
   return prefix + op;
 }
 
