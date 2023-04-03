@@ -11,6 +11,7 @@ import (
 	"github.com/nanozuki/crows.moe/mediavote-api/core/service"
 	"github.com/nanozuki/crows.moe/mediavote-api/pkg/env"
 	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
+	"github.com/rs/zerolog/log"
 )
 
 func RunServer() error {
@@ -139,6 +140,7 @@ func RunServer() error {
 		if err != nil {
 			return err
 		}
+		log.Info().Msgf("Set-Cookie: %+v", newCookie(session))
 		c.SetCookie(newCookie(session))
 		return c.JSON(200, map[string]any{})
 	}, RequireStage(entity.StageVoting))

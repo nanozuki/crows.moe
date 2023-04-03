@@ -49,7 +49,7 @@ export interface NewVoter {
 }
 
 export interface Ballot {
-  rankings: RankingItem[];
+  rankings?: RankingItem[];
 }
 
 export interface RankingItem {

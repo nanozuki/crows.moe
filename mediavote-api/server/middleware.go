@@ -16,7 +16,7 @@ import (
 func CORS() echo.MiddlewareFunc {
 	return middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOriginFunc: func(origin string) (bool, error) {
-			return strings.Contains(origin, "crows.moe") || strings.Contains(origin, "local.dev"), nil
+			return strings.Contains(origin, "crows.moe") || strings.Contains(origin, "crows.local"), nil
 		},
 		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
 		AllowHeaders: []string{
@@ -37,9 +37,9 @@ const (
 )
 
 func newCookie(session *entity.Session) *http.Cookie {
-	domain := ".local.dev"
+	domain := "crows.local"
 	if env.IsProd() {
-		domain = ".crows.moe"
+		domain = "crows.moe"
 	}
 	return &http.Cookie{
 		Name:     SessionCookieName,

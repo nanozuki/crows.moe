@@ -19,7 +19,7 @@ func frontend() {
 	targets := []*middleware.ProxyTarget{{URL: upstream}}
 	e := echo.New()
 	e.Use(middleware.Proxy(middleware.NewRoundRobinBalancer(targets)))
-	hosts["app.local.dev:8000"] = e
+	hosts["app.crows.local:8000"] = e
 }
 
 func backend() {
@@ -30,7 +30,7 @@ func backend() {
 	targets := []*middleware.ProxyTarget{{URL: upstream}}
 	e := echo.New()
 	e.Use(middleware.Proxy(middleware.NewRoundRobinBalancer(targets)))
-	hosts["api.local.dev:8000"] = e
+	hosts["api.crows.local:8000"] = e
 }
 
 func main() {
@@ -48,7 +48,7 @@ func main() {
 			return echo.NewHTTPError(http.StatusNotFound, "Host Not Found")
 		}
 	})
-	if err := e.StartTLS(":8000", "./_wildcard.local.dev.pem", "./_wildcard.local.dev-key.pem"); err != nil {
+	if err := e.StartTLS(":8000", "./_wildcard.crows.local.pem", "./_wildcard.crows.local-key.pem"); err != nil {
 		e.Logger.Fatal(err)
 	}
 }

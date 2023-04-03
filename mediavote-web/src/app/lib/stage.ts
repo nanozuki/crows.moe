@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { getCurrentYear, getVoterName } from './apis';
 import { DepartmentName, Stage, Year } from './models';
 
@@ -16,7 +17,9 @@ export async function getYearInfo(year: Year): Promise<YearInfo> {
     year = await getCurrentYear();
   }
   const stage = getStage(year);
-  const voter = await getVoterName();
+  const voter = await getVoterName({
+    sessionid: cookies().get('sessionid')?.value,
+  });
   return {
     year: year.year,
     stage,

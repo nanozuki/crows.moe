@@ -1,6 +1,8 @@
 'use client';
 
 import { loginVoter, newVoter } from '@app/lib/apis';
+import { useMutation } from '@app/shared/hooks';
+import { NewVoter } from '@app/lib/models';
 import { Head2, Text } from '@app/shared/article';
 import Button from '@app/shared/Button';
 import Input from '@app/shared/Input';
@@ -13,20 +15,16 @@ interface NewVoteSectionProps {
 
 function NewVoterForm({ setPinCode }: NewVoteSectionProps) {
   const [voter, setVoter] = useState('');
-  const [fetching, setFetching] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
+  const [fetching, error, trigger] = useMutation(
+    newVoter,
+    (newVoter: NewVoter) => {
+      setVoter('');
+      setPinCode(newVoter.pin_code);
+    }
+  );
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    try {
-      const voterInfo = await newVoter(voter);
-      setError(undefined);
-      setVoter('');
-      setPinCode(voterInfo.pin_code);
-    } catch (err) {
-      setError('错误: ' + (err as Error).message);
-    } finally {
-      setFetching(false);
-    }
+    await trigger(voter);
   };
   return (
     <form className="mt-8 mb-8 mid:max-w-[20rem]" onSubmit={handleSubmit}>
@@ -37,7 +35,7 @@ function NewVoterForm({ setPinCode }: NewVoteSectionProps) {
           label="投票人ID"
           value={voter}
           onChange={setVoter}
-          errorMessage={error}
+          errorMessage={error && error.message}
         />
       </div>
       <Button variant="primary" disabled={fetching} type="submit">
@@ -52,22 +50,16 @@ interface LoginFormProps {
 }
 
 function LoginForm({ next }: LoginFormProps) {
+  const [voter, setVoter] = useState(''); // form
+  const [pin, setPin] = useState(''); // form
   const router = useRouter();
-  const [voter, setVoter] = useState('');
-  const [pin, setPin] = useState('');
-  const [fetching, setFetching] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
+
+  const [fetching, error, trigger] = useMutation(loginVoter, () => {
+    router.push(next);
+  });
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    try {
-      await loginVoter(voter, pin);
-      setError(undefined);
-      router.push(next);
-    } catch (err) {
-      setError('错误: ' + (err as Error).message);
-    } finally {
-      setFetching(false);
-    }
+    await trigger({ name: voter, pin });
   };
   return (
     <form className="mt-8 mb-8 mid:max-w-[20rem]" onSubmit={handleSubmit}>
@@ -78,7 +70,7 @@ function LoginForm({ next }: LoginFormProps) {
           label="投票人ID"
           value={voter}
           onChange={setVoter}
-          errorMessage={error}
+          errorMessage={error && error.message}
         />
         <Input
           className="mt-1 mb-1"

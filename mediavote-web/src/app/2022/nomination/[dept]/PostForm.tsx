@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { DepartmentName, Work } from '@app/lib/models';
 import { addNomination } from '@app/lib/apis';
+import { useMutation } from '@app/shared/hooks';
 import { FormEvent } from 'react';
 import Input from '@app/shared/Input';
 import Button from '@app/shared/Button';
@@ -15,24 +16,16 @@ interface PostFormProps {
 
 export default function PostForm(props: PostFormProps) {
   const [inputText, setInputText] = useState('');
-  const [fetching, setFetching] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
-  const post = async () => {
-    setFetching(true);
-    try {
-      const works = await addNomination(props.dept, inputText);
-      setError(undefined);
+  const [fetching, error, trigger] = useMutation(
+    addNomination,
+    (works: Work[]) => {
       setInputText('');
       props.setNoms(works);
-    } catch (e) {
-      setError('错误: ' + (e as Error).message);
-    } finally {
-      setFetching(false);
     }
-  };
+  );
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    await post();
+    await trigger({ deptName: props.dept, workName: inputText });
   };
   return (
     <form
@@ -46,7 +39,7 @@ export default function PostForm(props: PostFormProps) {
         label="作品名称"
         value={inputText}
         onChange={setInputText}
-        errorMessage={error && error.toString()}
+        errorMessage={error && error.message}
       />
       <Button variant="primary" disabled={fetching} type="submit">
         <p>提交提名</p>

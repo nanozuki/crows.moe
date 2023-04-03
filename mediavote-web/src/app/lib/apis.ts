@@ -12,7 +12,7 @@ function url(op: string): string {
   const prefix =
     process.env.NODE_ENV === 'production'
       ? 'https://api.crows.moe/mediavote/v1'
-      : 'https://api.local.dev:8000/mediavote/v1';
+      : 'https://api.crows.local:8000/mediavote/v1';
   return prefix + op;
 }
 
@@ -24,11 +24,19 @@ async function call<T>(
   opt.credentials = 'same-origin';
   const response = await fetch(input, opt);
   if (!response.ok) {
-    const errorResponse: ErrorResponse = await response.json();
-    throw Error(errorResponse.message);
+    const err: ErrorResponse = await response.json();
+    throw Error(err.message ? `${err.code}: ${err.message}` : err.code);
   }
   const jsonResponse: T = await response.json();
   return jsonResponse;
+}
+
+export interface APIOption {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: BodyInit | null;
+  cache?: RequestCache;
+  next?: NextFetchRequestConfig | undefined;
 }
 
 export async function getYears(): Promise<Year[]> {
@@ -54,23 +62,27 @@ export async function getNominations(
   return res.works || [];
 }
 
-export async function addNomination(
-  deptName: DepartmentName,
-  workName: string
-): Promise<Work[]> {
-  const res: Department = await call(url(`/nominations/${deptName}`), {
+export async function addNomination(arg: {
+  deptName: DepartmentName;
+  workName: string;
+}): Promise<Work[]> {
+  const res: Department = await call(url(`/nominations/${arg.deptName}`), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ work_name: workName }),
+    body: JSON.stringify({ work_name: arg.workName }),
     cache: 'no-store',
   });
   return res.works || [];
 }
 
-export async function getVoterName(): Promise<string | undefined> {
-  const res: { name?: string } = await call(url('/voters'), {
-    cache: 'no-store',
-  });
+export async function getVoterName(arg: {
+  sessionid?: string;
+}): Promise<string | undefined> {
+  const opt: RequestInit = { cache: 'no-store' };
+  if (arg.sessionid) {
+    opt.headers = { Cookie: `sessionid=${arg.sessionid}` };
+  }
+  const res: { name?: string } = await call(url('/voters'), opt);
   return res.name;
 }
 
@@ -84,31 +96,44 @@ export async function newVoter(name: string): Promise<NewVoter> {
   return res;
 }
 
-export async function loginVoter(name: string, pin: string): Promise<void> {
+export async function loginVoter(arg: {
+  name: string;
+  pin: string;
+}): Promise<void> {
   await call<{}>(url('/sessions'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, pin: pin }),
+    body: JSON.stringify(arg),
     cache: 'no-store',
   });
 }
 
-export async function updateBallot(
-  dept: DepartmentName,
-  ballot: Ballot
-): Promise<Ballot> {
-  const res: Ballot = await call(url(`/voters/ballots/${dept}`), {
+export async function updateBallot(arg: {
+  dept: DepartmentName;
+  ballot: Ballot;
+  sessionid?: string;
+}): Promise<Ballot> {
+  const opt: RequestInit = {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(ballot),
+    body: JSON.stringify(arg.ballot),
     cache: 'no-store',
-  });
+  };
+  if (arg.sessionid) {
+    opt.headers = { Cookie: `sessionid=${arg.sessionid}` };
+  }
+  const res: Ballot = await call(url(`/voters/ballots/${arg.dept}`), opt);
   return res;
 }
 
-export async function getBallot(dept: DepartmentName): Promise<Ballot> {
-  const res: Ballot = await call(url(`/voters/ballots/${dept}`), {
-    cache: 'no-store',
-  });
+export async function getBallot(arg: {
+  dept: DepartmentName;
+  sessionid?: string;
+}): Promise<Ballot> {
+  const opt: RequestInit = { cache: 'no-store' };
+  if (arg.sessionid) {
+    opt.headers = { Cookie: `sessionid=${arg.sessionid}` };
+  }
+  const res: Ballot = await call(url(`/voters/ballots/${arg.dept}`), opt);
   return res;
 }
