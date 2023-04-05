@@ -53,18 +53,12 @@ export default function BallotEditor({
         ])}
       </div>
       {error && <div className="text-love">{error.message}</div>}
-      <div className="w-full flex flex-row gap-x-4">
-        <Button
-          className="w-full mid:max-w-[20rem]"
-          variant="negative"
-          disabled={fetching}
-        >
-          取消
-        </Button>
+      <div className="w-full flex flex-row justify-end">
         <Button
           className="w-full mid:max-w-[20rem]"
           variant="primary"
           disabled={fetching}
+          type="submit"
         >
           提交
         </Button>

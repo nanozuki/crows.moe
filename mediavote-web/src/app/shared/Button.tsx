@@ -8,7 +8,7 @@ interface ButtonProps {
   children?: ReactNode;
   disabled?: boolean;
   variant: 'primary' | 'secondary' | 'negative';
-  type?: 'submit' | 'reset' | 'button' | undefined;
+  type: 'submit' | 'reset' | 'button';
   onClick?: (e: Event) => void;
 }
 

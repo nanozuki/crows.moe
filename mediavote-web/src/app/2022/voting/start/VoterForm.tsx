@@ -111,6 +111,7 @@ function PinCodeDialog({ pinCode, next }: PinCodeDialogProps) {
         className="w-full mid:max-w-[20rem]"
         variant="primary"
         onClick={handleClick}
+        type="submit"
       >
         确定
       </Button>

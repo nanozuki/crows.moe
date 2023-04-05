@@ -34,9 +34,10 @@ export default function BallotViewer({
       </div>
       <div className="w-full flex flex-row justify-end">
         <Button
-          className="w-[calc(50%-0.5rem)] mid:max-w-[20rem]"
+          className="w-full mid:max-w-[20rem]"
           variant="secondary"
           onClick={handleClick}
+          type="button"
         >
           编辑
         </Button>
