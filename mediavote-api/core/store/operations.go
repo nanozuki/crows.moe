@@ -88,6 +88,7 @@ func CreateVoterAndSession(ctx context.Context, voter *entity.Voter, session *en
 			return terror.FirestoreError("get voter").Wrap(err)
 		default: // case status.Code(err) == codes.NotFound
 		}
+		log.Info().Msgf("create voter and session, voter = %+v, session = %+v", voter, session)
 		if _, err := voterRef.Set(ctx, voter); err != nil {
 			return terror.FirestoreError("insert voter").Wrap(err)
 		}
@@ -99,6 +100,7 @@ func CreateVoterAndSession(ctx context.Context, voter *entity.Voter, session *en
 }
 
 func CheckVoter(ctx context.Context, name string, pinCode string) error {
+	log.Info().Msgf("check voter, name = %s, pinCode = %s", name, pinCode)
 	ref := yearRef(ctx).Collection(colVoter).Doc(name)
 	doc, err := ref.Get(ctx)
 	if err != nil {
@@ -125,11 +127,11 @@ func GetSession(ctx context.Context, key string) (*entity.Session, error) {
 		return nil, err
 	}
 	doc, err := client.Collection(colYear).Doc(year.ID()).Collection(colSession).Doc(key).Get(ctx)
-	if err != nil {
-		return nil, terror.FirestoreError("get session").Wrap(err)
-	}
 	if status.Code(err) == codes.NotFound {
 		return nil, terror.InvalidToken()
+	}
+	if err != nil {
+		return nil, terror.FirestoreError("get session").Wrap(err)
 	}
 	session := readDoc[entity.Session](doc)
 	return session, nil

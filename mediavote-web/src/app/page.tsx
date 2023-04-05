@@ -1,14 +1,15 @@
 import Title from '@app/shared/Title';
 import ToNextButton from '@app/shared/ToNextButton';
-import { DepartmentName } from './shared/models';
+import { getYears } from './lib/apis';
+import { getYearInfo } from './lib/stage';
 
 interface AnnualItemProps {
   year: number;
-  state: string;
+  stage: string;
   to: string;
 }
 
-function AnnualItem({ year, to, state }: AnnualItemProps) {
+function AnnualItem({ year, to, stage: state }: AnnualItemProps) {
   return (
     <div className="flex flex-row items-center mt-4 mb-4">
       <p className="font-serif text-2xl font-bold w-24 mr-2">{year}年</p>
@@ -17,22 +18,26 @@ function AnnualItem({ year, to, state }: AnnualItemProps) {
   );
 }
 
-export default function Home() {
-  return [
-    <Title key="title" to="/" />,
-    <main key="main">
-      <AnnualItem
-        year={2022}
-        to={`/2022/nomination/${DepartmentName.Anime}`}
-        state="作品提名"
-      />
-      <AnnualItem
-        year={2021}
-        to={'https://vote2021.crows.moe'}
-        state="获奖作品"
-      />
-    </main>,
-  ];
+export default async function Home() {
+  const years = await getYears();
+  const yearInfos = await Promise.all(years.map(getYearInfo));
+  const items = yearInfos.map((yearInfo) => (
+    <AnnualItem
+      key={yearInfo.year}
+      year={yearInfo.year}
+      to={yearInfo.redirectTo}
+      stage={yearInfo.stageName}
+    />
+  ));
+  items.push(
+    <AnnualItem
+      key={2021}
+      year={2021}
+      to={'https://vote2021.crows.moe'}
+      stage="获奖作品"
+    />
+  );
+  return [<Title key="title" to="/" />, <main key="main">{items}</main>];
 }
 
 export const revalidate = 3600;

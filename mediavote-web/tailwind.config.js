@@ -26,8 +26,7 @@ module.exports = {
         em: '1em',
       },
       gridTemplateColumns: {
-        vote: '4rem minmax(4rem, 1fr)',
-        result: '1rem minmax(1rem, 1fr)',
+        ballot: '2rem minmax(2rem, 1fr)',
       },
       borderWidth: {
         1: '1px',
@@ -38,6 +37,7 @@ module.exports = {
       serif: ['source-han-serif-sc', 'serif'],
     },
     screens: {
+      mid: '480px',
       wide: '672px', // 640 + 16*2
     },
   },

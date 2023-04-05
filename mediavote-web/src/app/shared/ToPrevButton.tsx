@@ -10,7 +10,7 @@ function ToPrevButton({ to, className }: ToPrevButtonProps) {
   return (
     <Link
       href={to}
-      className={`flex flex-row items-center bg-highlight-med h-10 pl-2 pr-2 rounded ${className}`}
+      className={`flex flex-row items-center bg-highlight-med h-10 pl-2 pr-2 rounded ${className || ''}`}
     >
       <IconChevronLeft className="block text-xl leading-none text-rose" />
     </Link>

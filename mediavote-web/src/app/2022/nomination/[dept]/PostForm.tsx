@@ -1,82 +1,12 @@
 'use client';
 
-import { useTextField } from 'react-aria';
-import { useButton } from 'react-aria';
-import { ReactNode, useRef, useState } from 'react';
-import { DepartmentName, Work } from '@app/shared/models';
-import { addNomination } from '@app/shared/apis';
-import { KeyboardEvent, FormEvent } from 'react';
-
-interface WorkNameInputProps {
-  className?: string;
-  label: string;
-  description?: string;
-  errorMessage?: string;
-  placeholder?: string;
-
-  onChange?: (value: string) => void;
-  onKeyDown?: (e: KeyboardEvent) => void;
-  value: string;
-}
-
-function WorkNameInput(props: WorkNameInputProps) {
-  let { label } = props;
-  let ref = useRef<HTMLInputElement>(null);
-  let { labelProps, inputProps, descriptionProps, errorMessageProps } =
-    useTextField(props, ref);
-
-  return (
-    <div className={`${props.className}`}>
-      <label
-        className="block text-subtle text-sm ml-[0.625rem]"
-        {...labelProps}
-      >
-        {label}
-      </label>
-      {props.description && (
-        <div className="text-muted text-xs ml-[0.625rem]" {...descriptionProps}>
-          {props.description}
-        </div>
-      )}
-      {props.errorMessage && (
-        <div className="text-love ml-[0.625rem]" {...errorMessageProps}>
-          {props.errorMessage}
-        </div>
-      )}
-      <input
-        className={
-          'block w-full h-10 mt-1 px-2 rounded bg-surface border-text border-2 ' +
-          'focus:border-rose focus-visible:border-rose outline-none shadow-none'
-        }
-        ref={ref}
-        {...inputProps}
-      />
-    </div>
-  );
-}
-
-interface SubmitButtonProps {
-  className?: string;
-  children?: ReactNode;
-  fetching: boolean;
-}
-
-function SubmitButton(props: SubmitButtonProps) {
-  let ref = useRef<HTMLButtonElement>(null);
-  let { buttonProps } = useButton(props, ref);
-  buttonProps.type = 'submit';
-
-  return (
-    <button
-      className={`${props.className}`}
-      ref={ref}
-      disabled={props.fetching}
-      {...buttonProps}
-    >
-      <p>提交提名</p>
-    </button>
-  );
-}
+import { useState } from 'react';
+import { DepartmentName, Work } from '@app/lib/models';
+import { addNomination } from '@app/lib/apis';
+import { useMutation } from '@app/shared/hooks';
+import { FormEvent } from 'react';
+import Input from '@app/shared/Input';
+import Button from '@app/shared/Button';
 
 interface PostFormProps {
   className?: string;
@@ -86,42 +16,34 @@ interface PostFormProps {
 
 export default function PostForm(props: PostFormProps) {
   const [inputText, setInputText] = useState('');
-  const [fetching, setFetching] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
-  const post = async () => {
-    setFetching(true);
-    try {
-      const works = await addNomination(props.dept, inputText);
-      setError(undefined);
+  const [fetching, error, trigger] = useMutation(
+    addNomination,
+    (works: Work[]) => {
       setInputText('');
       props.setNoms(works);
-    } catch (e) {
-      setError('错误: ' + (e as Error).message);
-    } finally {
-      setFetching(false);
     }
-  };
+  );
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    await post();
+    await trigger({ deptName: props.dept, workName: inputText });
   };
-  const btnBg = fetching ? 'bg-muted' : 'bg-pine';
   return (
     <form
-      className={`flex flex-col wide:flex-row gap-2 items-end ${props.className}`}
+      className={`flex flex-col wide:flex-row gap-2 items-end ${
+        props.className || ''
+      }`}
       onSubmit={onSubmit}
     >
-      <WorkNameInput
+      <Input
         className="w-full"
         label="作品名称"
         value={inputText}
         onChange={setInputText}
-        errorMessage={error && error.toString()}
+        errorMessage={error && error.message}
       />
-      <SubmitButton
-        className={`${btnBg} text-base w-full wide:w-[10rem] px-8 h-10 rounded`}
-        fetching={fetching}
-      />
+      <Button variant="primary" disabled={fetching} type="submit">
+        <p>提交提名</p>
+      </Button>
     </form>
   );
 }

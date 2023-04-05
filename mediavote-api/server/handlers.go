@@ -11,6 +11,7 @@ import (
 	"github.com/nanozuki/crows.moe/mediavote-api/core/service"
 	"github.com/nanozuki/crows.moe/mediavote-api/pkg/env"
 	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
+	"github.com/rs/zerolog/log"
 )
 
 func RunServer() error {
@@ -23,14 +24,18 @@ func RunServer() error {
 		if err != nil {
 			return err
 		}
-		return c.JSON(http.StatusOK, map[string]any{"years": years})
+		res := &GetYearsResponse{}
+		for _, year := range years {
+			res.Years = append(res.Years, NewYearFromEntity(year))
+		}
+		return c.JSON(http.StatusOK, res)
 	})
 	api.GET("/years/current", func(c echo.Context) error {
 		year, err := service.GetCurrentYear(c.Request().Context())
 		if err != nil {
 			return err
 		}
-		return c.JSON(http.StatusOK, year)
+		return c.JSON(http.StatusOK, NewYearFromEntity(year))
 	})
 	api.GET("/awards/:year", func(c echo.Context) error {
 		yearStr := c.Param("year")
@@ -91,6 +96,24 @@ func RunServer() error {
 	}, RequireStage(entity.StageNomination))
 
 	// voting stage
+	api.GET("/voters", func(c echo.Context) error {
+		var res struct {
+			Name string `json:"name,omitempty"`
+		}
+		sessionCookie, err := c.Cookie(SessionCookieName)
+		if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
+			return c.JSON(200, &res)
+		}
+		session, err := service.GetSession(c.Request().Context(), sessionCookie.Value)
+		if terror.IsErrCode(err, "InvalidToken") {
+			return c.JSON(200, &res)
+		}
+		if err != nil {
+			return err
+		}
+		res.Name = session.Name
+		return c.JSON(200, &res)
+	}, RequireStage(entity.StageVoting))
 	api.POST("/voters", func(c echo.Context) error {
 		var req struct {
 			Name string `json:"name"`
@@ -102,6 +125,7 @@ func RunServer() error {
 		if err != nil {
 			return err
 		}
+		log.Info().Msgf("Set-Cookie: %+v", newCookie(session))
 		c.SetCookie(newCookie(session))
 		return c.JSON(http.StatusOK, voter)
 	}, RequireStage(entity.StageVoting))
@@ -117,10 +141,11 @@ func RunServer() error {
 		if err != nil {
 			return err
 		}
+		log.Info().Msgf("Set-Cookie: %+v", newCookie(session))
 		c.SetCookie(newCookie(session))
 		return c.JSON(200, map[string]any{})
 	}, RequireStage(entity.StageVoting))
-	api.PUT("/voters/ballots", func(c echo.Context) error {
+	api.PUT("/voters/ballots/:dept", func(c echo.Context) error {
 		sessionCookie, err := c.Cookie(SessionCookieName)
 		if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
 			return terror.NoAuth()
@@ -129,12 +154,12 @@ func RunServer() error {
 		if err != nil {
 			return err
 		}
-		var ballot entity.Ballot
+		var ballot Ballot
 		if err := c.Bind(&ballot); err != nil {
 			return terror.InvalidRequestBody().Wrap(err)
 		}
-		ballot.Voter = session.Name
-		if err := service.VoterEditBallot(c.Request().Context(), &ballot); err != nil {
+		entity := ballot.ToEntity(session.Name, entity.DepartmentName(c.Param("dept")))
+		if err := service.VoterEditBallot(c.Request().Context(), entity); err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, &ballot)
@@ -155,11 +180,11 @@ func RunServer() error {
 		if !deptName.IsValid() {
 			return terror.InvalidValue("dept")
 		}
-		ballot, err := service.VoterGetBallot(c.Request().Context(), session.Name, deptName)
+		entity, err := service.VoterGetBallot(c.Request().Context(), session.Name, deptName)
 		if err != nil {
 			return err
 		}
-		return c.JSON(http.StatusOK, ballot)
+		return c.JSON(http.StatusOK, NewBallotFromEntity(entity))
 	}, RequireStage(entity.StageVoting))
 
 	return e.Start(":" + fmt.Sprint(env.Port()))
