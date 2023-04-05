@@ -55,7 +55,7 @@ interface Head2Props {
 
 export function Head2({ className, children }: Head2Props) {
   return (
-    <p className={`font-serif font-bold text-2xl ${className || ''}`}>
+    <p className={`font-serif font-bold text-xl ${className || ''}`}>
       {children}
     </p>
   );

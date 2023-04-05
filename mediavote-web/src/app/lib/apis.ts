@@ -21,7 +21,7 @@ async function call<T>(
   init?: RequestInit
 ): Promise<T> {
   const opt = init || {};
-  opt.credentials = 'same-origin';
+  opt.credentials = 'include';
   const response = await fetch(input, opt);
   if (!response.ok) {
     const err: ErrorResponse = await response.json();

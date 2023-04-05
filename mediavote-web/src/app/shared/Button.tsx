@@ -7,7 +7,7 @@ interface ButtonProps {
   className?: string;
   children?: ReactNode;
   disabled?: boolean;
-  variant: 'primary' | 'secondary';
+  variant: 'primary' | 'secondary' | 'negative';
   type?: 'submit' | 'reset' | 'button' | undefined;
   onClick?: (e: Event) => void;
 }
@@ -21,6 +21,8 @@ export default function Button(props: ButtonProps) {
     bg = 'bg-muted';
   } else if (variant === 'secondary') {
     bg = 'bg-love';
+  } else if (variant === 'negative') {
+    bg = 'bg-gold';
   } else {
     bg = 'bg-pine';
   }

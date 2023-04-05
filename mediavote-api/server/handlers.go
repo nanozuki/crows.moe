@@ -125,6 +125,7 @@ func RunServer() error {
 		if err != nil {
 			return err
 		}
+		log.Info().Msgf("Set-Cookie: %+v", newCookie(session))
 		c.SetCookie(newCookie(session))
 		return c.JSON(http.StatusOK, voter)
 	}, RequireStage(entity.StageVoting))

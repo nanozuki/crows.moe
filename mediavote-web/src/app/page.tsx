@@ -2,7 +2,6 @@ import Title from '@app/shared/Title';
 import ToNextButton from '@app/shared/ToNextButton';
 import { getYears } from './lib/apis';
 import { getYearInfo } from './lib/stage';
-import { cookies } from 'next/headers';
 
 interface AnnualItemProps {
   year: number;
@@ -20,8 +19,6 @@ function AnnualItem({ year, to, stage: state }: AnnualItemProps) {
 }
 
 export default async function Home() {
-  const cookieStore = cookies();
-  console.log('cookies: ', cookieStore.getAll());
   const years = await getYears();
   const yearInfos = await Promise.all(years.map(getYearInfo));
   const items = yearInfos.map((yearInfo) => (
