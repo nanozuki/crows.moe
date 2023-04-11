@@ -90,17 +90,17 @@ export default function BallotSheet(props: BallotTableProps) {
           setSheetState={setSheetState}
         />
       )}
-      {sheetState === SheetState.Viewing && (
+      {sheetState === SheetState.Viewing ? (
         <DeptNav
           dept={props.dept}
           stage={Stage.Voting}
           tail={<ToThanksButton />}
           className="mt-12 mb-4"
         />
+      ) : (
+        <div className="mt-12 mb-4 h-10"></div>
       )}
-      {sheetState === SheetState.Viewing && (
-        <TabLine page={index} className="mt-4 mb-4" />
-      )}
+      <TabLine page={index} className="mt-4 mb-4" />
     </>
   );
 }

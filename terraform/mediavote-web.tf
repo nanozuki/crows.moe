@@ -15,7 +15,7 @@ resource "google_cloud_run_service" "mediavote-web" {
     }
     spec {
       containers {
-        image = "asia-east1-docker.pkg.dev/crows-moe/images/mediavote-web:1.1.2"
+        image = "asia-east1-docker.pkg.dev/crows-moe/images/mediavote-web:1.1.3"
         ports {
           container_port = 3000
         }
