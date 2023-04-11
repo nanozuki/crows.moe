@@ -32,7 +32,7 @@ func CORS() echo.MiddlewareFunc {
 }
 
 const (
-	SessionCookieName = "sessionid"
+	SessionCookieName = "__session"
 	CookieExpires     = 30 * 24 * time.Hour
 )
 
