@@ -1,0 +1,11 @@
+# vi:ft=make
+
+proj := "github.com/nanozuki/crows.moe/blog"
+image := "asia-east1-docker.pkg.dev/crows-moe/images/blog"
+
+default:
+	just --list
+
+build-image TAG:
+	docker build --platform=linux/amd64 -t {{image}}:{{TAG}} .
+	docker push {{image}}:{{TAG}}
