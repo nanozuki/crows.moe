@@ -1,0 +1,21 @@
+{
+  "projects": {
+    "default": "crows-moe"
+  },
+  "targets": {
+    "crows-moe": {
+      "hosting": {
+        "crows-moe": [
+          "crows-moe"
+        ],
+        "mediavote-crows-moe": [
+          "mediavote-crows-moe"
+        ],
+        "api-crows-moe": [
+          "api-crows-moe"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

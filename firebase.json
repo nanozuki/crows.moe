@@ -1,0 +1,43 @@
+{
+  "hosting": [
+    {
+      "target": "crows-moe",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [
+        {
+          "source": "**",
+          "run": {
+            "serviceId": "blog",
+            "region": "asia-east1"
+          }
+        }
+      ]
+    },
+    {
+      "target": "mediavote-crows-moe",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [
+        {
+          "source": "**",
+          "run": {
+            "serviceId": "mediavote-web",
+            "region": "asia-east1"
+          }
+        }
+      ]
+    },
+    {
+      "target": "api-crows-moe",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [
+        {
+          "source": "**",
+          "run": {
+            "serviceId": "mediavote-api",
+            "region": "asia-east1"
+          }
+        }
+      ]
+    }
+  ]
+}
