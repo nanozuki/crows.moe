@@ -49,6 +49,18 @@ func RunServer() error {
 		}
 		return c.JSON(http.StatusOK, map[string]any{"awards": awards})
 	})
+	api.POST("/awards/:year", func(c echo.Context) error {
+		yearStr := c.Param("year")
+		year, err := strconv.Atoi(yearStr)
+		if err != nil {
+			return terror.InvalidValue("year")
+		}
+		awards, err := service.ComputeAwards(c.Request().Context(), year)
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, map[string]any{"awards": awards})
+	})
 	api.GET("/ballots/:year", func(c echo.Context) error {
 		yearStr := c.Param("year")
 		year, err := strconv.Atoi(yearStr)

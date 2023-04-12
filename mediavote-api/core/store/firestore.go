@@ -135,6 +135,70 @@ func LoadDevData() {
 			log.Fatal().Msgf("loadDevData failed: %v", err)
 		}
 	}
+	if year.Stage() == entity.StageVoting {
+		voters := []*entity.Voter{{Name: "voter0", PinCode: "10000"}, {Name: "voter1", PinCode: "10001"}}
+		ballots := []*entity.Ballot{
+			{
+				Voter: "voter0",
+				Dept:  entity.Anime,
+				Rankings: []entity.RankingItem{
+					{Ranking: 1, WorkName: "孤独摇滚！"},
+					{Ranking: 2, WorkName: "彻夜之歌"},
+				},
+			},
+			{
+				Voter: "voter1",
+				Dept:  entity.Anime,
+				Rankings: []entity.RankingItem{
+					{Ranking: 1, WorkName: "彻夜之歌"},
+					{Ranking: 2, WorkName: "灵能100% III"},
+				},
+			},
+			{
+				Voter: "voter0",
+				Dept:  entity.Game,
+				Rankings: []entity.RankingItem{
+					{Ranking: 1, WorkName: "艾尔登法环"},
+					{Ranking: 2, WorkName: "战神：诸神黄昏"},
+				},
+			},
+			{
+				Voter: "voter1",
+				Dept:  entity.Game,
+				Rankings: []entity.RankingItem{
+					{Ranking: 1, WorkName: "战神：诸神黄昏"},
+					{Ranking: 2, WorkName: "师父"},
+				},
+			},
+			{
+				Voter: "voter0",
+				Dept:  entity.MangaAndNovel,
+				Rankings: []entity.RankingItem{
+					{Ranking: 1, WorkName: "再见绘梨"},
+					{Ranking: 2, WorkName: "躲在超市后门抽烟的两人"},
+				},
+			},
+			{
+				Voter: "voter1",
+				Dept:  entity.MangaAndNovel,
+				Rankings: []entity.RankingItem{
+					{Ranking: 1, WorkName: "躲在超市后门抽烟的两人"},
+					{Ranking: 2, WorkName: "继母的拖油瓶是我的前女友"},
+				},
+			},
+		}
+		for _, voter := range voters {
+			voterRef := yearRef(ctx).Collection(colVoter).Doc(voter.ID())
+			if _, err := voterRef.Set(ctx, voter); err != nil {
+				log.Fatal().Msgf("loadDevData failed: %v", err)
+			}
+		}
+		for _, ballot := range ballots {
+			if err := SetVoterBallot(ctx, ballot); err != nil {
+				log.Fatal().Msgf("loadDevData failed: %v", err)
+			}
+		}
+	}
 }
 
 func devYear() *entity.Year {

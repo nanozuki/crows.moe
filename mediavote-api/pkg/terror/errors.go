@@ -58,3 +58,13 @@ func FirestoreError(op string) *Error {
 	msg := fmt.Sprintf("%s failed", op)
 	return New(http.StatusInternalServerError, "FirestoreError", msg)
 }
+
+func InternalError(format string, a ...any) *Error {
+	msg := fmt.Sprintf(format, a...)
+	return New(http.StatusInternalServerError, "InternalError", msg)
+}
+
+func FatalError(format string, a ...any) *Error {
+	msg := fmt.Sprintf(format, a...)
+	return New(http.StatusInternalServerError, "FatalError", msg)
+}
