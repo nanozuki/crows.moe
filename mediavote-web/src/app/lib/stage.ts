@@ -17,9 +17,12 @@ export async function getYearInfo(year: Year): Promise<YearInfo> {
     year = await getCurrentYear();
   }
   const stage = getStage(year);
-  const voter = await getVoterName({
-    sessionid: cookies().get('sessionid')?.value,
-  });
+  let voter: string | undefined;
+  if (stage === Stage.Voting) {
+    voter = await getVoterName({
+      sessionid: cookies().get('sessionid')?.value,
+    });
+  }
   return {
     year: year.year,
     stage,

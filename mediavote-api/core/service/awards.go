@@ -16,7 +16,7 @@ func GetCurrentYear(ctx context.Context) (*entity.Year, error) {
 	return store.GetCurrentYear(ctx)
 }
 
-func GetAwards(ctx context.Context, year int) ([]*entity.Awards, error) {
+func GetAwards(ctx context.Context, year int) ([]*entity.Award, error) {
 	return store.GetAwardsByYear(ctx, year)
 }
 
@@ -24,7 +24,7 @@ func GetBallots(ctx context.Context, year int) ([]*entity.Ballot, error) {
 	return store.GetBallotsByYear(ctx, year)
 }
 
-func ComputeAwards(ctx context.Context, year int) ([]*entity.Awards, error) {
+func ComputeAwards(ctx context.Context, year int) ([]*entity.Award, error) {
 	ballots, err := store.GetBallotsByYear(ctx, year)
 	if err != nil {
 		return nil, err
@@ -33,14 +33,27 @@ func ComputeAwards(ctx context.Context, year int) ([]*entity.Awards, error) {
 	for _, ballot := range ballots {
 		ballotsByDept[ballot.Dept] = append(ballotsByDept[ballot.Dept], ballot)
 	}
-	awards := []*entity.Awards{}
-	for _, bs := range ballotsByDept {
-		a, err := schulze.Compute(ctx, bs)
+	awards := []*entity.Award{}
+	for dept, bs := range ballotsByDept {
+		award, err := computeDeptAward(ctx, dept, bs)
 		if err != nil {
 			return nil, err
 		}
-		awards = append(awards, a)
+		awards = append(awards, award)
 	}
 	err = store.SetAwards(ctx, year, awards)
 	return awards, err
+}
+
+func computeDeptAward(ctx context.Context, deptName entity.DepartmentName, ballots []*entity.Ballot) (*entity.Award, error) {
+	dept, err := store.GetOrNewDepartment(ctx, deptName)
+	if err != nil {
+		return nil, err
+	}
+	items, err := schulze.Compute(ctx, ballots)
+	if err != nil {
+		return nil, err
+	}
+	awards := entity.NewAwards(dept, items)
+	return awards, nil
 }

@@ -164,10 +164,10 @@ func GetBallotsByYear(ctx context.Context, year int) ([]*entity.Ballot, error) {
 	return ballots, nil
 }
 
-func SetAwards(ctx context.Context, year int, awards []*entity.Awards) error {
+func SetAwards(ctx context.Context, year int, awards []*entity.Award) error {
 	id := (&entity.Year{Year: year}).ID()
 	for _, award := range awards {
-		ref := client.Collection(colYear).Doc(id).Collection(colAwards).Doc(award.ID())
+		ref := client.Collection(colYear).Doc(id).Collection(colAward).Doc(award.ID())
 		if _, err := ref.Set(ctx, award); err != nil {
 			return terror.FirestoreError("set awards").Wrap(err)
 		}
@@ -175,10 +175,10 @@ func SetAwards(ctx context.Context, year int, awards []*entity.Awards) error {
 	return nil
 }
 
-func GetAwardsByYear(ctx context.Context, year int) ([]*entity.Awards, error) {
+func GetAwardsByYear(ctx context.Context, year int) ([]*entity.Award, error) {
 	id := (&entity.Year{Year: year}).ID()
-	iter := client.Collection(colYear).Doc(id).Collection(colAwards).Documents(ctx)
-	awards, err := readDocs[entity.Awards](iter)
+	iter := client.Collection(colYear).Doc(id).Collection(colAward).Documents(ctx)
+	awards, err := readDocs[entity.Award](iter)
 	if err != nil {
 		return nil, err
 	}

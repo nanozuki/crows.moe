@@ -2,7 +2,7 @@ import { Text, multiLine, HyperLink } from './article';
 import { DepartmentName } from '@app/lib/models';
 import { ReactNode } from 'react';
 
-interface DepartmentInfo {
+export interface DepartmentInfo {
   title: string;
   dept: DepartmentName;
   intro: ReactNode;

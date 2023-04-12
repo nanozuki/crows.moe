@@ -121,11 +121,26 @@ func (b *Ballot) Validator(dept *Department) error {
 	return nil
 }
 
-type Awards struct {
+type Award struct {
 	Dept     DepartmentName `firestore:"dept,omitempty" json:"dept,omitempty"`
-	Rankings []RankingItem  `firestore:"rankings,omitempty" json:"rankings,omitempty"`
+	Rankings []AwardItem    `firestore:"rankings,omitempty" json:"rankings,omitempty"`
 }
 
-func (a *Awards) ID() string {
+func NewAwards(dept *Department, items []*RankingItem) *Award {
+	awards := &Award{Dept: dept.Dept}
+	for _, item := range items {
+		for _, work := range dept.Works {
+			if item.WorkName == work.Name {
+				awards.Rankings = append(awards.Rankings, AwardItem{
+					Ranking: item.Ranking,
+					Work:    work,
+				})
+			}
+		}
+	}
+	return awards
+}
+
+func (a *Award) ID() string {
 	return a.Dept.String()
 }

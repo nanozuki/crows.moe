@@ -64,3 +64,8 @@ func (e DepartmentName) IsValid() bool {
 func (e DepartmentName) String() string {
 	return string(e)
 }
+
+type AwardItem struct {
+	Ranking int   `firestore:"ranking,omitempty" json:"ranking,omitempty"`
+	Work    *Work `firestore:"work,omitempty" json:"work,omitempty"`
+}

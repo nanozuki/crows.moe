@@ -29,7 +29,7 @@ const (
 	colVoter      = "voters"
 	colSession    = "sessions"
 	colBallot     = "ballots"
-	colAwards     = "awards"
+	colAward      = "awards"
 )
 
 var client = newClient()
@@ -91,6 +91,10 @@ func LoadDevData() {
 					OriginName: "モブサイコ100",
 					Alias:      []string{"路人超能100 III"},
 				},
+				{
+					Name:       "赛博朋克：边缘行者",
+					OriginName: "Cyberpunk: Edgerunners",
+				},
 			},
 		},
 		{
@@ -135,8 +139,13 @@ func LoadDevData() {
 			log.Fatal().Msgf("loadDevData failed: %v", err)
 		}
 	}
-	if year.Stage() == entity.StageVoting {
-		voters := []*entity.Voter{{Name: "voter0", PinCode: "10000"}, {Name: "voter1", PinCode: "10001"}}
+	stage := entity.Stage(env.DevStage())
+	if stage == entity.StageVoting || stage == entity.StageAward {
+		voters := []*entity.Voter{
+			{Name: "voter0", PinCode: "10000"},
+			{Name: "voter1", PinCode: "10001"},
+			{Name: "voter2", PinCode: "10002"},
+		}
 		ballots := []*entity.Ballot{
 			{
 				Voter: "voter0",
@@ -151,7 +160,19 @@ func LoadDevData() {
 				Dept:  entity.Anime,
 				Rankings: []entity.RankingItem{
 					{Ranking: 1, WorkName: "彻夜之歌"},
-					{Ranking: 2, WorkName: "灵能100% III"},
+					{Ranking: 2, WorkName: "赛博朋克：边缘行者"},
+					{Ranking: 3, WorkName: "孤独摇滚！"},
+					{Ranking: 4, WorkName: "灵能100% III"},
+				},
+			},
+			{
+				Voter: "voter2",
+				Dept:  entity.Anime,
+				Rankings: []entity.RankingItem{
+					{Ranking: 1, WorkName: "孤独摇滚！"},
+					{Ranking: 2, WorkName: "彻夜之歌"},
+					{Ranking: 3, WorkName: "赛博朋克：边缘行者"},
+					{Ranking: 4, WorkName: "灵能100% III"},
 				},
 			},
 			{
@@ -171,6 +192,14 @@ func LoadDevData() {
 				},
 			},
 			{
+				Voter: "voter2",
+				Dept:  entity.Game,
+				Rankings: []entity.RankingItem{
+					{Ranking: 1, WorkName: "艾尔登法环"},
+					{Ranking: 2, WorkName: "师父"},
+				},
+			},
+			{
 				Voter: "voter0",
 				Dept:  entity.MangaAndNovel,
 				Rankings: []entity.RankingItem{
@@ -183,6 +212,14 @@ func LoadDevData() {
 				Dept:  entity.MangaAndNovel,
 				Rankings: []entity.RankingItem{
 					{Ranking: 1, WorkName: "躲在超市后门抽烟的两人"},
+					{Ranking: 2, WorkName: "继母的拖油瓶是我的前女友"},
+				},
+			},
+			{
+				Voter: "voter2",
+				Dept:  entity.MangaAndNovel,
+				Rankings: []entity.RankingItem{
+					{Ranking: 1, WorkName: "再见绘梨"},
 					{Ranking: 2, WorkName: "继母的拖油瓶是我的前女友"},
 				},
 			},
