@@ -15,12 +15,23 @@ resource "google_cloud_run_service" "mediavote-web" {
     }
     spec {
       containers {
-        image = "asia-east1-docker.pkg.dev/crows-moe/images/mediavote-web:1.1.4"
+        image = "asia-east1-docker.pkg.dev/crows-moe/images/mediavote-web:1.1.3"
         ports {
           container_port = 3000
         }
       }
     }
+  }
+}
+
+resource "google_cloud_run_domain_mapping" "mediavote-web" {
+  location = google_cloud_run_service.mediavote-web.location
+  name     = "mediavote.crows.moe"
+  metadata {
+    namespace = google_cloud_run_service.mediavote-web.project
+  }
+  spec {
+    route_name = google_cloud_run_service.mediavote-web.name
   }
 }
 

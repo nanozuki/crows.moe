@@ -24,6 +24,17 @@ resource "google_cloud_run_service" "blog" {
   }
 }
 
+resource "google_cloud_run_domain_mapping" "blog" {
+  location = google_cloud_run_service.blog.location
+  name     = "crows.moe"
+  metadata {
+    namespace = google_cloud_run_service.blog.project
+  }
+  spec {
+    route_name = google_cloud_run_service.blog.name
+  }
+}
+
 resource "google_cloud_run_service_iam_policy" "blog" {
   location = google_cloud_run_service.blog.location
   project  = google_cloud_run_service.blog.project

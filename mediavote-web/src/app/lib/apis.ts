@@ -80,7 +80,7 @@ export async function getVoterName(arg: {
 }): Promise<string | undefined> {
   const opt: RequestInit = { cache: 'no-store' };
   if (arg.sessionid) {
-    opt.headers = { Cookie: `__session=${arg.sessionid}` };
+    opt.headers = { Cookie: `sessionid=${arg.sessionid}` };
   }
   const res: { name?: string } = await call(url('/voters'), opt);
   return res.name;
@@ -120,7 +120,7 @@ export async function updateBallot(arg: {
     cache: 'no-store',
   };
   if (arg.sessionid) {
-    opt.headers = { Cookie: `__session=${arg.sessionid}` };
+    opt.headers = { Cookie: `sessionid=${arg.sessionid}` };
   }
   const res: Ballot = await call(url(`/voters/ballots/${arg.dept}`), opt);
   return res;
@@ -132,7 +132,7 @@ export async function getBallot(arg: {
 }): Promise<Ballot> {
   const opt: RequestInit = { cache: 'no-store' };
   if (arg.sessionid) {
-    opt.headers = { Cookie: `__session=${arg.sessionid}` };
+    opt.headers = { Cookie: `sessionid=${arg.sessionid}` };
   }
   const res: Ballot = await call(url(`/voters/ballots/${arg.dept}`), opt);
   return res;
