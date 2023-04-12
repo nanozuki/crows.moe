@@ -59,5 +59,10 @@ export interface RankingItem {
 
 export interface Award {
   dept: DepartmentName;
-  rankings: RankingItem[];
+  rankings: AwardItem[];
+}
+
+export interface AwardItem {
+  ranking: number;
+  work: Work;
 }

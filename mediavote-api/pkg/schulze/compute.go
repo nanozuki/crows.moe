@@ -33,7 +33,9 @@ func makeRequest(ballots []*entity.Ballot) (Request, map[int]string) {
 				lastID++
 			}
 		}
-		request.Payload = append(request.Payload, b)
+		if len(b.Votes) > 0 {
+			request.Payload = append(request.Payload, b)
+		}
 	}
 	return request, idMap
 }

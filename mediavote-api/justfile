@@ -24,7 +24,7 @@ run-voting:
 
 run-award:
 	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
-	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_ENV=dev MEDIAVOTE_DEV_STAGE=Awrad go run *.go
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_ENV=dev MEDIAVOTE_DEV_STAGE=Award go run *.go
 
 down:
 	docker-compose down -v
