@@ -56,3 +56,8 @@ export interface RankingItem {
   ranking: number;
   work_name: string;
 }
+
+export interface Award {
+  dept: DepartmentName;
+  rankings: RankingItem[];
+}

@@ -6,15 +6,14 @@ import (
 	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
 )
 
-func Compute(ctx context.Context, ballots []*entity.Ballot) (*entity.Awards, error) {
+func Compute(ctx context.Context, ballots []*entity.Ballot) ([]*entity.RankingItem, error) {
 	request, idMap := makeRequest(ballots)
 	response, err := getComputeResult(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	awards := makeAwards(response, idMap)
-	awards.Dept = ballots[0].Dept
-	return awards, nil
+	items := makeAwards(response, idMap)
+	return items, nil
 }
 
 func makeRequest(ballots []*entity.Ballot) (Request, map[int]string) {
@@ -39,15 +38,16 @@ func makeRequest(ballots []*entity.Ballot) (Request, map[int]string) {
 	return request, idMap
 }
 
-func makeAwards(response Response, idMap map[int]string) *entity.Awards {
-	awards := &entity.Awards{}
-	for ranking, ids := range response {
+func makeAwards(response Response, idMap map[int]string) []*entity.RankingItem {
+	var items []*entity.RankingItem
+	for _, ids := range response {
+		ranking := len(items)
 		for _, id := range ids {
-			awards.Rankings = append(awards.Rankings, entity.RankingItem{
+			items = append(items, &entity.RankingItem{
 				Ranking:  ranking + 1,
 				WorkName: idMap[id],
 			})
 		}
 	}
-	return awards
+	return items
 }

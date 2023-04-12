@@ -6,6 +6,7 @@ import {
   ErrorResponse,
   NewVoter,
   Ballot,
+  Award,
 } from './models';
 
 function url(op: string): string {
@@ -51,6 +52,13 @@ export async function getCurrentYear(): Promise<Year> {
     next: { revalidate: 3600 },
   });
   return res;
+}
+
+export async function getAwards(year: number): Promise<Award[]> {
+  const res: { awards: Award[] } = await call(url(`/awards/${year}`), {
+    next: { revalidate: 60 },
+  });
+  return res.awards;
 }
 
 export async function getNominations(

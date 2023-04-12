@@ -29,7 +29,7 @@ const (
 	colVoter      = "voters"
 	colSession    = "sessions"
 	colBallot     = "ballots"
-	colAwards     = "awards"
+	colAward      = "awards"
 )
 
 var client = newClient()
@@ -91,6 +91,10 @@ func LoadDevData() {
 					OriginName: "モブサイコ100",
 					Alias:      []string{"路人超能100 III"},
 				},
+				{
+					Name:       "赛博朋克：边缘行者",
+					OriginName: "Cyberpunk: Edgerunners",
+				},
 			},
 		},
 		{
@@ -151,7 +155,9 @@ func LoadDevData() {
 				Dept:  entity.Anime,
 				Rankings: []entity.RankingItem{
 					{Ranking: 1, WorkName: "彻夜之歌"},
-					{Ranking: 2, WorkName: "灵能100% III"},
+					{Ranking: 2, WorkName: "赛博朋克：边缘行者"},
+					{Ranking: 3, WorkName: "孤独摇滚！"},
+					{Ranking: 4, WorkName: "灵能100% III"},
 				},
 			},
 			{
