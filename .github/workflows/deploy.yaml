@@ -1,0 +1,81 @@
+name: Build And Deploy Services
+
+on:
+  push:
+    branches:
+      - 'master'
+
+env:
+  PROJECT_ID: crows-moe
+  LOCATION: asia-east1
+  IMAGE_LOCATION: '${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+      - name: Docker Auth
+        id: docker-auth
+        uses: 'docker/login-action@v1'
+        with:
+          username: 'oauth2accesstoken'
+          password: '${{ steps.auth.outputs.access_token }}'
+          registry: '${{ env.LOCATION }}-docker.pkg.dev'
+
+      - name: Set service tag from datetime
+        run: echo "TAG=$(date +'%Y%m%d%H%M')" >> $GITHUB_ENV
+
+      - name: build blog
+        run: |-
+          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/blog:${{ env.TAG }}" blog
+          docker push "${{ env.IMAGE_LOCATION }}/blog:${{ env.TAG }}"
+
+      - name: build and push image
+        run: |-
+          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/mediavote-api:${{ env.TAG }}" mediavote-api
+          docker push "${{ env.IMAGE_LOCATION }}/mediavote-api:${{ env.TAG }}"
+
+      - name: build and push image
+        run: |-
+          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/mediavote-web:${{ env.TAG }}" mediavote-web
+          docker push "${{ env.IMAGE_LOCATION }}/mediavote-web:${{ env.TAG }}"
+
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Terraform Setup
+        uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_TOKEN }}
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Apply
+        uses: hashicorp/setup-terraform@v2
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -var="deploy_tag=${{ env.TAG }}" -auto-approve

@@ -13,6 +13,10 @@ terraform {
   }
 }
 
+variable "deploy_tag" {
+  type = string
+}
+
 provider "google" {
   project = "crows-moe"
   region  = "asia-east1"

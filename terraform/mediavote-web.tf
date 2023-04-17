@@ -1,3 +1,7 @@
+variable "mediavote-web-deploy" {
+  type = string
+}
+
 resource "google_cloud_run_service" "mediavote-web" {
   name     = "mediavote-web"
   location = "asia-east1"
@@ -15,7 +19,7 @@ resource "google_cloud_run_service" "mediavote-web" {
     }
     spec {
       containers {
-        image = "asia-east1-docker.pkg.dev/crows-moe/images/mediavote-web:1.1.5"
+        image = "asia-east1-docker.pkg.dev/crows-moe/images/mediavote-web:${var.deploy_tag}"
         ports {
           container_port = 3000
         }

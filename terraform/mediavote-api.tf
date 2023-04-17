@@ -15,7 +15,7 @@ resource "google_cloud_run_service" "mediavote-api" {
     }
     spec {
       containers {
-        image = "asia-east1-docker.pkg.dev/crows-moe/images/mediavote-api:1.1.1"
+        image = "asia-east1-docker.pkg.dev/crows-moe/images/mediavote-api:${var.deploy_tag}"
         env {
           name  = "MEDIAVOTE_ENV"
           value = "production"
