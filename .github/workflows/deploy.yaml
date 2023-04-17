@@ -26,11 +26,11 @@ jobs:
 
       - name: Docker Auth
         id: docker-auth
-        uses: 'docker/login-action@v1'
+        uses: 'docker/login-action@v2'
         with:
+          registry: '${{ env.LOCATION }}-docker.pkg.dev'
           username: 'oauth2accesstoken'
           password: '${{ steps.auth.outputs.access_token }}'
-          registry: '${{ env.LOCATION }}-docker.pkg.dev'
 
       - name: Set service tag from datetime
         run: echo "TAG=$(date +'%Y%m%d%H%M')" >> $GITHUB_ENV
