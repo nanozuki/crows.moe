@@ -67,6 +67,8 @@ jobs:
         run: echo 'deploy_tag = "${{ env.TAG }}"' > deploy.auto.tfvars
         env:
           TAG: ${{needs.build.outputs.tag}}
+      - name: print
+        run: ls && cat deploy.auto.tfvars
 
       - name: Terraform Setup
         uses: hashicorp/setup-terraform@v2
