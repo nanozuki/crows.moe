@@ -36,10 +36,10 @@ jobs:
       - name: Set service tag from datetime
         run: echo "TAG=$(date +'%Y%m%d%H%M')" >> $GITHUB_ENV
 
-      - name: build blog
-        run: |-
-          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/blog:${{ env.TAG }}" blog
-          docker push "${{ env.IMAGE_LOCATION }}/blog:${{ env.TAG }}"
+      # - name: build blog
+      #   run: |-
+      #     docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/blog:${{ env.TAG }}" blog
+      #     docker push "${{ env.IMAGE_LOCATION }}/blog:${{ env.TAG }}"
 
       - name: build and push image
         run: |-
