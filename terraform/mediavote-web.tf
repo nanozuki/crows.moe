@@ -1,7 +1,3 @@
-variable "mediavote-web-deploy" {
-  type = string
-}
-
 resource "google_cloud_run_service" "mediavote-web" {
   name     = "mediavote-web"
   location = "asia-east1"

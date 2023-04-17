@@ -2,7 +2,7 @@ terraform {
   backend "remote" {
     organization = "crows-moe"
     workspaces {
-      name = "crows-moe-gcloud"
+      name = "crows-moe"
     }
   }
   required_providers {
