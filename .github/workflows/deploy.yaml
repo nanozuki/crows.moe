@@ -41,12 +41,12 @@ jobs:
       #     docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/blog:${{ env.TAG }}" blog
       #     docker push "${{ env.IMAGE_LOCATION }}/blog:${{ env.TAG }}"
 
-      - name: build and push image
+      - name: build mediavote-api
         run: |-
           docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/mediavote-api:${{ env.TAG }}" mediavote-api
           docker push "${{ env.IMAGE_LOCATION }}/mediavote-api:${{ env.TAG }}"
 
-      - name: build and push image
+      - name: build mediavote-web
         run: |-
           docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/mediavote-web:${{ env.TAG }}" mediavote-web
           docker push "${{ env.IMAGE_LOCATION }}/mediavote-web:${{ env.TAG }}"
