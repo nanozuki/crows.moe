@@ -42,12 +42,12 @@ jobs:
 
       - name: build mediavote-api
         run: |-
-          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/mediavote-api:${{ env.TAG }}" mediavote-api
+          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/mediavote-api:${{ env.TAG }}" service/mediavote-api
           docker push "${{ env.IMAGE_LOCATION }}/mediavote-api:${{ env.TAG }}"
 
       - name: build mediavote-web
         run: |-
-          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/mediavote-web:${{ env.TAG }}" mediavote-web
+          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/mediavote-web:${{ env.TAG }}" service/mediavote-web
           docker push "${{ env.IMAGE_LOCATION }}/mediavote-web:${{ env.TAG }}"
     outputs:
       tag: ${{ env.TAG }}
@@ -57,7 +57,7 @@ jobs:
     needs: build
     defaults:
       run:
-        working-directory: terraform
+        working-directory: infra
     steps:
       - name: Checkout
         uses: actions/checkout@v3
