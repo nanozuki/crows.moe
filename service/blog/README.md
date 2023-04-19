@@ -1,3 +1,3 @@
-# crows.moe
+# blog
 
-Nanozuki's personal website.
+https://crows.moe
