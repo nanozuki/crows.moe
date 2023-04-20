@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 
 const items = {
-  articles: { href: '/', text: '文章' },
+  articles: { href: '/articles', text: '文章列表' },
   about: { href: '/about', text: '关于' },
 };
 
@@ -17,7 +17,7 @@ function Title() {
 }
 
 interface NavProps {
-  active: NavItem;
+  active?: NavItem;
 }
 
 function Nav({ active }: NavProps) {
