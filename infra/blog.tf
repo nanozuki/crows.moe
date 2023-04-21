@@ -15,9 +15,9 @@ resource "google_cloud_run_service" "blog" {
     }
     spec {
       containers {
-        image = "asia-east1-docker.pkg.dev/crows-moe/images/blog:1.0.0"
+        image = "asia-east1-docker.pkg.dev/crows-moe/images/blog:${var.deploy_tag}"
         ports {
-          container_port = 80
+          container_port = 3000
         }
       }
     }
