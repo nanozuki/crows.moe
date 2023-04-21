@@ -1,6 +1,7 @@
 import { readFile } from 'fs/promises';
 import { opendir } from 'fs/promises';
 import { compileMDX } from 'next-mdx-remote/rsc';
+import Image from 'next/image';
 import path from 'path';
 import { HTMLAttributes } from 'react';
 
@@ -53,8 +54,36 @@ export async function getArticleDatas(): Promise<ArticleData[]> {
 
 const components = {
   h1: ({ children }: HTMLAttributes<HTMLHeadingElement>) => (
-    <h1 className="text-2xl font-bold">{children}</h1>
+    <h1 className="text-text font-serif font-bold my-em leading-normal text-3xl">
+      {children}
+    </h1>
   ),
+  h2: ({ children }: HTMLAttributes<HTMLHeadingElement>) => (
+    <h2 className="text-text font-serif font-bold my-em leading-normal text-2xl">
+      {children}
+    </h2>
+  ),
+  h3: ({ children }: HTMLAttributes<HTMLHeadingElement>) => (
+    <h3 className="text-text font-serif font-bold my-em leading-normal text-xl">
+      {children}
+    </h3>
+  ),
+  h4: ({ children }: HTMLAttributes<HTMLHeadingElement>) => (
+    <h4 className="text-text font-sans font-bold my-em leading-normal">
+      {children}
+    </h4>
+  ),
+  h5: ({ children }: HTMLAttributes<HTMLHeadingElement>) => (
+    <h5 className="text-text font-sans font-bold my-em leading-normal">
+      {children}
+    </h5>
+  ),
+  p: ({ children }: HTMLAttributes<HTMLParagraphElement>) => (
+    <p className="text-text font-sans my-em leading-normal">{children}</p>
+  ),
+  img: (
+    { src, alt }: any // TODO: find the type
+  ) => <img src={src} alt={alt} className="block w-full my-4" />,
   Red: ({ children }: { children: React.ReactNode }) => (
     <p className="text-rose">{children}</p>
   ),
