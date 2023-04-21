@@ -35,7 +35,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: adobeFont }}
         />
       </head>
-      <body className="w-full h-screen bg-base">
+      <body className="w-full h-screen bg-base overflow-y-scroll">
         <div className="w-full pl-4 pr-4 max-w-screen-wide ml-auto mr-auto pt-12 pb-12 flex flex-col gap-y-12">
           {children}
         </div>

@@ -36,6 +36,7 @@ module.exports = {
     fontFamily: {
       sans: ['source-han-sans-cjk-sc', 'sans-serif'],
       serif: ['source-han-serif-sc', 'serif'],
+      monospace: ['fira-mono', 'monospace'],
     },
     screens: {
       mid: '480px',
