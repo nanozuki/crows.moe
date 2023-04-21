@@ -1,4 +1,8 @@
-node_modules/
-public/
-.cache/
-.git/
+Dockerfile
+.dockerignore
+node_modules
+npm-debug.log
+README.md
+.next
+.vscode
+.git
