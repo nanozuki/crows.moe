@@ -1,10 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'mdx'],
   experimental: {
     appDir: true,
     mdxRs: true,
   },
+  reactStrictMode: true,
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
