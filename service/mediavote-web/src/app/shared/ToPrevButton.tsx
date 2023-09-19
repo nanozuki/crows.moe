@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import IconChevronLeft from '~icons/material-symbols/chevron-left.jsx';
+import { ChevronLeft } from 'react-feather'
 
 interface ToPrevButtonProps {
   to: string;
@@ -12,7 +12,7 @@ function ToPrevButton({ to, className }: ToPrevButtonProps) {
       href={to}
       className={`flex flex-row items-center bg-highlight-med h-10 pl-2 pr-2 rounded ${className || ''}`}
     >
-      <IconChevronLeft className="block text-xl leading-none text-rose" />
+      <ChevronLeft className="block text-xl leading-none text-rose" />
     </Link>
   );
 }
