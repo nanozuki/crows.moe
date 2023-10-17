@@ -37,7 +37,7 @@ func (s *Service) GetAwards(ctx context.Context, req *api.GetAwardsRequest) (*ap
 	if err != nil {
 		return nil, err
 	}
-	if err := year.ValidateDept(req.Dept); err != nil {
+	if err := year.ValidateDept(val.DepartmentName(req.Dept)); err != nil {
 		return nil, err
 	}
 	//TODO implement me

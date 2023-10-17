@@ -11,14 +11,33 @@ export const enum Department {
 }
 
 export const enum Stage {
-  Preparation,
-  Nomination,
-  Voting,
-  Award,
+  Preparation = "Preparation",
+  Nomination = "Nomination",
+  Voting = "Voting",
+  Award = "Award",
 }
 
 export interface Work {
   name: string;
-  origin_name: string;
-  alias: string[];
+  origin_name?: string;
+  alias?: string[];
+}
+
+export function isWork(name: string, work: Work): boolean {
+  return (
+    work.name === name ||
+    work.origin_name === name ||
+    (work.alias && work.alias.includes(name)) ||
+    false
+  );
+}
+
+export interface RankedWork {
+  ranking: number;
+  work: Work;
+}
+
+export interface RankedWorkName {
+  ranking: number;
+  workName: string;
 }

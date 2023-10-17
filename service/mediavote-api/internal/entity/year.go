@@ -31,16 +31,19 @@ func (y *Year) StageAt(t time.Time) val.Stage {
 }
 
 func (y *Year) ToAPIView() *api.Year {
-	return &api.Year{
+	view := &api.Year{
 		Year:              y.Year,
-		Depts:             y.Departments,
 		NominationStartAt: y.NominationStartAt.UnixMilli(),
 		VotingStartAt:     y.VotingStartAt.UnixMilli(),
 		AwardStartAt:      y.AwardStartAt.UnixMilli(),
 	}
+	for _, d := range y.Departments {
+		view.Depts = append(view.Depts, d.String())
+	}
+	return view
 }
 
-func (y *Year) ValidateDept(dept string) error {
+func (y *Year) ValidateDept(dept val.DepartmentName) error {
 	for _, d := range y.Departments {
 		if d == dept {
 			return nil

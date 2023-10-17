@@ -1,9 +1,23 @@
-import { YearUseCase } from "@service/use_case";
-import { Year } from "@service/entity";
-import { Department } from "@service/value";
+import { cookies } from "next/headers";
+import {
+  AwardUseCase,
+  BallotUseCase,
+  VoterUseCase,
+  WorksSetUseCase,
+  YearUseCase,
+} from "@service/use_case";
+import { Award, Ballot, Voter, Year } from "@service/entity";
+import { Department, RankedWorkName, Stage, Work } from "@service/value";
+import { InvalidPinCodeError, NoSessionIDError } from "@service/errors";
 
 export class Service {
-  constructor(private readonly year: YearUseCase) {}
+  constructor(
+    private readonly year: YearUseCase,
+    private readonly worksSet: WorksSetUseCase,
+    private readonly voter: VoterUseCase,
+    private readonly ballot: BallotUseCase,
+    private readonly award: AwardUseCase,
+  ) {}
 
   async getYears(): Promise<Year[]> {
     return this.year.findAll();
@@ -13,91 +27,97 @@ export class Service {
     return this.year.find(year);
   }
 
-  async getAwards(year: number, dept: Department): Promise<void> {
-    //TODO implement me
-    throw new Error("Method not implemented.");
+  async getNominations(year: number, department: Department): Promise<Work[]> {
+    const y = await this.year.getInStage(year, Stage.Nomination);
+    y.validateDepartment(department);
+    const ws = await this.worksSet.get(year, department);
+    return ws.works;
+  }
+
+  async postNominations(
+    year: number,
+    department: Department,
+    workName: string,
+  ): Promise<void> {
+    const y = await this.year.getInStage(year, Stage.Nomination);
+    y.validateDepartment(department);
+    const ws = await this.worksSet.get(year, department);
+    ws.addWork(workName);
+    await this.worksSet.save(year, department, ws);
+  }
+
+  async getLoggedVoter(year: number): Promise<Voter> {
+    await this.year.getInStage(year, Stage.Voting);
+    const sessionid = cookies().get("sessionid")?.value;
+    if (!sessionid) {
+      throw NoSessionIDError();
+    }
+    const voter = await this.voter.getBySessionID(year, sessionid);
+    return voter;
+  }
+
+  async signUpVoter(year: number, name: string): Promise<Voter> {
+    await this.year.getInStage(year, Stage.Voting);
+    const [voter, sessionid] = await this.voter.createVoter(year, name);
+    cookies().set("sessionid", sessionid, {
+      domain: "crow.moe", // TODO: or "crows.local" for local development
+      path: "/",
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
+      secure: true,
+      httpOnly: true,
+      sameSite: "none", // TODO: check, after combine frontend and backend
+    });
+    return voter;
+  }
+
+  async logInVoter(year: number, name: string, pinCode: string): Promise<void> {
+    await this.year.getInStage(year, Stage.Voting);
+    const voter = await this.voter.getByName(year, name);
+    if (!voter.validatePinCode(pinCode)) {
+      throw InvalidPinCodeError();
+    }
+    const sessionid = await this.voter.createSessionID(year, voter);
+    cookies().set("sessionid", sessionid, {
+      domain: "crow.moe", // TODO: or "crows.local" for local development
+      path: "/",
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
+      secure: true,
+      httpOnly: true,
+      sameSite: "none", // TODO: check, after combine frontend and backend
+    });
+  }
+
+  async getBallot(year: number, department: Department): Promise<Ballot> {
+    const y = await this.year.getInStage(year, Stage.Voting);
+    y.validateDepartment(department);
+    const voter = await this.getLoggedVoter(year);
+    const ballot = await this.ballot.getBallot(year, voter, department);
+    return ballot;
+  }
+
+  async putBallot(
+    year: number,
+    department: Department,
+    rankings: RankedWorkName[],
+  ): Promise<Ballot> {
+    const y = await this.year.getInStage(year, Stage.Voting);
+    y.validateDepartment(department);
+    const voter = await this.getLoggedVoter(year);
+    const worksSet = await this.worksSet.get(year, department);
+    const ballot = await this.ballot.putBallot({
+      year,
+      voter,
+      department,
+      worksSet,
+      rankings,
+    });
+    return ballot;
+  }
+
+  async getAward(year: number, department: Department): Promise<Award> {
+    const y = await this.year.getInStage(year, Stage.Award);
+    y.validateDepartment(department);
+    const award = await this.award.getAward(year, department);
+    return award;
   }
 }
-
-/*
-package service
-
-import (
-	"context"
-
-	"github.com/nanozuki/crows.moe/mediavote-api/api"
-	"github.com/nanozuki/crows.moe/mediavote-api/internal/entity"
-	"github.com/nanozuki/crows.moe/mediavote-api/internal/val"
-)
-
-type Service struct {
-	year *entity.YearUseCase
-}
-
-func (s *Service) GetYears(ctx context.Context, req *api.GetYearsRequest) (*api.GetYearsResponse, error) {
-	years, err := s.year.GetAll(ctx)
-	if err != nil {
-		return nil, err
-	}
-	var res api.GetYearsResponse
-	for _, y := range years {
-		res.Years = append(res.Years, y.ToAPIView())
-	}
-	return &res, nil
-}
-
-func (s *Service) GetYear(ctx context.Context, req *api.GetYearRequest) (*api.GetYearResponse, error) {
-	year, err := s.year.GetOne(ctx, req.Year)
-	if err != nil {
-		return nil, err
-	}
-	return (*api.GetYearResponse)(year.ToAPIView()), nil
-}
-
-func (s *Service) GetAwards(ctx context.Context, req *api.GetAwardsRequest) (*api.GetAwardsResponse, error) {
-	year, err := s.year.GetYearInStage(ctx, req.Year, val.StageAward)
-	if err != nil {
-		returbn nil, err
-	}
-	if err := year.ValidateDept(req.Dept); err != nil {
-		return nil, err
-	}
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetNominations(ctx context.Context, req *api.GetNominationsRequest) (*api.GetNominationsResponse, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) PostNominations(ctx context.Context, req *api.PostNominationsRequest) (*api.PostNominationsResponse, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetLoggedVoter(ctx context.Context, req *api.GetLoggedVoterRequest) (*api.GetLoggedVoterResponse, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) SignUpVoter(ctx context.Context, req *api.SignUpVoterRequest) (*api.SignUpVoterResponse, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) LogInVoter(ctx context.Context, req *api.LogInVoterRequest) (*api.LogInVoterResponse, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetBallot(ctx context.Context, req *api.GetBallotRequest) (*api.GetBallotResponse, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) PutBallot(ctx context.Context, req *api.PutBallotRequest) (*api.PutBallotResponse, error) {
-	//TODO implement me
-	panic("implement me")
-}
-*/
