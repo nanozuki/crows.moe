@@ -16,12 +16,7 @@ function ToPrevDP({ index, stage, head, className }: ToPrevDPProps) {
     return head || <div></div>;
   }
   const prev = departments[index - 1];
-  return (
-    <ToPrevButton
-      to={`/2022/${stage.toLowerCase()}/${prev.dept}`}
-      className={`${className || ''}`}
-    />
-  );
+  return <ToPrevButton to={`/2022/${stage.toLowerCase()}/${prev.dept}`} className={`${className || ''}`} />;
 }
 
 interface ToNextDPProps {
@@ -53,13 +48,7 @@ interface DeptNavProps {
   className?: string;
 }
 
-export default function DeptNav({
-  dept,
-  stage,
-  head,
-  tail,
-  className,
-}: DeptNavProps) {
+export default function DeptNav({ dept, stage, head, tail, className }: DeptNavProps) {
   const index = departments.findIndex((info) => info.dept === dept);
   return (
     <div className={`flex flex-row justify-between ${className || ''}`}>

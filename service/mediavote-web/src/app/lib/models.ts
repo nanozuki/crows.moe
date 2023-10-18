@@ -30,11 +30,7 @@ export const enum Stage {
 }
 
 export function departmentNameIsValid(dept: DepartmentName): boolean {
-  return (
-    dept == DepartmentName.Anime ||
-    dept == DepartmentName.MangaAndNovel ||
-    dept == DepartmentName.Game
-  );
+  return dept == DepartmentName.Anime || dept == DepartmentName.MangaAndNovel || dept == DepartmentName.Game;
 }
 
 export interface Work {

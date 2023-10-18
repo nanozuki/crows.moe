@@ -20,10 +20,7 @@ export default async function Page() {
         <Text>投票已完成！{yearInfo.voter}，感谢您的参与。</Text>
         <Text>
           点击或保存此链接：
-          <a
-            href="/2022/voting/anime"
-            className="text-pine ml-1 mr-1 underline"
-          >
+          <a href="/2022/voting/anime" className="text-pine ml-1 mr-1 underline">
             https://mediavote.crows.moe/2022/voting/anime
           </a>
           。在投票期间可以随时查看和修改自己的投票。

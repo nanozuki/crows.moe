@@ -16,24 +16,16 @@ interface PostFormProps {
 
 export default function PostForm(props: PostFormProps) {
   const [inputText, setInputText] = useState('');
-  const [fetching, error, trigger] = useMutation(
-    addNomination,
-    (works: Work[]) => {
-      setInputText('');
-      props.setNoms(works);
-    }
-  );
+  const [fetching, error, trigger] = useMutation(addNomination, (works: Work[]) => {
+    setInputText('');
+    props.setNoms(works);
+  });
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     await trigger({ deptName: props.dept, workName: inputText });
   };
   return (
-    <form
-      className={`flex flex-col wide:flex-row gap-2 items-end ${
-        props.className || ''
-      }`}
-      onSubmit={onSubmit}
-    >
+    <form className={`flex flex-col wide:flex-row gap-2 items-end ${props.className || ''}`} onSubmit={onSubmit}>
       <Input
         className="w-full"
         label="作品名称"

@@ -4,12 +4,7 @@ import { Work, Ballot, DepartmentName, Stage } from '@app/lib/models';
 import { ChangeEvent, useState } from 'react';
 import BallotViewer from './BallotViewer';
 import BallotEditor from './BallotEditor';
-import {
-  SheetState,
-  BallotItem,
-  makeBallotItems,
-  sortBallotItems,
-} from './types';
+import { SheetState, BallotItem, makeBallotItems, sortBallotItems } from './types';
 import DeptNav from '@app/shared/DeptNav';
 import { departments } from '@app/shared/Departments';
 import TabLine from '@app/shared/TabLine';
@@ -24,16 +19,10 @@ interface BallotTableProps {
 
 function useBallotState(
   nominations: Work[],
-  ballot: Ballot
-): [
-  BallotItem[],
-  (index: number) => (e: ChangeEvent<HTMLInputElement>) => void,
-  () => void
-] {
+  ballot: Ballot,
+): [BallotItem[], (index: number) => (e: ChangeEvent<HTMLInputElement>) => void, () => void] {
   const [items, setItems] = useState(makeBallotItems(nominations, ballot));
-  const setRanking = (
-    index: number
-  ): ((e: ChangeEvent<HTMLInputElement>) => void) => {
+  const setRanking = (index: number): ((e: ChangeEvent<HTMLInputElement>) => void) => {
     return (e: ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       let ranking: number | undefined = undefined;
@@ -59,15 +48,9 @@ function ToThanksButton() {
 }
 
 export default function BallotSheet(props: BallotTableProps) {
-  const initState =
-    (props.ballot.rankings || []).length > 0
-      ? SheetState.Viewing
-      : SheetState.Editing;
+  const initState = (props.ballot.rankings || []).length > 0 ? SheetState.Viewing : SheetState.Editing;
   const [sheetState, setSheetState] = useState<SheetState>(initState);
-  const [items, setRanking, resortItems] = useBallotState(
-    props.nominations,
-    props.ballot
-  );
+  const [items, setRanking, resortItems] = useBallotState(props.nominations, props.ballot);
   const index = departments.findIndex((info) => info.dept === props.dept);
   const setToViewing = () => {
     resortItems();
@@ -84,19 +67,10 @@ export default function BallotSheet(props: BallotTableProps) {
           setToViewing={setToViewing}
         />
       ) : (
-        <BallotViewer
-          className={props.className}
-          items={items}
-          setSheetState={setSheetState}
-        />
+        <BallotViewer className={props.className} items={items} setSheetState={setSheetState} />
       )}
       {sheetState === SheetState.Viewing ? (
-        <DeptNav
-          dept={props.dept}
-          stage={Stage.Voting}
-          tail={<ToThanksButton />}
-          className="mt-12 mb-4"
-        />
+        <DeptNav dept={props.dept} stage={Stage.Voting} tail={<ToThanksButton />} className="mt-12 mb-4" />
       ) : (
         <div className="mt-12 mb-4 h-10"></div>
       )}

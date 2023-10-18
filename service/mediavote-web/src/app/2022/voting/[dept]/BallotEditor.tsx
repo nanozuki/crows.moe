@@ -16,13 +16,7 @@ interface BallotEditorProps {
   setToViewing: () => void;
 }
 
-export default function BallotEditor({
-  className,
-  dept,
-  items,
-  setRanking,
-  setToViewing,
-}: BallotEditorProps) {
+export default function BallotEditor({ className, dept, items, setRanking, setToViewing }: BallotEditorProps) {
   const [fetching, error, trigger] = useMutation(updateBallot, (_: Ballot) => {
     setToViewing();
   });
@@ -32,10 +26,7 @@ export default function BallotEditor({
     await trigger({ dept, ballot });
   };
   return (
-    <form
-      className={`w-full flex flex-col gap-y-4 ${className || ''}`}
-      onSubmit={handleSubmit}
-    >
+    <form className={`w-full flex flex-col gap-y-4 ${className || ''}`} onSubmit={handleSubmit}>
       <p>请在左侧写入作品的排名数字</p>
       <div className="w-full grid grid-cols-ballot gap-x-2 gap-y-4">
         {items.map(({ ranking, work }, index) => [
@@ -54,12 +45,7 @@ export default function BallotEditor({
       </div>
       {error && <div className="text-love">{error.message}</div>}
       <div className="w-full flex flex-row justify-end">
-        <Button
-          className="w-full mid:max-w-[20rem]"
-          variant="primary"
-          disabled={fetching}
-          type="submit"
-        >
+        <Button className="w-full mid:max-w-[20rem]" variant="primary" disabled={fetching} type="submit">
           提交
         </Button>
       </div>

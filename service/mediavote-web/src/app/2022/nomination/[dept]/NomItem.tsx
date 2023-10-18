@@ -4,12 +4,7 @@ export interface NomItemProps extends Work {
   className?: string;
 }
 
-export default function NomItem({
-  name,
-  origin_name,
-  alias,
-  className,
-}: NomItemProps) {
+export default function NomItem({ name, origin_name, alias, className }: NomItemProps) {
   const subNames = [origin_name, ...(alias || [])];
   return (
     <div

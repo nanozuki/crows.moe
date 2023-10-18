@@ -1,14 +1,8 @@
-import { cookies } from "next/headers";
-import {
-  AwardUseCase,
-  BallotUseCase,
-  VoterUseCase,
-  WorksSetUseCase,
-  YearUseCase,
-} from "@service/use_case";
-import { Award, Ballot, Voter, Year } from "@service/entity";
-import { Department, RankedWorkName, Stage, Work } from "@service/value";
-import { InvalidPinCodeError, NoSessionIDError } from "@service/errors";
+import { cookies } from 'next/headers';
+import { AwardUseCase, BallotUseCase, VoterUseCase, WorksSetUseCase, YearUseCase } from '@service/use_case';
+import { Award, Ballot, Voter, Year } from '@service/entity';
+import { Department, RankedWorkName, Stage, Work } from '@service/value';
+import { NoSessionIDError } from '@service/errors';
 
 export class Service {
   constructor(
@@ -34,11 +28,7 @@ export class Service {
     return ws.works;
   }
 
-  async postNominations(
-    year: number,
-    department: Department,
-    workName: string,
-  ): Promise<void> {
+  async postNominations(year: number, department: Department, workName: string): Promise<void> {
     const y = await this.year.getInStage(year, Stage.Nomination);
     y.validateDepartment(department);
     const ws = await this.worksSet.get(year, department);
@@ -48,42 +38,39 @@ export class Service {
 
   async getLoggedVoter(year: number): Promise<Voter> {
     await this.year.getInStage(year, Stage.Voting);
-    const sessionid = cookies().get("sessionid")?.value;
+    const sessionid = cookies().get('sessionid')?.value;
     if (!sessionid) {
       throw NoSessionIDError();
     }
-    const voter = await this.voter.getBySessionID(year, sessionid);
+    const voter = await this.voter.ensureAuth(year, sessionid);
     return voter;
   }
 
   async signUpVoter(year: number, name: string): Promise<Voter> {
     await this.year.getInStage(year, Stage.Voting);
-    const [voter, sessionid] = await this.voter.createVoter(year, name);
-    cookies().set("sessionid", sessionid, {
-      domain: "crow.moe", // TODO: or "crows.local" for local development
-      path: "/",
+    const [voter, sessionid] = await this.voter.signUp(year, name);
+    cookies().set('sessionid', sessionid, {
+      domain: 'crow.moe', // TODO: or "crows.local" for local development
+      path: '/',
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
       secure: true,
       httpOnly: true,
-      sameSite: "none", // TODO: check, after combine frontend and backend
+      sameSite: 'none', // TODO: check, after combine frontend and backend
     });
     return voter;
   }
 
   async logInVoter(year: number, name: string, pinCode: string): Promise<void> {
     await this.year.getInStage(year, Stage.Voting);
-    const voter = await this.voter.getByName(year, name);
-    if (!voter.validatePinCode(pinCode)) {
-      throw InvalidPinCodeError();
-    }
-    const sessionid = await this.voter.createSessionID(year, voter);
-    cookies().set("sessionid", sessionid, {
-      domain: "crow.moe", // TODO: or "crows.local" for local development
-      path: "/",
+    const voter = await this.voter.login(year, name, pinCode);
+    const sessionid = await this.voter.makeSession(year, voter);
+    cookies().set('sessionid', sessionid, {
+      domain: 'crow.moe', // TODO: or "crows.local" for local development
+      path: '/',
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
       secure: true,
       httpOnly: true,
-      sameSite: "none", // TODO: check, after combine frontend and backend
+      sameSite: 'none', // TODO: check, after combine frontend and backend
     });
   }
 
@@ -95,11 +82,7 @@ export class Service {
     return ballot;
   }
 
-  async putBallot(
-    year: number,
-    department: Department,
-    rankings: RankedWorkName[],
-  ): Promise<Ballot> {
+  async putBallot(year: number, department: Department, rankings: RankedWorkName[]): Promise<Ballot> {
     const y = await this.year.getInStage(year, Stage.Voting);
     y.validateDepartment(department);
     const voter = await this.getLoggedVoter(year);

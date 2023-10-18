@@ -1,28 +1,21 @@
-import {
-  Department,
-  RankedWork,
-  RankedWorkName,
-  Stage,
-  Work,
-  isWork,
-} from "@service/value";
-import { NoDepartmentError, WorkNotFoundError } from "@service/errors";
+import { Department, RankedWork, RankedWorkName, Stage, Work, isWork } from '@service/value';
+import { NoDepartmentError, WorkNotFoundError } from '@service/errors';
 
 export class Year {
   constructor(
     public year: number,
     public departments: Department[],
-    public nomination_start_at: Date,
-    public voting_start_at: Date,
-    public award_start_at: Date,
+    public nominationStartAt: Date,
+    public votingStartAt: Date,
+    public awardStartAt: Date,
   ) {}
 
   stageAt(time: Date): Stage {
-    if (time < this.nomination_start_at) {
+    if (time < this.nominationStartAt) {
       return Stage.Preparation;
-    } else if (time < this.voting_start_at) {
+    } else if (time < this.votingStartAt) {
       return Stage.Nomination;
-    } else if (time < this.award_start_at) {
+    } else if (time < this.awardStartAt) {
       return Stage.Voting;
     } else {
       return Stage.Award;
@@ -55,14 +48,7 @@ export class WorksSet {
 }
 
 export class Voter {
-  constructor(
-    public name: string,
-    private pinCode: string,
-  ) {}
-
-  validatePinCode(pinCode: string): boolean {
-    return this.pinCode === pinCode;
-  }
+  constructor(public name: string) {}
 }
 
 export interface BallotInput {
@@ -81,9 +67,7 @@ export class Ballot {
 
   constructor(input: BallotInput) {
     this.rankings = input.rankings.map((rankedWorkName) => {
-      const work = input.worksSet.works.find(
-        (work) => work.name === rankedWorkName.workName,
-      );
+      const work = input.worksSet.works.find((work) => work.name === rankedWorkName.workName);
       if (!work) {
         throw WorkNotFoundError(rankedWorkName.workName);
       }

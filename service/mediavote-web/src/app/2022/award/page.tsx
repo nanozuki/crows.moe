@@ -19,10 +19,7 @@ function GrandPrize({ dept, award }: GrandPrizeProps) {
     <div className="flex flex-col gap-y-2">
       <Text>{dept.title}部门</Text>
       {items.map((item) => [
-        <p
-          key={`${item.work.name}-name`}
-          className="font-serif font-extrabold text-3xl"
-        >
+        <p key={`${item.work.name}-name`} className="font-serif font-extrabold text-3xl">
           {item.work.name}
         </p>,
         <p key={`${item.work.name}-origin`} className="text-subtle text-sm">
@@ -74,21 +71,13 @@ export default async function Page() {
       <div className="mt-8 mb-8 flex flex-col gap-y-8">
         <Head1>大赏</Head1>
         {departments.map((dept) => (
-          <GrandPrize
-            key={dept.dept}
-            dept={dept}
-            award={awardsByDept.get(dept.dept) as Award}
-          />
+          <GrandPrize key={dept.dept} dept={dept} award={awardsByDept.get(dept.dept) as Award} />
         ))}
       </div>
       <div className="mt-8 mb-8 flex flex-col gap-y-4">
         <Head2>详情</Head2>
         {departments.map((dept) => (
-          <Prize
-            key={dept.dept}
-            dept={dept}
-            award={awardsByDept.get(dept.dept) as Award}
-          />
+          <Prize key={dept.dept} dept={dept} award={awardsByDept.get(dept.dept) as Award} />
         ))}
       </div>
     </div>

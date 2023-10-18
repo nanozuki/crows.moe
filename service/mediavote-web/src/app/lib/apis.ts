@@ -1,13 +1,4 @@
-import {
-  Department,
-  DepartmentName,
-  Year,
-  Work,
-  ErrorResponse,
-  NewVoter,
-  Ballot,
-  Award,
-} from './models';
+import { Department, DepartmentName, Year, Work, ErrorResponse, NewVoter, Ballot, Award } from './models';
 
 function url(op: string): string {
   const prefix =
@@ -17,10 +8,7 @@ function url(op: string): string {
   return prefix + op;
 }
 
-async function call<T>(
-  input: RequestInfo | URL,
-  init?: RequestInit
-): Promise<T> {
+async function call<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
   const opt = init || {};
   opt.credentials = 'include';
   const response = await fetch(input, opt);
@@ -61,19 +49,14 @@ export async function getAwards(year: number): Promise<Award[]> {
   return res.awards;
 }
 
-export async function getNominations(
-  deptName: DepartmentName
-): Promise<Work[]> {
+export async function getNominations(deptName: DepartmentName): Promise<Work[]> {
   const res: Department = await call(url(`/nominations/${deptName}`), {
     cache: 'no-store',
   });
   return res.works || [];
 }
 
-export async function addNomination(arg: {
-  deptName: DepartmentName;
-  workName: string;
-}): Promise<Work[]> {
+export async function addNomination(arg: { deptName: DepartmentName; workName: string }): Promise<Work[]> {
   const res: Department = await call(url(`/nominations/${arg.deptName}`), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -83,9 +66,7 @@ export async function addNomination(arg: {
   return res.works || [];
 }
 
-export async function getVoterName(arg: {
-  sessionid?: string;
-}): Promise<string | undefined> {
+export async function getVoterName(arg: { sessionid?: string }): Promise<string | undefined> {
   const opt: RequestInit = { cache: 'no-store' };
   if (arg.sessionid) {
     opt.headers = { Cookie: `sessionid=${arg.sessionid}` };
@@ -104,10 +85,7 @@ export async function newVoter(name: string): Promise<NewVoter> {
   return res;
 }
 
-export async function loginVoter(arg: {
-  name: string;
-  pin: string;
-}): Promise<void> {
+export async function loginVoter(arg: { name: string; pin: string }): Promise<void> {
   await call<{}>(url('/sessions'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -116,11 +94,7 @@ export async function loginVoter(arg: {
   });
 }
 
-export async function updateBallot(arg: {
-  dept: DepartmentName;
-  ballot: Ballot;
-  sessionid?: string;
-}): Promise<Ballot> {
+export async function updateBallot(arg: { dept: DepartmentName; ballot: Ballot; sessionid?: string }): Promise<Ballot> {
   const opt: RequestInit = {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -134,10 +108,7 @@ export async function updateBallot(arg: {
   return res;
 }
 
-export async function getBallot(arg: {
-  dept: DepartmentName;
-  sessionid?: string;
-}): Promise<Ballot> {
+export async function getBallot(arg: { dept: DepartmentName; sessionid?: string }): Promise<Ballot> {
   const opt: RequestInit = { cache: 'no-store' };
   if (arg.sessionid) {
     opt.headers = { Cookie: `sessionid=${arg.sessionid}` };

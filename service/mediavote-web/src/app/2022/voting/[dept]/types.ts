@@ -10,14 +10,9 @@ export interface BallotItem {
   work: Work;
 }
 
-export function makeBallotItems(
-  nominations: Work[],
-  ballot: Ballot
-): BallotItem[] {
+export function makeBallotItems(nominations: Work[], ballot: Ballot): BallotItem[] {
   const items: BallotItem[] = nominations.map((work) => {
-    const rankingItem = ballot.rankings?.find(
-      (item) => item.work_name === work.name
-    );
+    const rankingItem = ballot.rankings?.find((item) => item.work_name === work.name);
     if (rankingItem) {
       return { ranking: rankingItem.ranking, work };
     } else {

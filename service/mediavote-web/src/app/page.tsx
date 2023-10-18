@@ -22,21 +22,9 @@ export default async function Home() {
   const years = await getYears();
   const yearInfos = await Promise.all(years.map(getYearInfo));
   const items = yearInfos.map((yearInfo) => (
-    <AnnualItem
-      key={yearInfo.year}
-      year={yearInfo.year}
-      to={yearInfo.redirectTo}
-      stage={yearInfo.stageName}
-    />
+    <AnnualItem key={yearInfo.year} year={yearInfo.year} to={yearInfo.redirectTo} stage={yearInfo.stageName} />
   ));
-  items.push(
-    <AnnualItem
-      key={2021}
-      year={2021}
-      to={'https://vote2021.crows.moe'}
-      stage="获奖作品"
-    />
-  );
+  items.push(<AnnualItem key={2021} year={2021} to={'https://vote2021.crows.moe'} stage="获奖作品" />);
   return [<Title key="title" to="/" />, <main key="main">{items}</main>];
 }
 

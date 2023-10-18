@@ -10,11 +10,7 @@ interface BallotViewerProps {
   setSheetState: (state: SheetState) => void;
 }
 
-export default function BallotViewer({
-  className,
-  items,
-  setSheetState,
-}: BallotViewerProps) {
+export default function BallotViewer({ className, items, setSheetState }: BallotViewerProps) {
   const handleClick = () => {
     setSheetState(SheetState.Editing);
   };
@@ -33,12 +29,7 @@ export default function BallotViewer({
         ])}
       </div>
       <div className="w-full flex flex-row justify-end">
-        <Button
-          className="w-full mid:max-w-[20rem]"
-          variant="secondary"
-          onClick={handleClick}
-          type="button"
-        >
+        <Button className="w-full mid:max-w-[20rem]" variant="secondary" onClick={handleClick} type="button">
           编辑
         </Button>
       </div>

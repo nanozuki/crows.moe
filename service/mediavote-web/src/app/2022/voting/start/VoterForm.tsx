@@ -15,13 +15,10 @@ interface NewVoteSectionProps {
 
 function NewVoterForm({ setPinCode }: NewVoteSectionProps) {
   const [voter, setVoter] = useState('');
-  const [fetching, error, trigger] = useMutation(
-    newVoter,
-    (newVoter: NewVoter) => {
-      setVoter('');
-      setPinCode(newVoter.pin_code);
-    }
-  );
+  const [fetching, error, trigger] = useMutation(newVoter, (newVoter: NewVoter) => {
+    setVoter('');
+    setPinCode(newVoter.pin_code);
+  });
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     await trigger(voter);
@@ -72,12 +69,7 @@ function LoginForm({ next }: LoginFormProps) {
           onChange={setVoter}
           errorMessage={error && error.message}
         />
-        <Input
-          className="mt-1 mb-1"
-          label="PIN Code"
-          value={pin}
-          onChange={setPin}
-        />
+        <Input className="mt-1 mb-1" label="PIN Code" value={pin} onChange={setPin} />
       </div>
       <Button variant="primary" disabled={fetching} type="submit">
         确定
@@ -107,12 +99,7 @@ function PinCodeDialog({ pinCode, next }: PinCodeDialogProps) {
       <div className="w-full mid:max-w-[20rem] bg-overlay rounded py-6 text-center">
         <div className="text-2xl">{pinCode}</div>
       </div>
-      <Button
-        className="w-full mid:max-w-[20rem]"
-        variant="primary"
-        onClick={handleClick}
-        type="submit"
-      >
+      <Button className="w-full mid:max-w-[20rem]" variant="primary" onClick={handleClick} type="submit">
         确定
       </Button>
     </div>

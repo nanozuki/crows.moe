@@ -17,8 +17,7 @@ interface InputProps {
 export default function Input(props: InputProps) {
   let { label } = props;
   let ref = useRef<HTMLInputElement>(null);
-  let { labelProps, inputProps, descriptionProps, errorMessageProps } =
-    useTextField(props, ref);
+  let { labelProps, inputProps, descriptionProps, errorMessageProps } = useTextField(props, ref);
 
   return (
     <div className={`${props.className || ''}`}>

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 export function useMutation<Arg, Res>(
   fetcher: (arg: Arg) => Promise<Res>,
-  onSuccess: (res: Res) => void
+  onSuccess: (res: Res) => void,
 ): [boolean, Error | undefined, (arg: Arg) => Promise<void>] {
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState<Error | undefined>(undefined);
@@ -25,7 +25,7 @@ export function useMutation<Arg, Res>(
 
 export function useQuery<Arg, Res>(
   fetcher: (arg: Arg) => Promise<Res>,
-  arg: Arg
+  arg: Arg,
 ): [Res | undefined, boolean, Error | undefined] {
   const [data, setData] = useState<Res | undefined>(undefined);
   const [loading, setLoading] = useState(true);

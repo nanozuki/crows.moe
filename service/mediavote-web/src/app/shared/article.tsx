@@ -41,11 +41,7 @@ interface Head1Props {
 }
 
 export function Head1({ className, children }: Head1Props) {
-  return (
-    <p className={`font-serif font-bold text-2xl ${className || ''}`}>
-      {children}
-    </p>
-  );
+  return <p className={`font-serif font-bold text-2xl ${className || ''}`}>{children}</p>;
 }
 
 interface Head2Props {
@@ -54,11 +50,7 @@ interface Head2Props {
 }
 
 export function Head2({ className, children }: Head2Props) {
-  return (
-    <p className={`font-serif font-bold text-xl ${className || ''}`}>
-      {children}
-    </p>
-  );
+  return <p className={`font-serif font-bold text-xl ${className || ''}`}>{children}</p>;
 }
 
 export function multiLine(...lines: string[]): string {

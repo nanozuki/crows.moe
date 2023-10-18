@@ -29,7 +29,7 @@ export default async function Page({ params }: NominationPageProps) {
         <Text>
           {multiLine(
             '提名所有观赏或体验过的、满足范围限定的作品。在提名阶段被提名的作品，将在投票阶段进行最终的投票和排序。',
-            '提名阶段，可以随时打开这个页面检查和提交。'
+            '提名阶段，可以随时打开这个页面检查和提交。',
           )}
         </Text>
       </div>

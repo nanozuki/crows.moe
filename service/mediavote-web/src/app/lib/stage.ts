@@ -61,31 +61,21 @@ function getStageName(stage: Stage): string {
 
 function formatDate(timestamp: number): string {
   const date = new Date(timestamp);
-  return `${date.getFullYear()}-${
-    date.getMonth() + 1
-  }-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
 }
 
 function getStageTimeRange(year: Year, stage: Stage): string {
   switch (stage) {
     case Stage.Nomination:
-      return `${formatDate(year.nomination_start_at)} - ${formatDate(
-        year.voting_start_at
-      )}`;
+      return `${formatDate(year.nomination_start_at)} - ${formatDate(year.voting_start_at)}`;
     case Stage.Voting:
-      return `${formatDate(year.voting_start_at)} - ${formatDate(
-        year.award_start_at
-      )}`;
+      return `${formatDate(year.voting_start_at)} - ${formatDate(year.award_start_at)}`;
     default:
       return '';
   }
 }
 
-async function getRedirectUrlByStage(
-  year: Year,
-  stage: Stage,
-  voter?: string
-): Promise<string> {
+async function getRedirectUrlByStage(year: Year, stage: Stage, voter?: string): Promise<string> {
   if (stage === Stage.Nomination) {
     return `/${year.year}/nomination/${DepartmentName.Anime}`;
   } else if (stage === Stage.Voting) {
