@@ -29,4 +29,11 @@ async function make_service(): Promise<Service> {
   return service;
 }
 
-export const service = make_service();
+let _service: Promise<Service> | null = null;
+
+export const service = await (async () => {
+  if (!_service) {
+    _service = make_service();
+  }
+  return _service;
+})();

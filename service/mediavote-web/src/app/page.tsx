@@ -2,6 +2,7 @@ import Title from '@app/shared/Title';
 import ToNextButton from '@app/shared/ToNextButton';
 import { getYears } from './lib/apis';
 import { getYearInfo } from './lib/stage';
+import { service } from '@service/init';
 
 interface AnnualItemProps {
   year: number;
