@@ -1,4 +1,4 @@
-import { Firestore } from '@google-cloud/firestore';
+import { Firestore, Timestamp } from '@google-cloud/firestore';
 import {
   AwardRepository,
   BallotRepository,
@@ -14,6 +14,7 @@ import {
   DepartmentDoc,
   SessionDoc,
   VoterDoc,
+  WorkDoc,
   YearDoc,
   awardDocFromEntity,
   awardDocToEntity,
@@ -24,7 +25,7 @@ import {
   setOne,
   yearDocToEntity,
 } from './doc';
-import { Department } from '@service/value';
+import { Department, Stage } from '@service/value';
 
 /* collections:
 mediavote_years: store yearly time infos
@@ -188,5 +189,84 @@ export class AwardRepositoryImpl implements AwardRepository {
       ],
       doc,
     );
+  }
+}
+
+export async function generateDevData(db: Firestore): Promise<void> {
+  const now = Timestamp.now();
+  const currentYear = now.toDate().getFullYear();
+  const years = [currentYear, currentYear - 1, currentYear - 2];
+  const departments = [Department.Anime, Department.MangaAndNovel, Department.Game];
+  const devStage = process.env.MEDIAVOTE_DEV_STAGE as Stage;
+  for (const y of years) {
+    const year = {
+      year: y,
+      nomination_start_at: Timestamp.fromDate(new Date(y, 12, 1)),
+      voting_start_at: Timestamp.fromDate(new Date(y, 12, 15)),
+      award_start_at: Timestamp.fromDate(new Date(y, 12, 31)),
+      departments,
+    };
+    if (y === currentYear) {
+      switch (devStage) {
+        case Stage.Nomination:
+          year.nomination_start_at = new Timestamp(now.seconds - 86400 * 7, 0);
+          year.voting_start_at = new Timestamp(now.seconds + 86400 * 7, 0);
+          year.award_start_at = new Timestamp(now.seconds + 86400 * 14, 0);
+          break;
+        case Stage.Voting:
+          year.nomination_start_at = new Timestamp(now.seconds - 86400 * 14, 0);
+          year.voting_start_at = new Timestamp(now.seconds - 86400 * 7, 0);
+          year.award_start_at = new Timestamp(now.seconds + 86400 * 7, 0);
+          break;
+        case Stage.Award:
+          year.nomination_start_at = new Timestamp(now.seconds - 86400 * 21, 0);
+          year.voting_start_at = new Timestamp(now.seconds - 86400 * 14, 0);
+          year.award_start_at = new Timestamp(now.seconds - 86400 * 7, 0);
+          break;
+        default:
+          throw new Error(`Invalid dev stage: ${devStage}`);
+      }
+    }
+    await setOne<YearDoc>(db, [[colYear, currentYear.toString()]], year);
+    if ((y === currentYear && devStage === Stage.Nomination) || devStage === Stage.Voting) {
+      for (const dept of departments) {
+        const works: WorkDoc[] = [];
+        for (let i = 0; i < 10; i++) {
+          works.push({
+            name: chineseLipsum(),
+            origin_name: dept === Department.Game ? englishLipsum() : japaneseLipsum(),
+            alias: [chineseLipsum()],
+          });
+        }
+        await setOne<DepartmentDoc>(
+          db,
+          [
+            [colYear, y.toString()],
+            [colDepartment, dept],
+          ],
+          { dept, works },
+        );
+      }
+    } else {
+      for (const dept of departments) {
+        const works: WorkDoc[] = [];
+        for (let i = 0; i < 10; i++) {
+          works.push({
+            name: chineseLipsum(),
+            origin_name: dept === Department.Game ? englishLipsum() : japaneseLipsum(),
+            alias: [chineseLipsum()],
+          });
+        }
+        const rankings = works.map((work, i) => ({ ranking: i + 1, work }));
+        await setOne<AwardDoc>(
+          db,
+          [
+            [colYear, y.toString()],
+            [colAward, dept],
+          ],
+          { dept, rankings },
+        );
+      }
+    }
   }
 }

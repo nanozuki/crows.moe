@@ -6,13 +6,14 @@ import {
   VoterRepositoryImpl,
   WorksSetRepositoryImpl,
   YearRepositoryImpl,
-} from './data/repository';
-import { AwardUseCase, BallotUseCase, VoterUseCase, WorksSetUseCase, YearUseCase } from './use_case';
-import { Calculator } from './calculator';
+  generateDevData,
+} from '@service/data/repository';
+import { AwardUseCase, BallotUseCase, VoterUseCase, WorksSetUseCase, YearUseCase } from '@service/use_case';
+import { Calculator } from '@service/calculator';
 
 const projectId = 'crows-moe';
 
-function make_service(): Service {
+async function make_service(): Promise<Service> {
   const db = new Firestore({ projectId });
   const calculator = new Calculator();
   const service = new Service(
@@ -22,6 +23,9 @@ function make_service(): Service {
     new BallotUseCase(new BallotRepositoryImpl(db)),
     new AwardUseCase(new AwardRepositoryImpl(db), calculator),
   );
+  if (process.env.NODE_ENV === 'development') {
+    await generateDevData(db);
+  }
   return service;
 }
 
