@@ -1,31 +1,31 @@
 import { v4 as uuidV4 } from 'uuid';
-import { Award, Ballot, BallotInput, Voter, WorksSet, Year } from '@service/entity';
+import { Award, Ballot, BallotInput, Voter, WorksSet, Ceremony } from '@service/entity';
 import { Department, RankedWork, Stage } from '@service/value';
 import { NotInStageError } from '@service/errors';
 
-export interface YearRepository {
-  find(year: number): Promise<Year>;
-  findAll(): Promise<Year[]>;
+export interface CeremonyRepository {
+  find(year: number): Promise<Ceremony>;
+  findAll(): Promise<Ceremony[]>;
 }
 
-export class YearUseCase {
-  constructor(private yearRepository: YearRepository) {}
+export class CeremonyUseCase {
+  constructor(private repo: CeremonyRepository) {}
 
-  async find(year: number): Promise<Year> {
-    return this.yearRepository.find(year);
+  async find(year: number): Promise<Ceremony> {
+    return this.repo.find(year);
   }
 
-  async current(): Promise<Year> {
-    const years = await this.yearRepository.findAll();
+  async current(): Promise<Ceremony> {
+    const years = await this.repo.findAll();
     return years[0];
   }
 
-  async findAll(): Promise<Year[]> {
-    return this.yearRepository.findAll();
+  async findAll(): Promise<Ceremony[]> {
+    return this.repo.findAll();
   }
 
-  async getInStage(year: number, stage: Stage): Promise<Year> {
-    const y = await this.yearRepository.find(year);
+  async getInStage(year: number, stage: Stage): Promise<Ceremony> {
+    const y = await this.repo.find(year);
     if (y.stageAt(new Date()) !== stage) {
       throw NotInStageError(stage);
     }

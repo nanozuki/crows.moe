@@ -14,7 +14,7 @@ interface NominationPageProps {
 
 export default async function Page({ params }: NominationPageProps) {
   const { year, dept } = params;
-  const y = await service.getYear(year);
+  const y = await service.getCeremony(year);
   const view = makeYearView(y);
   if (view.stage !== Stage.Nomination) {
     redirect(view.defaultPage as string);

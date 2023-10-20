@@ -2,7 +2,7 @@ import ToNextButton from '@app/shared/ToNextButton';
 import ToPrevButton from '@app/shared/ToPrevButton';
 import { ReactElement } from 'react';
 import { Department, Stage, departmentTitle } from '@service/value';
-import { Year } from '@service/entity';
+import { Ceremony } from '@service/entity';
 
 interface ToPrevDPProps {
   year: number;
@@ -42,7 +42,7 @@ function ToNextDP({ year, next, stage, tail, className }: ToNextDPProps) {
 }
 
 interface DeptNavProps {
-  year: Year;
+  year: Ceremony;
   department: Department;
   stage: Stage;
   head?: ReactElement;

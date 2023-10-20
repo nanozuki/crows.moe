@@ -19,11 +19,11 @@ function AnnualItem({ year, to, stage: state }: AnnualItemProps) {
 }
 
 export default async function Home() {
-  const years = await service.getYears();
-  const voter = await service.getLoggedVoter(years[0].year);
-  const views = years.map((year) => {
-    const v = year.year === years[0].year ? voter : undefined;
-    return makeYearView(year, v);
+  const ceremonies = await service.getCeremonies();
+  const voter = await service.getLoggedVoter();
+  const views = ceremonies.map((c) => {
+    const v = c.year === ceremonies[0].year ? voter : undefined;
+    return makeYearView(c, v);
   });
   const items = views.map((view) => (
     <AnnualItem key={view.year} year={view.year} to={view.defaultPage} stage={view.stageCNString} />

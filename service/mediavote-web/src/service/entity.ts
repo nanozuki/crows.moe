@@ -4,7 +4,8 @@ import { NoDepartmentError, WorkNotFoundError } from '@service/errors';
 const dataString = (date: Date): string =>
   `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
 
-export class Year {
+// Ceremony store the ceremony information of a year
+export class Ceremony {
   constructor(
     public year: number,
     public departments: Department[],

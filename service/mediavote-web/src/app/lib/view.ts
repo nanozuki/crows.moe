@@ -1,4 +1,4 @@
-import { Voter, Year } from '@service/entity';
+import { Voter, Ceremony } from '@service/entity';
 import { Stage, stageCNString } from '@service/value';
 
 export interface YearView {
@@ -12,7 +12,7 @@ export interface YearView {
 const dataString = (date: Date): string =>
   `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
 
-export function makeYearView(y: Year, voter?: Voter): YearView {
+export function makeYearView(y: Ceremony, voter?: Voter): YearView {
   const stage = y.stageAt(new Date());
   const view: YearView = {
     year: y.year,

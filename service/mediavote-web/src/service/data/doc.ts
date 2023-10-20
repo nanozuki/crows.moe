@@ -1,5 +1,5 @@
 import { Firestore, DocumentData, QueryDocumentSnapshot, Timestamp } from '@google-cloud/firestore';
-import { Award, WorksSet, Year } from '@service/entity';
+import { Award, WorksSet, Ceremony } from '@service/entity';
 import { NotFoundError } from '@service/errors';
 import { Department } from '@service/value';
 
@@ -58,8 +58,8 @@ export interface YearDoc {
   departments: string[];
 }
 
-export function yearDocToEntity(doc: YearDoc): Year {
-  return new Year(
+export function yearDocToEntity(doc: YearDoc): Ceremony {
+  return new Ceremony(
     doc.year,
     doc.departments.map((dept) => dept as Department),
     doc.nomination_start_at.toDate(),
