@@ -6,7 +6,7 @@
 //    So, random number from 0 to 10752, then convert to charactor
 // length range:
 //    2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 7, 8, 9, 10
-function chineseLipsum(): string {
+export function chineseLipsum(): string {
   const wordLength = [2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 8, 9, 10];
   const length = wordLength[Math.floor(Math.random() * wordLength.length)];
   const charactors = [
@@ -34,7 +34,7 @@ function chineseLipsum(): string {
   return chars.join('');
 }
 
-function japaneseLipsum(): string {
+export function japaneseLipsum(): string {
   const wordLength = [2, 2, 3, 3, 3, 4, 4, 4, 5, 5];
   const length = wordLength[Math.floor(Math.random() * wordLength.length)];
   const charactors = [
@@ -56,7 +56,7 @@ function japaneseLipsum(): string {
   return chars.join('');
 }
 
-function englishLipsum(): string {
+export function englishLipsum(): string {
   const wordsCountTable = [1, 1, 1, 1, 2, 2, 2, 3];
   const wordLengthTable = [3, 4, 5, 6, 7, 8];
   const charsTable = 'abcdefghijklmnopqrstuvwxyz';

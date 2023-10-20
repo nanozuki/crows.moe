@@ -14,6 +14,7 @@ export const converter = <T extends DocumentData>() => ({
 export type PathPair = [string, string];
 
 export async function getOne<T extends DocumentData>(db: Firestore, path: PathPair[]): Promise<T> {
+  console.log(`get one at ${path.map((pair) => pair.join('.')).join('/')}`);
   let ref;
   for (const [collection, id] of path) {
     ref = (ref || db).collection(collection).doc(id);
@@ -31,15 +32,17 @@ export async function getAll<T extends DocumentData>(
   path: PathPair[],
   collection: string,
 ): Promise<T[]> {
+  console.log(`get all at ${path.map((pair) => pair.join('.')).join('/')}.${collection}`);
   let ref;
   for (const [collection, id] of path) {
     ref = (ref || db).collection(collection).doc(id);
   }
-  const snapshot = await ref!.collection(collection).withConverter(converter<T>()).get();
+  const snapshot = await (ref || db).collection(collection).withConverter(converter<T>()).get();
   return snapshot.docs.map((doc) => doc.data() as T);
 }
 
 export async function setOne<T extends DocumentData>(db: Firestore, path: PathPair[], data: T): Promise<void> {
+  console.log(`set '${data}' at ${path.map((pair) => pair.join('.')).join('/')}`);
   let ref;
   for (const [collection, id] of path) {
     ref = (ref || db).collection(collection).doc(id);

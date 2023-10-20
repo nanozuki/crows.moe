@@ -1,6 +1,6 @@
 'use client';
 
-import NomItem from '@app/2022/nomination/[dept]/NomItem';
+import NomItem from '@app/[year]/nomination/[dept]/NomItem';
 import Button from '@app/shared/Button';
 import { BallotItem, SheetState } from './types';
 

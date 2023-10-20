@@ -1,9 +1,10 @@
-export type ErrorCode =
-  | 'BAD_REQUEST' // 400
-  | 'NOT_FOUND' // 404
-  | 'UNAUTHORIZED' // 401
-  | 'FORBIDDEN' // 403
-  | 'INTERNAL_SERVER_ERROR'; // 500
+export const enum ErrorCode {
+  BadRequest = 'BAD_REQUEST', // 400
+  NotFound = 'NOT_FOUND', // 404
+  Unauthorized = 'UNAUTHORIZED', // 401
+  Forbidden = 'FORBIDDEN', // 403
+  InternalServerError = 'INTERNAL_SERVER_ERROR', // 500
+}
 
 export class Terror extends Error {
   code: ErrorCode;
@@ -13,35 +14,39 @@ export class Terror extends Error {
     this.code = code;
   }
 
-  handleError(error: unknown): Terror {
+  static handleError(error: unknown): Terror {
     if (error instanceof Terror) {
       return error;
     } else {
-      return new Terror('INTERNAL_SERVER_ERROR', `Unexpected Internal Error: ${error}`);
+      return new Terror(ErrorCode.InternalServerError, `Unexpected Internal Error: ${error}`);
     }
   }
 }
 
 export function NoDepartmentError(department: string) {
-  return new Terror('NOT_FOUND', `No such department: ${department}`);
+  return new Terror(ErrorCode.NotFound, `No such department: ${department}`);
 }
 
 export function NotInStageError(stage: string) {
-  return new Terror('FORBIDDEN', `This page is not available during the ${stage} stage`);
+  return new Terror(ErrorCode.Forbidden, `This page is not available during the ${stage} stage`);
 }
 
 export function NoSessionIDError() {
-  return new Terror('UNAUTHORIZED', 'No sessionid');
+  return new Terror(ErrorCode.Unauthorized, 'No sessionid');
 }
 
 export function InvalidPinCodeError() {
-  return new Terror('BAD_REQUEST', 'Invalid pin code');
+  return new Terror(ErrorCode.BadRequest, 'Invalid pin code');
 }
 
 export function WorkNotFoundError(name: string) {
-  return new Terror('NOT_FOUND', `No such work: ${name}`);
+  return new Terror(ErrorCode.NotFound, `No such work: ${name}`);
 }
 
 export function NotFoundError(path: string[]) {
-  return new Terror('NOT_FOUND', `Not found in ${path.join('.')}`);
+  return new Terror(ErrorCode.NotFound, `Not found in ${path.join('.')}`);
+}
+
+export function InternalError(message: string) {
+  return new Terror(ErrorCode.InternalServerError, message);
 }

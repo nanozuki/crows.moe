@@ -1,6 +1,9 @@
 import { Department, RankedWork, RankedWorkName, Stage, Work, isWork } from '@service/value';
 import { NoDepartmentError, WorkNotFoundError } from '@service/errors';
 
+const dataString = (date: Date): string =>
+  `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+
 export class Year {
   constructor(
     public year: number,
@@ -26,6 +29,14 @@ export class Year {
     if (!this.departments.includes(department)) {
       throw NoDepartmentError(department);
     }
+  }
+
+  nominationRange(): [string, string] {
+    return [dataString(this.nominationStartAt), dataString(this.votingStartAt)];
+  }
+
+  votingRange(): [string, string] {
+    return [dataString(this.votingStartAt), dataString(this.awardStartAt)];
   }
 }
 

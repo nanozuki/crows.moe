@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import NomItem from './NomItem';
 import PostForm from './PostForm';
-import { DepartmentName, Work } from '@app/lib/models';
+import { Work } from '@app/lib/models';
+import { Department } from '@service/value';
 
 interface NomListProps {
   className?: string;
   noms: Work[];
-  dept: DepartmentName;
+  dept: Department;
 }
 
 export default function NomList({ className, noms, dept }: NomListProps) {

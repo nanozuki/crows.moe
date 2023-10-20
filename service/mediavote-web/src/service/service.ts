@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { AwardUseCase, BallotUseCase, VoterUseCase, WorksSetUseCase, YearUseCase } from '@service/use_case';
 import { Award, Ballot, Voter, Year } from '@service/entity';
 import { Department, RankedWorkName, Stage, Work } from '@service/value';
-import { NoSessionIDError } from '@service/errors';
+import { ErrorCode, NoSessionIDError, Terror } from '@service/errors';
 
 export class Service {
   constructor(
@@ -36,7 +36,29 @@ export class Service {
     await this.worksSet.save(year, department, ws);
   }
 
-  async getLoggedVoter(year: number): Promise<Voter> {
+  async getLoggedVoter(year: number): Promise<Voter | undefined> {
+    const y = await this.year.find(year);
+    if (y.stageAt(new Date()) !== Stage.Voting) {
+      return undefined;
+    }
+    const sessionid = cookies().get('sessionid')?.value;
+    if (!sessionid) {
+      return undefined;
+    }
+    try {
+      const voter = await this.voter.ensureAuth(year, sessionid);
+      return voter;
+    } catch (e) {
+      const te = Terror.handleError(e);
+      if (te.code === ErrorCode.NotFound) {
+        return undefined;
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  async requireLoggedVoter(year: number): Promise<Voter> {
     await this.year.getInStage(year, Stage.Voting);
     const sessionid = cookies().get('sessionid')?.value;
     if (!sessionid) {
@@ -77,7 +99,7 @@ export class Service {
   async getBallot(year: number, department: Department): Promise<Ballot> {
     const y = await this.year.getInStage(year, Stage.Voting);
     y.validateDepartment(department);
-    const voter = await this.getLoggedVoter(year);
+    const voter = await this.requireLoggedVoter(year);
     const ballot = await this.ballot.getBallot(year, voter, department);
     return ballot;
   }
@@ -85,7 +107,7 @@ export class Service {
   async putBallot(year: number, department: Department, rankings: RankedWorkName[]): Promise<Ballot> {
     const y = await this.year.getInStage(year, Stage.Voting);
     y.validateDepartment(department);
-    const voter = await this.getLoggedVoter(year);
+    const voter = await this.requireLoggedVoter(year);
     const worksSet = await this.worksSet.get(year, department);
     const ballot = await this.ballot.putBallot({
       year,

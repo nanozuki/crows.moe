@@ -11,6 +11,7 @@ interface InputProps {
   placeholder?: string;
 
   onChange?: (value: string) => void;
+  field: string;
   value: string;
 }
 
@@ -21,26 +22,27 @@ export default function Input(props: InputProps) {
 
   return (
     <div className={`${props.className || ''}`}>
-      <label className="block text-subtle text-sm" {...labelProps}>
+      <label {...labelProps} className="block text-subtle text-sm" htmlFor={props.field} >
         {label}
       </label>
       {props.description && (
-        <div className="text-muted text-xs" {...descriptionProps}>
+        <div {...descriptionProps} className="text-muted text-xs">
           {props.description}
         </div>
       )}
       {props.errorMessage && (
-        <div className="text-love" {...errorMessageProps}>
+        <div {...errorMessageProps} className="text-love">
           {props.errorMessage}
         </div>
       )}
       <input
+        {...inputProps}
+        id={props.field}
         className={
           'block w-full h-10 mt-1 px-2 rounded bg-surface border-pine border-2 ' +
           'focus:border-rose focus-visible:border-rose outline-none shadow-none'
         }
         ref={ref}
-        {...inputProps}
       />
     </div>
   );

@@ -26,6 +26,7 @@ import {
   yearDocToEntity,
 } from './doc';
 import { Department, Stage } from '@service/value';
+import { chineseLipsum, englishLipsum, japaneseLipsum } from '@service/pkg/lipsum';
 
 /* collections:
 mediavote_years: store yearly time infos
@@ -53,7 +54,9 @@ export class YearRepositoryImpl implements YearRepository {
 
   async findAll(): Promise<Year[]> {
     const ys = await getAll<YearDoc>(this.db, [], colYear);
-    return ys.map(yearDocToEntity);
+    const years = ys.map(yearDocToEntity);
+    years.sort((a, b) => b.year - a.year);
+    return years;
   }
 }
 
@@ -227,7 +230,7 @@ export async function generateDevData(db: Firestore): Promise<void> {
           throw new Error(`Invalid dev stage: ${devStage}`);
       }
     }
-    await setOne<YearDoc>(db, [[colYear, currentYear.toString()]], year);
+    await setOne<YearDoc>(db, [[colYear, y.toString()]], year);
     if ((y === currentYear && devStage === Stage.Nomination) || devStage === Stage.Voting) {
       for (const dept of departments) {
         const works: WorkDoc[] = [];
