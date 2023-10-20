@@ -91,7 +91,7 @@ export class VoterRepositoryImpl implements VoterRepository {
       [colYear, year.toString()],
       [colSession, sessionID],
     ]);
-    return new Voter(doc.name);
+    return new Voter(doc.name, ''); // TODO: fix pin_code
   }
 
   async getByNameAndPin(year: number, name: string, pin: string): Promise<Voter> {
@@ -102,7 +102,7 @@ export class VoterRepositoryImpl implements VoterRepository {
     if (doc.pin_code !== pin) {
       throw InvalidPinCodeError();
     }
-    return new Voter(doc.name);
+    return new Voter(doc.name, doc.pin_code);
   }
 
   async createVoter(year: number, name: string, pin: string): Promise<Voter> {
@@ -114,7 +114,7 @@ export class VoterRepositoryImpl implements VoterRepository {
       ],
       { name, pin_code: pin },
     );
-    return new Voter(name);
+    return new Voter(name, pin);
   }
 
   async createSessionID(year: number, voter: Voter, sessionId: string): Promise<void> {

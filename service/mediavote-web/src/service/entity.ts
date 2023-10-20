@@ -59,7 +59,10 @@ export class WorksSet {
 }
 
 export class Voter {
-  constructor(public name: string) {}
+  constructor(
+    public name: string,
+    public pinCode: string,
+  ) {}
 }
 
 export interface BallotInput {

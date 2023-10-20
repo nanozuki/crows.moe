@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react';
 
-export function useMutation<Arg, Res>(
-  fetcher: (arg: Arg) => Promise<Res>,
+export function useMutation<Req, Res>(
+  fetcher: (req: Req) => Promise<Res>,
   onSuccess: (res: Res) => void,
-): [boolean, Error | undefined, (arg: Arg) => Promise<void>] {
+): [boolean, Error | undefined, (arg: Req) => Promise<void>] {
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState<Error | undefined>(undefined);
-  const trigger = async (arg: Arg) => {
+  const trigger = async (arg: Req) => {
     setFetching(true);
     setError(undefined);
     try {

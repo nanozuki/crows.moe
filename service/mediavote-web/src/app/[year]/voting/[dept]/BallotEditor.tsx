@@ -5,7 +5,7 @@ import { ChangeEvent, FormEvent } from 'react';
 import Button from '@app/shared/Button';
 import { BallotItem, makeBallot } from './types';
 import { useMutation } from '@app/shared/hooks';
-import { updateBallot } from '@app/lib/apis';
+import { editBallot } from '@app/lib/apis';
 import { Ballot, DepartmentName } from '@app/lib/models';
 
 interface BallotEditorProps {
@@ -17,7 +17,7 @@ interface BallotEditorProps {
 }
 
 export default function BallotEditor({ className, dept, items, setRanking, setToViewing }: BallotEditorProps) {
-  const [fetching, error, trigger] = useMutation(updateBallot, (_: Ballot) => {
+  const [fetching, error, trigger] = useMutation(editBallot, (_: Ballot) => {
     setToViewing();
   });
   const handleSubmit = async (e: FormEvent) => {

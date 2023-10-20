@@ -1,6 +1,6 @@
 'use client';
 
-import { loginVoter, newVoter } from '@app/lib/apis';
+import { loginVoter, voterSignUp } from '@app/lib/apis';
 import { useMutation } from '@app/shared/hooks';
 import { NewVoter } from '@app/lib/models';
 import { Head2, Text } from '@app/shared/article';
@@ -15,7 +15,7 @@ interface NewVoteSectionProps {
 
 function NewVoterForm({ setPinCode }: NewVoteSectionProps) {
   const [voter, setVoter] = useState('');
-  const [fetching, error, trigger] = useMutation(newVoter, (newVoter: NewVoter) => {
+  const [fetching, error, trigger] = useMutation(voterSignUp, (newVoter: NewVoter) => {
     setVoter('');
     setPinCode(newVoter.pin_code);
   });

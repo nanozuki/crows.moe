@@ -3,26 +3,31 @@ import TabLine from '@app/shared/TabLine';
 import Title from '@app/shared/Title';
 import NomList from './NomList';
 import DeptNav from '@app/shared/DeptNav';
-import { Year } from "@service/entity";
-import { Department, departmentInfo } from "@service/value";
+import { Department, Stage, departmentInfo } from "@service/value";
 import { service } from '@service/init';
+import { makeYearView } from '@app/lib/view';
+import { redirect } from 'next/navigation';
 
 interface NominationPageProps {
-  params: { year: Year, dept: Department };
+  params: { year: number, dept: Department };
 }
 
 export default async function Page({ params }: NominationPageProps) {
   const { year, dept } = params;
-  year.validateDepartment(dept);
-  const index = year.departments.indexOf(dept);
-  const info = departmentInfo(year.year)[dept];
-  const noms = service.getNominations(year.year, dept);
+  const y = await service.getYear(year);
+  const view = makeYearView(y);
+  if (view.stage !== Stage.Nomination) {
+    redirect(view.defaultPage as string);
+  }
+  const index = y.departments.indexOf(dept);
+  const info = departmentInfo(year)[dept];
+  const noms = await service.getNominations(year, dept);
   return (
     <div>
-      <Title year={year.year.toString()} to="/"></Title>
+      <Title year={year.toString()} to="/"></Title>
       <div className="mt-8 mb-8">
         <Head1>作品提名</Head1>
-        <SmallText>{year.nominationRange().join('-')}</SmallText>
+        <SmallText>{y.nominationRange().join('-')}</SmallText>
         <Text>
           {multiLine(
             '提名所有观赏或体验过的、满足范围限定的作品。在提名阶段被提名的作品，将在投票阶段进行最终的投票和排序。',
@@ -33,12 +38,12 @@ export default async function Page({ params }: NominationPageProps) {
       <TabLine page={index} className="mt-8 mb-8" />
       <div className="mt-8 mb-8">
         <Head1>
-          {index + 1}/{year.departments.length}: {info.title}部门
+          {index + 1}/{y.departments.length}: {info.title}部门
         </Head1>
         <Text>{info.introduction}</Text>
       </div>
-      <NomList className="mt-8 mb-8" dept={dept} noms={noms} />
-      <DeptNav dept={dept} stage={Stage.Nomination} className="mt-12 mb-4" />
+      <NomList className="mt-8 mb-8" year={year} dept={dept} noms={noms} />
+      <DeptNav year={y} department={dept} stage={Stage.Nomination} className="mt-12 mb-4" />
       <TabLine page={index} className="mt-4 mb-4" />
     </div>
   );

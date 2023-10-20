@@ -1,15 +1,15 @@
 import { InternalError } from './errors';
 
 export const enum Department {
-  Anime = 'Anime',
-  MangaAndNovel = 'MangaAndNovel',
-  Game = 'Game',
+  Anime = 'anime',
+  MangaAndNovel = 'manga-novel',
+  Game = 'game',
 
   // legacy category
-  TVAnime = 'TVAnime',
-  NonTVAnime = 'NonTVAnime',
-  Manga = 'Manga',
-  Novel = 'Novel',
+  TVAnime = 'tv-anime',
+  NonTVAnime = 'non-tv-anime',
+  Manga = 'manga',
+  Novel = 'novel',
 }
 
 export interface DepartmentInfo {

@@ -15,6 +15,11 @@ export class YearUseCase {
     return this.yearRepository.find(year);
   }
 
+  async current(): Promise<Year> {
+    const years = await this.yearRepository.findAll();
+    return years[0];
+  }
+
   async findAll(): Promise<Year[]> {
     return this.yearRepository.findAll();
   }

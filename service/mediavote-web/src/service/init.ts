@@ -14,7 +14,7 @@ import { Calculator } from '@service/calculator';
 const projectId = 'crows-moe';
 
 async function make_service(): Promise<Service> {
-  const db = new Firestore({ projectId });
+  const db = new Firestore({ projectId, ignoreUndefinedProperties: true });
   const calculator = new Calculator();
   const service = new Service(
     new YearUseCase(new YearRepositoryImpl(db)),
