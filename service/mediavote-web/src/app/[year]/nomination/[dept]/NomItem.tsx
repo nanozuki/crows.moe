@@ -1,11 +1,11 @@
-import { Work } from '@app/lib/models';
+import { Work } from '@service/value';
 
 export interface NomItemProps extends Work {
   className?: string;
 }
 
-export default function NomItem({ name, origin_name, alias, className }: NomItemProps) {
-  const subNames = [origin_name, ...(alias || [])];
+export default function NomItem({ name, originName, alias, className }: NomItemProps) {
+  const subNames = [originName, ...(alias || [])];
   return (
     <div
       className={`flex flex-col wide:flex-row items-start wide:items-center px-4 py-2 bg-overlay rounded ${

@@ -1,33 +1,34 @@
 import Title from '@app/shared/Title';
 import ToNextButton from '@app/shared/ToNextButton';
 import { service } from '@service/init';
-import { makeYearView } from './lib/view';
+import { Stage, stageCNString } from '@service/value';
+import { defaultRoute } from './lib/route';
 
 interface AnnualItemProps {
   year: number;
-  stage: string;
+  label: string;
   to?: string;
 }
 
-function AnnualItem({ year, to, stage: state }: AnnualItemProps) {
+function AnnualItem({ year, label, to }: AnnualItemProps) {
   return (
     <div className="flex flex-row items-center mt-4 mb-4">
       <p className="font-serif text-2xl font-bold w-24 mr-2">{year}年</p>
-      {to && <ToNextButton label={state} to={to} />}
+      {to && <ToNextButton label={label} to={to} />}
     </div>
   );
 }
 
 export default async function Home() {
   const ceremonies = await service.getCeremonies();
-  const voter = await service.getLoggedVoter();
-  const views = ceremonies.map((c) => {
-    const v = c.year === ceremonies[0].year ? voter : undefined;
-    return makeYearView(c, v);
+  const logged = (await service.getLoggedVoter()) !== undefined;
+  const now = new Date();
+  const items = ceremonies.map((c) => {
+    const stage = c.stageAt(now);
+    const to = stage !== Stage.Preparation ? defaultRoute(c, now, logged) : undefined;
+    const label = stageCNString(stage);
+    return <AnnualItem key={c.year} year={c.year} to={to} label={label} />;
   });
-  const items = views.map((view) => (
-    <AnnualItem key={view.year} year={view.year} to={view.defaultPage} stage={view.stageCNString} />
-  ));
   return [<Title key="title" to="/" />, <main key="main">{items}</main>];
 }
 

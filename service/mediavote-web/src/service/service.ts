@@ -21,10 +21,6 @@ export class Service {
     return this.ceremony.find(year);
   }
 
-  async getCurrentCeremony(): Promise<Ceremony> {
-    return this.ceremony.current();
-  }
-
   async getNominations(year: number, department: Department): Promise<Work[]> {
     const y = await this.ceremony.getInStage(year, Stage.Nomination);
     y.validateDepartment(department);
@@ -51,8 +47,7 @@ export class Service {
       return undefined;
     }
     try {
-      const voter = await this.voter.ensureAuth(y.year, sessionid);
-      return voter;
+      return await this.voter.ensureAuth(y.year, sessionid);
     } catch (e) {
       const te = Terror.handleError(e);
       if (te.code === ErrorCode.NotFound) {
@@ -70,8 +65,7 @@ export class Service {
     if (!sessionid) {
       throw NoSessionIDError();
     }
-    const voter = await this.voter.ensureAuth(y.year, sessionid);
-    return voter;
+    return await this.voter.ensureAuth(y.year, sessionid);
   }
 
   async signUpVoter(name: string): Promise<[Voter, string]> {
@@ -93,8 +87,7 @@ export class Service {
     const y = await this.ceremony.getInStage(year, Stage.Voting);
     y.validateDepartment(department);
     const voter = await this.requireLoggedVoter();
-    const ballot = await this.ballot.getBallot(year, voter, department);
-    return ballot;
+    return await this.ballot.getBallot(year, voter, department);
   }
 
   async editBallot(year: number, department: Department, rankings: RankedWorkName[]): Promise<Ballot> {
@@ -102,20 +95,18 @@ export class Service {
     y.validateDepartment(department);
     const voter = await this.requireLoggedVoter();
     const worksSet = await this.worksSet.get(year, department);
-    const ballot = await this.ballot.putBallot({
+    return await this.ballot.putBallot({
       year,
       voter,
       department,
       worksSet,
       rankings,
     });
-    return ballot;
   }
 
   async getAward(year: number, department: Department): Promise<Award> {
     const y = await this.ceremony.getInStage(year, Stage.Award);
     y.validateDepartment(department);
-    const award = await this.award.getAward(year, department);
-    return award;
+    return await this.award.getAward(year, department);
   }
 }

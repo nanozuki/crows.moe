@@ -1,8 +1,8 @@
 import { AddNominationsRequest, AddNominationsResponse } from '@app/api/nominations/add/route';
-import { ErrorResponse } from './models';
 import { SignUpRequest, SignUpResponse } from '@app/api/voters/signup/route';
 import { LoginRequest, LoginResponse } from '@app/api/voters/login/route';
 import { EditBallotRequest, EditBallotResponse } from '@app/api/ballots/edit/route';
+import { Terror } from '@service/errors';
 
 async function post<Req, Res>(endpoint: string, req: Req): Promise<Res> {
   const response = await fetch(endpoint, {
@@ -13,19 +13,10 @@ async function post<Req, Res>(endpoint: string, req: Req): Promise<Res> {
     cache: 'no-store',
   });
   if (!response.ok) {
-    const err: ErrorResponse = await response.json();
+    const err: Terror = await response.json(); // TODO: handle error
     throw Error(err.message ? `${err.code}: ${err.message}` : err.code);
   }
-  const res: Res = await response.json();
-  return res;
-}
-
-export interface APIOption {
-  method?: string;
-  headers?: Record<string, string>;
-  body?: BodyInit | null;
-  cache?: RequestCache;
-  next?: NextFetchRequestConfig | undefined;
+  return response.json();
 }
 
 export async function addNomination(arg: AddNominationsRequest): Promise<AddNominationsResponse> {

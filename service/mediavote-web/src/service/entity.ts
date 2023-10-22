@@ -39,23 +39,6 @@ export class Ceremony {
   votingRange(): [string, string] {
     return [dataString(this.votingStartAt), dataString(this.awardStartAt)];
   }
-
-  defaultPage(logged: boolean): string {
-    switch (this.stageAt(new Date())) {
-      case Stage.Nomination:
-        return `/${this.year}/nomination/${this.departments[0]}`;
-      case Stage.Voting:
-        if (logged) {
-          return `/${this.year}/voting/${this.departments[0]}`;
-        } else {
-          return `/${this.year}/voting/start`;
-        }
-      case Stage.Award:
-        return `/${this.year}/award/${this.departments[0]}`;
-      default:
-        return '/';
-    }
-  }
 }
 
 export class WorksSet {

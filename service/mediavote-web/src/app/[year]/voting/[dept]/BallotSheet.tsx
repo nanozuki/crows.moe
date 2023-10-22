@@ -1,20 +1,42 @@
 'use client';
 
-import { Work, Ballot, DepartmentName, Stage } from '@app/lib/models';
 import { ChangeEvent, useState } from 'react';
 import BallotViewer from './BallotViewer';
 import BallotEditor from './BallotEditor';
-import { SheetState, BallotItem, makeBallotItems, sortBallotItems } from './types';
 import DeptNav from '@app/shared/DeptNav';
-import { departments } from '@app/shared/Departments';
 import TabLine from '@app/shared/TabLine';
 import ToNextButton from '@app/shared/ToNextButton';
+import { Department, Stage, Work } from '@service/value';
+import { Ballot, Ceremony } from '@service/entity';
+import { Route } from '@app/lib/route';
 
-interface BallotTableProps {
-  className?: string;
-  dept: DepartmentName;
-  nominations: Work[];
-  ballot: Ballot;
+export const enum SheetState {
+  Editing = 'editing',
+  Viewing = 'viewing',
+}
+
+export interface BallotItem {
+  ranking?: number;
+  work: Work;
+}
+
+export function makeBallotItems(nominations: Work[], ballot: Ballot): BallotItem[] {
+  const items: BallotItem[] = nominations.map((work) => {
+    const rankingItem = ballot.rankings?.find((item) => item.work.name === work.name);
+    if (rankingItem) {
+      return { ranking: rankingItem.ranking, work };
+    } else {
+      return { work };
+    }
+  });
+  sortBallotItems(items);
+  return items;
+}
+
+export function sortBallotItems(items: BallotItem[]) {
+  items.sort((a, b) => {
+    return (a.ranking || Infinity) - (b.ranking || Infinity);
+  });
 }
 
 function useBallotState(
@@ -26,9 +48,9 @@ function useBallotState(
     return (e: ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       let ranking: number | undefined = undefined;
-      const rankingNumer = parseInt(value);
-      if (!isNaN(rankingNumer) && rankingNumer > 0) {
-        ranking = rankingNumer;
+      const rankingNumber = parseInt(value);
+      if (!isNaN(rankingNumber) && rankingNumber > 0) {
+        ranking = rankingNumber;
       }
       const newItems = [...items];
       newItems[index].ranking = ranking;
@@ -43,15 +65,24 @@ function useBallotState(
   return [items, setRanking, resortItems];
 }
 
-function ToThanksButton() {
-  return <ToNextButton to={`/2022/voting/thanks`} label="完成" />;
+function ToThanksButton(props: { ceremony: Ceremony }) {
+  const to = Route.Voting(props.ceremony, 'thanks');
+  return <ToNextButton to={to} label="完成" />;
+}
+
+interface BallotTableProps {
+  className?: string;
+  ceremony: Ceremony;
+  department: Department;
+  nominations: Work[];
+  ballot: Ballot;
 }
 
 export default function BallotSheet(props: BallotTableProps) {
   const initState = (props.ballot.rankings || []).length > 0 ? SheetState.Viewing : SheetState.Editing;
   const [sheetState, setSheetState] = useState<SheetState>(initState);
   const [items, setRanking, resortItems] = useBallotState(props.nominations, props.ballot);
-  const index = departments.findIndex((info) => info.dept === props.dept);
+  const index = props.ceremony.departments.indexOf(props.department);
   const setToViewing = () => {
     resortItems();
     setSheetState(SheetState.Viewing);
@@ -61,7 +92,8 @@ export default function BallotSheet(props: BallotTableProps) {
       {sheetState === SheetState.Editing ? (
         <BallotEditor
           className={props.className}
-          dept={props.dept}
+          year={props.ceremony.year}
+          department={props.department}
           items={items}
           setRanking={setRanking}
           setToViewing={setToViewing}
@@ -70,7 +102,13 @@ export default function BallotSheet(props: BallotTableProps) {
         <BallotViewer className={props.className} items={items} setSheetState={setSheetState} />
       )}
       {sheetState === SheetState.Viewing ? (
-        <DeptNav dept={props.dept} stage={Stage.Voting} tail={<ToThanksButton />} className="mt-12 mb-4" />
+        <DeptNav
+          ceremony={props.ceremony}
+          department={props.department}
+          stage={Stage.Voting}
+          tail={<ToThanksButton ceremony={props.ceremony} />}
+          className="mt-12 mb-4"
+        />
       ) : (
         <div className="mt-12 mb-4 h-10"></div>
       )}

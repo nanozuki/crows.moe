@@ -4,7 +4,7 @@ interface TabBarProps {
 }
 
 function TabBar({ className, state }: TabBarProps) {
-  var bg = 'bg-rose';
+  let bg = 'bg-rose';
   if (state === 'current') {
     bg = 'bg-love';
   } else if (state === 'not-viewed') {

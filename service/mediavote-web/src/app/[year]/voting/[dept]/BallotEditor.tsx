@@ -1,29 +1,42 @@
-'use client';
-
 import NomItem from '@app/[year]/nomination/[dept]/NomItem';
-import { ChangeEvent, FormEvent } from 'react';
-import Button from '@app/shared/Button';
-import { BallotItem, makeBallot } from './types';
-import { useMutation } from '@app/shared/hooks';
+import { EditBallotResponse } from '@app/api/ballots/edit/route';
 import { editBallot } from '@app/lib/apis';
-import { Ballot, DepartmentName } from '@app/lib/models';
+import Button from '@app/shared/Button';
+import { useMutation } from '@app/shared/hooks';
+import { Department } from '@service/value';
+import { ChangeEvent, FormEvent } from 'react';
+import { BallotItem } from './BallotSheet';
 
 interface BallotEditorProps {
   className?: string;
-  dept: DepartmentName;
+  year: number;
+  department: Department;
   items: BallotItem[];
   setRanking: (index: number) => (e: ChangeEvent<HTMLInputElement>) => void;
   setToViewing: () => void;
 }
 
-export default function BallotEditor({ className, dept, items, setRanking, setToViewing }: BallotEditorProps) {
-  const [fetching, error, trigger] = useMutation(editBallot, (_: Ballot) => {
+export default function BallotEditor({
+  className,
+  year,
+  department,
+  items,
+  setRanking,
+  setToViewing,
+}: BallotEditorProps) {
+  const [fetching, error, trigger] = useMutation(editBallot, (_: EditBallotResponse) => {
     setToViewing();
   });
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const ballot = makeBallot(items);
-    await trigger({ dept, ballot });
+    const rankings = items
+      .filter((item) => item.ranking)
+      .map((item) => ({
+        ranking: item.ranking as number,
+        workName: item.work.name,
+      }))
+      .sort((a, b) => a.ranking - b.ranking);
+    await trigger({ year, department, rankings });
   };
   return (
     <form className={`w-full flex flex-col gap-y-4 ${className || ''}`} onSubmit={handleSubmit}>

@@ -1,8 +1,6 @@
-'use client';
-
 import NomItem from '@app/[year]/nomination/[dept]/NomItem';
 import Button from '@app/shared/Button';
-import { BallotItem, SheetState } from './types';
+import { BallotItem, SheetState } from './BallotSheet';
 
 interface BallotViewerProps {
   className?: string;

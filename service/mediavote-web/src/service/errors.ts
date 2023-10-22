@@ -32,7 +32,7 @@ export function NotInStageError(stage: string) {
 }
 
 export function NoSessionIDError() {
-  return new Terror(ErrorCode.Unauthorized, 'No sessionid');
+  return new Terror(ErrorCode.Unauthorized, 'No session id');
 }
 
 export function InvalidPinCodeError() {

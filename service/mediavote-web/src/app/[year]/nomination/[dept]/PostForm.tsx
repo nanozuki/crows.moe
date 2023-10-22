@@ -36,7 +36,7 @@ export default function PostForm(props: PostFormProps) {
         className="w-full"
         label="作品名称"
         value={inputText}
-        field='workName'
+        field="workName"
         onChange={setInputText}
         errorMessage={error && error.message}
       />

@@ -22,7 +22,7 @@ export default function Input(props: InputProps) {
 
   return (
     <div className={`${props.className || ''}`}>
-      <label {...labelProps} className="block text-subtle text-sm" htmlFor={props.field} >
+      <label {...labelProps} className="block text-subtle text-sm" htmlFor={props.field}>
         {label}
       </label>
       {props.description && (

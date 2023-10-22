@@ -126,8 +126,6 @@ export const departmentInfo = (year: number): { [key in Department]: DepartmentI
   },
 });
 
-export const departmentCNString = {};
-
 export const enum Stage {
   Preparation = 'Preparation',
   Nomination = 'Nomination',

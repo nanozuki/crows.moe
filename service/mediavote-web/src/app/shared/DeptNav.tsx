@@ -42,7 +42,7 @@ function ToNextDP({ year, next, stage, tail, className }: ToNextDPProps) {
 }
 
 interface DeptNavProps {
-  year: Ceremony;
+  ceremony: Ceremony;
   department: Department;
   stage: Stage;
   head?: ReactElement;
@@ -50,14 +50,14 @@ interface DeptNavProps {
   className?: string;
 }
 
-export default function DeptNav({ year, department, stage, head, tail, className }: DeptNavProps) {
-  const index = year.departments.indexOf(department);
-  const prev = index === 0 ? undefined : year.departments[index - 1];
-  const next = index === year.departments.length - 1 ? undefined : year.departments[index + 1];
+export default function DeptNav({ ceremony, department, stage, head, tail, className }: DeptNavProps) {
+  const index = ceremony.departments.indexOf(department);
+  const prev = index === 0 ? undefined : ceremony.departments[index - 1];
+  const next = index === ceremony.departments.length - 1 ? undefined : ceremony.departments[index + 1];
   return (
     <div className={`flex flex-row justify-between ${className || ''}`}>
-      <ToPrevDP year={year.year} prev={prev} stage={stage} head={head} />
-      <ToNextDP year={year.year} next={next} stage={stage} tail={tail} />
+      <ToPrevDP year={ceremony.year} prev={prev} stage={stage} head={head} />
+      <ToNextDP year={ceremony.year} next={next} stage={stage} tail={tail} />
     </div>
   );
 }

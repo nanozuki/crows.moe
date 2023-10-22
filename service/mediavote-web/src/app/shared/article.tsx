@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface TextProps {
   className?: string;
   children: React.ReactNode;

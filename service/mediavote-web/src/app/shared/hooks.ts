@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export function useMutation<Req, Res>(
   fetcher: (req: Req) => Promise<Res>,
@@ -21,28 +21,4 @@ export function useMutation<Req, Res>(
     }
   };
   return [fetching, error, trigger];
-}
-
-export function useQuery<Arg, Res>(
-  fetcher: (arg: Arg) => Promise<Res>,
-  arg: Arg,
-): [Res | undefined, boolean, Error | undefined] {
-  const [data, setData] = useState<Res | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | undefined>(undefined);
-  useEffect(() => {
-    async function doQuery() {
-      setLoading(true);
-      try {
-        const res = await fetcher(arg);
-        setData(res);
-      } catch (e) {
-        setError(e as Error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    doQuery();
-  }, [fetcher, arg]);
-  return [data, loading, error];
 }
