@@ -21,7 +21,7 @@ export class Service {
     return this.ceremony.find(year);
   }
 
-  async getLatestCeremony(): Promise<Ceremony> {
+  async getCurrentCeremony(): Promise<Ceremony> {
     return this.ceremony.current();
   }
 

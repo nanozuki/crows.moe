@@ -1,17 +1,15 @@
-import { getCurrentYear } from '@app/lib/apis';
-import { DepartmentName, Stage } from '@app/lib/models';
-import { getYearInfo } from '@app/lib/stage';
-import { Head1, HyperLink, Text, SmallText, multiLine } from '@app/shared/article';
 import Title from '@app/shared/Title';
+import { Head1, HyperLink, SmallText, Text, multiLine } from '@app/shared/article';
+import { service } from '@service/init';
+import { Stage } from '@service/value';
 import { redirect } from 'next/navigation';
 import VoterForm from './VoterForm';
 
-export default async function Page() {
-  // TODO: check current year === year in url
-  const year = await getCurrentYear();
-  const yearInfo = await getYearInfo(year);
-  if (yearInfo.stage !== Stage.Voting || yearInfo.voter) {
-    redirect(yearInfo.redirectTo);
+export default async function Page({ params }: { params: { year: number } }) {
+  const { year } = params;
+  const ceremony = await service.getCeremony(year);
+  if (ceremony.stageAt(new Date()) !== Stage.Voting) {
+    redirect(ceremony.defaultPage(false));
   }
   return (
     <div>
@@ -19,7 +17,7 @@ export default async function Page() {
       <div className="mt-8 mb-8 flex flex-col gap-y-4">
         <div>
           <Head1>作品投票</Head1>
-          <SmallText>{yearInfo.votingRange}</SmallText>
+          <SmallText>{ceremony.votingRange()}</SmallText>
         </div>
         <Text>
           投票采用
@@ -31,7 +29,7 @@ export default async function Page() {
           )}
         </Text>
       </div>
-      <VoterForm next={`/${yearInfo.year}/voting/${DepartmentName.Anime}`} />
+      <VoterForm next={`/${year}/voting/${ceremony.departments[0]}`} />
     </div>
   );
 }
