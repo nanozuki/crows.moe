@@ -13,8 +13,8 @@ export const Route = {
       return `/${ceremony.year}/voting/${ceremony.departments[index]}`;
     }
   },
-  [Stage.Award]: function (ceremony: Ceremony, index: number) {
-    return `/${ceremony.year}/award/${ceremony.departments[index]}`;
+  [Stage.Award]: function (ceremony: Ceremony) {
+    return `/${ceremony.year}/award`;
   },
 };
 
@@ -29,7 +29,7 @@ export const defaultRoute = function (ceremony: Ceremony, at: Date, logged: bool
         return Route[Stage.Voting](ceremony, 'start');
       }
     case Stage.Award:
-      return Route[Stage.Award](ceremony, 0);
+      return Route[Stage.Award](ceremony);
     default:
       return Route.home;
   }

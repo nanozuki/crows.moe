@@ -51,7 +51,7 @@ export default async function Page({ params }: { params: { year: number } }) {
   const { year } = params;
   const ceremony = await service.getCeremony(year);
   const now = new Date();
-  if (ceremony.stageAt(now) != Stage.Nomination) {
+  if (ceremony.stageAt(now) != Stage.Award) {
     redirect(defaultRoute(ceremony, now, false)); //TODO: check logged in
   }
   const awards = await Promise.all(ceremony.departments.map(async (dept) => service.getAward(year, dept)));
