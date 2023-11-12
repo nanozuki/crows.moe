@@ -22,14 +22,14 @@ export class Service {
   }
 
   async getNominations(year: number, department: Department): Promise<Work[]> {
-    const y = await this.ceremony.getInStage(year, Stage.Nomination);
+    const y = await this.ceremony.find(year);
     y.validateDepartment(department);
     const ws = await this.worksSet.get(year, department);
     return ws.works;
   }
 
   async addNomination(year: number, department: Department, workName: string): Promise<Work[]> {
-    const y = await this.ceremony.getInStage(year, Stage.Nomination);
+    const y = await this.ceremony.getInStages(year, Stage.Nomination);
     y.validateDepartment(department);
     const ws = await this.worksSet.get(year, department);
     ws.addWork(workName);
@@ -60,7 +60,7 @@ export class Service {
 
   async requireLoggedVoter(): Promise<Voter> {
     const y = await this.ceremony.current();
-    await this.ceremony.getInStage(y.year, Stage.Voting);
+    await this.ceremony.getInStages(y.year, Stage.Voting);
     const sessionid = cookies().get('sessionid')?.value;
     if (!sessionid) {
       throw NoSessionIDError();
@@ -70,28 +70,43 @@ export class Service {
 
   async signUpVoter(name: string): Promise<[Voter, string]> {
     const y = await this.ceremony.current();
-    await this.ceremony.getInStage(y.year, Stage.Voting);
+    await this.ceremony.getInStages(y.year, Stage.Voting);
     const [voter, sessionid] = await this.voter.signUp(y.year, name);
     return [voter, sessionid];
   }
 
   async logInVoter(name: string, pinCode: string): Promise<[Voter, string]> {
     const y = await this.ceremony.current();
-    await this.ceremony.getInStage(y.year, Stage.Voting);
+    await this.ceremony.getInStages(y.year, Stage.Voting);
     const voter = await this.voter.login(y.year, name, pinCode);
     const sessionid = await this.voter.makeSession(y.year, voter);
     return [voter, sessionid];
   }
 
   async getBallot(year: number, department: Department): Promise<Ballot> {
-    const y = await this.ceremony.getInStage(year, Stage.Voting);
+    const y = await this.ceremony.getInStages(year, Stage.Voting);
     y.validateDepartment(department);
     const voter = await this.requireLoggedVoter();
-    return await this.ballot.getBallot(year, voter, department);
+    try {
+      return await this.ballot.getBallot(year, voter, department);
+    } catch (e) {
+      const te = Terror.handleError(e);
+      if (te.code === ErrorCode.NotFound) {
+        return new Ballot({
+          year: year,
+          voter: voter,
+          department: department,
+          worksSet: await this.worksSet.get(year, department),
+          rankings: [],
+        });
+      } else {
+        throw e;
+      }
+    }
   }
 
   async editBallot(year: number, department: Department, rankings: RankedWorkName[]): Promise<Ballot> {
-    const y = await this.ceremony.getInStage(year, Stage.Voting);
+    const y = await this.ceremony.getInStages(year, Stage.Voting);
     y.validateDepartment(department);
     const voter = await this.requireLoggedVoter();
     const worksSet = await this.worksSet.get(year, department);
@@ -105,7 +120,7 @@ export class Service {
   }
 
   async getAward(year: number, department: Department): Promise<Award> {
-    const y = await this.ceremony.getInStage(year, Stage.Award);
+    const y = await this.ceremony.getInStages(year, Stage.Award);
     y.validateDepartment(department);
     return await this.award.getAward(year, department);
   }

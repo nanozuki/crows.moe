@@ -24,12 +24,14 @@ export class CeremonyUseCase {
     return this.repo.findAll();
   }
 
-  async getInStage(year: number, stage: Stage): Promise<Ceremony> {
+  async getInStages(year: number, ...stages: Stage[]): Promise<Ceremony> {
     const y = await this.repo.find(year);
-    if (y.stageAt(new Date()) !== stage) {
-      throw NotInStageError(stage);
+    for (const stage of stages) {
+      if (y.stageAt(new Date()) === stage) {
+        return y;
+      }
     }
-    return y;
+    throw NotInStageError(...(stages as string[]));
   }
 }
 

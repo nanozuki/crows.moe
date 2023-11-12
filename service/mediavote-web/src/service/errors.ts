@@ -27,8 +27,8 @@ export function NoDepartmentError(department: string) {
   return new Terror(ErrorCode.NotFound, `No such department: ${department}`);
 }
 
-export function NotInStageError(stage: string) {
-  return new Terror(ErrorCode.Forbidden, `This page is not available during the ${stage} stage`);
+export function NotInStageError(...stages: string[]) {
+  return new Terror(ErrorCode.Forbidden, `This page is not available during the '${stages.join(', ')}‘ stage`);
 }
 
 export function NoSessionIDError() {
