@@ -8,19 +8,27 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"strings"
 
 	tg "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+var (
+	token       = os.Getenv("URLDRBOT_TOKEN")
+	webhookHost = os.Getenv("URLDRBOT_WEBHOOK_HOST")
+)
+
 func main() {
-	bot, err := tg.NewBotAPI(os.Getenv("TELEGRAM_BOT_TOKEN"))
+	if token == "" || webhookHost == "" {
+		log.Fatal("URLDRBOT_TOKEN or URLDRBOT_WEBHOOK_HOST is empty")
+	}
+	bot, err := tg.NewBotAPI(token)
 	if err != nil {
 		log.Panic(err)
 	}
 	bot.Debug = true
 
-	// wh, err := tg.NewWebhook("https://urldrbot.crows.moe/" + bot.Token)
-	wh, err := tg.NewWebhook("https://pretty-polite-starfish.ngrok-free.app" + "/" + bot.Token)
+	wh, err := tg.NewWebhook(fmt.Sprintf("https://%s/%s", webhookHost, bot.Token))
 	if err != nil {
 		log.Panic(err)
 	}
@@ -28,7 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// wh.AllowedUpdates = []string{"inline_query"}
+	wh.AllowedUpdates = []string{"inline_query"}
 
 	info, err := bot.GetWebhookInfo()
 	if err != nil {
@@ -61,44 +69,68 @@ func makeResponse(queryId string, replies []Reply) tg.InlineConfig {
 	response := tg.InlineConfig{
 		InlineQueryID: queryId,
 		Results:       []interface{}{},
-		CacheTime:     0,
+		CacheTime:     86400,
 		IsPersonal:    false,
 	}
 	for i, reply := range replies {
 		response.Results = append(response.Results, tg.NewInlineQueryResultArticle(
 			fmt.Sprint(i),
-			reply.Title,
+			fmt.Sprintf("%s\n%s", reply.Title, reply.Url),
 			reply.Url,
 		))
 	}
 	return response
 }
 
+var httpReg = regexp.MustCompile(`(https?://)?\w+(\.\w+)+(/\S*)?`)
+
 func handleInlineQuery(bot *tg.BotAPI, query *tg.InlineQuery) {
 	fmt.Printf("[%s] %s\n", query.From.UserName, query.Query)
-	u, err := url.Parse(query.Query)
-	if err != nil {
-		if _, err := bot.Send(tg.NewMessage(query.From.ID, "Invalid URL")); err != nil {
-			log.Printf("not url query: %s", query.Query)
-		}
+	urlInQuery := httpReg.FindString(query.Query)
+	if urlInQuery == "" {
+		log.Printf("not url query: %s", query.Query)
+		return
 	}
-	response := makeResponse(query.ID, nil)
+	u, err := url.Parse(urlInQuery)
+	if err != nil {
+		log.Printf("not url query: %s", urlInQuery)
+		return
+	}
 	fmt.Println("query host is: ", u.Host)
-	if u.Host == "b23.tv" {
-		response = makeResponse(query.ID, cureBilibili(query.Query))
+	switch u.Host {
+	case "b23.tv":
+		response := makeResponse(query.ID, cureBilibili(urlInQuery))
 		fmt.Println("bot response: ", response)
-	}
-
-	_, err = bot.Send(response)
-	if err != nil {
-		log.Printf("Error sending inline query response: %s", err)
+		if len(response.Results) == 0 {
+			log.Printf("No response for query: %s", urlInQuery)
+			return
+		}
+		_, err = bot.Send(response)
+		if err != nil {
+			log.Printf("Error sending inline query response: %s", err)
+		}
+	case "twitter.com", "x.com":
+		response := makeResponse(query.ID, cureTwitter(urlInQuery))
+		fmt.Println("bot response: ", response)
+		if len(response.Results) == 0 {
+			log.Printf("No response for query: %s", urlInQuery)
+			return
+		}
+		_, err = bot.Send(response)
+		if err != nil {
+			log.Printf("Error sending inline query response: %s", err)
+		}
 	}
 }
 
 var b23Reg = regexp.MustCompile(`href="(https://www\.bilibili[^"]*)"`)
 
 func cureBilibili(source string) []Reply {
-	req, _ := http.NewRequest("GET", source, nil)
+	req, err := http.NewRequest("GET", source, nil)
+	if err != nil {
+		log.Printf("Error build query: %s", err)
+		return nil
+	}
 	req.Header.Set("User-Agent", "curl/8.1.2")
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -117,22 +149,40 @@ func cureBilibili(source string) []Reply {
 		return nil
 	}
 	log.Printf("bilibili response: %s", ress)
-	address := b23Reg.Find(ress)
-	log.Printf("fetch bilibili address: %s", address)
-	if len(address) == 0 {
+	addresses := b23Reg.FindStringSubmatch(string(ress))
+	if len(addresses) == 0 {
 		return nil
 	}
-	u, err := url.Parse(string(address))
+	log.Printf("fetch bilibili address: %s", addresses[1])
+	u, err := url.Parse(string(addresses[1]))
 	if err != nil {
 		return nil
 	}
 	target := url.URL{
 		Scheme: "https",
-		User:   &url.Userinfo{},
 		Host:   u.Host,
 		Path:   u.Path,
 	}
 	return []Reply{
 		{Title: "Bilibili", Url: target.String()},
+	}
+}
+
+func cureTwitter(source string) []Reply {
+	u, _ := url.Parse(source)
+	parts := strings.Split(strings.TrimPrefix(u.Path, "/"), "/")
+	log.Printf("twitter parts: %v", parts)
+	if len(parts) != 3 || parts[1] != "status" {
+		return nil
+	}
+	return []Reply{
+		{
+			Title: "FxTwitter",
+			Url:   "https://fxtwitter.com/" + u.Path,
+		},
+		{
+			Title: "VxTwitter",
+			Url:   "https://vxtwitter.com/" + u.Path,
+		},
 	}
 }

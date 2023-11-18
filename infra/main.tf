@@ -17,6 +17,11 @@ variable "deploy_tag" {
   type = string
 }
 
+variable "urldrbot_token" {
+  type      = string
+  sensitive = true
+}
+
 provider "google" {
   project = "crows-moe"
   region  = "asia-east1"
