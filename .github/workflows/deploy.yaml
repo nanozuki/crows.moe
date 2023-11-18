@@ -9,6 +9,7 @@ env:
   PROJECT_ID: crows-moe
   LOCATION: asia-east1
   IMAGE_LOCATION: "asia-east1-docker.pkg.dev/crows-moe/images"
+  TAG: ""
 
 jobs:
   build:
