@@ -1,4 +1,4 @@
-module github.com/nanozuki/crows.moe/service/urldoctorbot
+module github.com/nanozuki/crows.moe/service/urldbot
 
 go 1.21
 

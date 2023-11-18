@@ -14,13 +14,13 @@ import (
 )
 
 var (
-	token       = os.Getenv("URLDRBOT_TOKEN")
-	webhookHost = os.Getenv("URLDRBOT_WEBHOOK_HOST")
+	token       = os.Getenv("URLDBOT_TOKEN")
+	webhookHost = os.Getenv("URLDBOT_WEBHOOK_HOST")
 )
 
 func main() {
 	if token == "" || webhookHost == "" {
-		log.Fatal("URLDRBOT_TOKEN or URLDRBOT_WEBHOOK_HOST is empty")
+		log.Fatal("URLDBOT_TOKEN or URLDBOT_WEBHOOK_HOST is empty")
 	}
 	bot, err := tg.NewBotAPI(token)
 	if err != nil {

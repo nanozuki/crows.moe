@@ -17,7 +17,7 @@ variable "deploy_tag" {
   type = string
 }
 
-variable "urldrbot_token" {
+variable "urldbot_token" {
   type      = string
   sensitive = true
 }

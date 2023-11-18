@@ -1,12 +1,12 @@
-resource "google_cloud_run_service" "urldrbot" {
-  name     = "urldrbot"
+resource "google_cloud_run_service" "urldbot" {
+  name     = "urldbot"
   location = "asia-east1"
 
   template {
     metadata {
       labels = {
-        app   = "urldrbot"
-        image = "urldrbot"
+        app   = "urldbot"
+        image = "urldbot"
       }
       annotations = {
         "autoscaling.knative.dev/maxScale" = "4"
@@ -15,14 +15,14 @@ resource "google_cloud_run_service" "urldrbot" {
     }
     spec {
       containers {
-        image = "asia-east1-docker.pkg.dev/crows-moe/images/urldrbot:${var.deploy_tag}"
+        image = "asia-east1-docker.pkg.dev/crows-moe/images/urldbot:${var.deploy_tag}"
         env {
-          name  = "URLDRBOT_TOKEN"
-          value = var.urldrbot_token
+          name  = "URLDBOT_TOKEN"
+          value = var.urldbot_token
         }
         env {
-          name  = "URLDRBOT_WEBHOOK_HOST"
-          value = "urldrbot.crows.moe"
+          name  = "URLDBOT_WEBHOOK_HOST"
+          value = "urldbot.crows.moe"
         }
         ports {
           container_port = 8080
@@ -32,21 +32,21 @@ resource "google_cloud_run_service" "urldrbot" {
   }
 }
 
-resource "google_cloud_run_domain_mapping" "urldrbot" {
-  location = google_cloud_run_service.urldrbot.location
-  name     = "urldrbot.crows.moe"
+resource "google_cloud_run_domain_mapping" "urldbot" {
+  location = google_cloud_run_service.urldbot.location
+  name     = "urldbot.crows.moe"
   metadata {
-    namespace = google_cloud_run_service.urldrbot.project
+    namespace = google_cloud_run_service.urldbot.project
   }
   spec {
-    route_name = google_cloud_run_service.urldrbot.name
+    route_name = google_cloud_run_service.urldbot.name
   }
 }
 
-resource "google_cloud_run_service_iam_policy" "urldrbot" {
-  location = google_cloud_run_service.urldrbot.location
-  project  = google_cloud_run_service.urldrbot.project
-  service  = google_cloud_run_service.urldrbot.name
+resource "google_cloud_run_service_iam_policy" "urldbot" {
+  location = google_cloud_run_service.urldbot.location
+  project  = google_cloud_run_service.urldbot.project
+  service  = google_cloud_run_service.urldbot.name
 
   policy_data = data.google_iam_policy.noauth.policy_data
 }
