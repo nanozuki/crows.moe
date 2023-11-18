@@ -50,10 +50,10 @@ jobs:
           docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/mediavote-web:${{ env.TAG }}" service/mediavote-web
           docker push "${{ env.IMAGE_LOCATION }}/mediavote-web:${{ env.TAG }}"
 
-      - name: build urldrbot
+      - name: build urldbot
         run: |-
-          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/urldrbot:${{ env.TAG }}" service/urldrbot
-          docker push "${{ env.IMAGE_LOCATION }}/urldrbot:${{ env.TAG }}"
+          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/urldbot:${{ env.TAG }}" service/urldbot
+          docker push "${{ env.IMAGE_LOCATION }}/urldbot:${{ env.TAG }}"
     outputs:
       tag: ${{ env.TAG }}
 
@@ -68,9 +68,12 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Make Variables
-        run: echo '{"deploy_tag":"${{ env.TAG }}"}' > deploy.auto.tfvars.json
+        run: |-
+          echo '{"deploy_tag":"${{ env.TAG }}",' > deploy.auto.tfvars.json
+          echo '"urldbot_token":"${{ env.URLDBOT_TOKEN }}"}' > deploy.auto.tfvars.json
         env:
           TAG: ${{needs.build.outputs.tag}}
+          URLDBOT_TOKEN: ${{ secrets.URLDBOT_TOKEN }}
 
       - name: Terraform Setup
         uses: hashicorp/setup-terraform@v2
