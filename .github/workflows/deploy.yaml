@@ -70,7 +70,7 @@ jobs:
       - name: Make Variables
         run: |-
           echo '{"deploy_tag":"${{ env.TAG }}",' > deploy.auto.tfvars.json
-          echo '"urldbot_token":"${{ env.URLDBOT_TOKEN }}"}' > deploy.auto.tfvars.json
+          echo '"urldbot_token":"${{ env.URLDBOT_TOKEN }}"}' >> deploy.auto.tfvars.json
         env:
           TAG: ${{needs.build.outputs.tag}}
           URLDBOT_TOKEN: ${{ secrets.URLDBOT_TOKEN }}
