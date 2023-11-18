@@ -9,7 +9,6 @@ env:
   PROJECT_ID: crows-moe
   LOCATION: asia-east1
   IMAGE_LOCATION: "asia-east1-docker.pkg.dev/crows-moe/images"
-  TAG: ""
 
 jobs:
   build:
@@ -68,6 +67,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Make Variables
+        run: echo '{"deploy_tag":"${{ env.TAG }}"}' > deploy.auto.tfvars.json
+        env:
+          TAG: ${{needs.build.outputs.tag}}
+
       - name: Terraform Setup
         uses: hashicorp/setup-terraform@v2
         with:
@@ -84,4 +88,4 @@ jobs:
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-        run: terraform apply -auto-approve -var "deploy_tag=${{ env.TAG }}"
+        run: terraform apply -auto-approve
