@@ -170,19 +170,24 @@ func cureBilibili(source string) []Reply {
 
 func cureTwitter(source string) []Reply {
 	u, _ := url.Parse(source)
-	parts := strings.Split(strings.TrimPrefix(u.Path, "/"), "/")
+	path := strings.TrimPrefix(u.Path, "/")
+	parts := strings.Split(path, "/")
 	log.Printf("twitter parts: %v", parts)
 	if len(parts) != 3 || parts[1] != "status" {
 		return nil
 	}
+	fxTwitter := "https://fxtwitter.com/"
+	if u.Host == "x.com" {
+		fxTwitter = "https://fixupx.com/"
+	}
 	return []Reply{
 		{
 			Title: "FxTwitter",
-			Url:   "https://fxtwitter.com/" + u.Path,
+			Url:   fxTwitter + path,
 		},
 		{
 			Title: "VxTwitter",
-			Url:   "https://vxtwitter.com/" + u.Path,
+			Url:   "https://vxtwitter.com/" + path,
 		},
 	}
 }
