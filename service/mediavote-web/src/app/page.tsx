@@ -24,7 +24,9 @@ function AnnualItem({ year, label, to }: AnnualItemProps) {
 export default async function Home() {
   cookies();
   const service = await getService();
+  console.log("make service: ", service);
   const ceremonies = await service.getCeremonies();
+  console.log("get ceremonies: ", JSON.stringify(ceremonies));
   const logged = (await service.getLoggedVoter()) !== undefined;
   const now = new Date();
   const items = ceremonies.map((c) => {
