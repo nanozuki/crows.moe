@@ -18,6 +18,8 @@ import {
   YearDoc,
   awardDocFromEntity,
   awardDocToEntity,
+  ballotDocFromEntity,
+  ballotDocToEntity,
   departmentDocFromEntity,
   departmentDocToEntity,
   getAll,
@@ -48,12 +50,12 @@ export class CeremonyRepositoryImpl implements CeremonyRepository {
   constructor(private db: Firestore) {}
 
   async find(year: number): Promise<Ceremony> {
-    const y = await getOne<YearDoc>(this.db, [[colCeremony, year.toString()]]);
+    const y = await getOne<YearDoc>(this.db, colCeremony, year.toString());
     return yearDocToEntity(y);
   }
 
   async findAll(): Promise<Ceremony[]> {
-    const ys = await getAll<YearDoc>(this.db, [], colCeremony);
+    const ys = await getAll<YearDoc>(this.db, colCeremony);
     const years = ys.map(yearDocToEntity);
     years.sort((a, b) => b.year - a.year);
     return years;
@@ -64,21 +66,18 @@ export class WorksSetRepositoryImpl implements WorksSetRepository {
   constructor(public db: Firestore) {}
 
   async get(year: number, department: string): Promise<WorksSet> {
-    const ws = await getOne<DepartmentDoc>(this.db, [
-      [colCeremony, year.toString()],
-      [colDepartment, department],
-    ]);
-    return departmentDocToEntity(year, ws);
+    const ws = await getOne<DepartmentDoc>(this.db, colCeremony, year.toString(), colDepartment, department);
+    return departmentDocToEntity(ws);
   }
 
   async save(year: number, department: string, worksSet: WorksSet): Promise<void> {
     return setOne<DepartmentDoc>(
       this.db,
-      [
-        [colCeremony, year.toString()],
-        [colDepartment, department],
-      ],
       departmentDocFromEntity(worksSet),
+      colCeremony,
+      year.toString(),
+      colDepartment,
+      department,
     );
   }
 }
@@ -87,45 +86,25 @@ export class VoterRepositoryImpl implements VoterRepository {
   constructor(public db: Firestore) {}
 
   async getBySessionID(year: number, sessionID: string): Promise<Voter> {
-    const doc = await getOne<SessionDoc>(this.db, [
-      [colCeremony, year.toString()],
-      [colSession, sessionID],
-    ]);
-    return new Voter(doc.name, ''); // TODO: fix pin_code
+    const doc = await getOne<SessionDoc>(this.db, colCeremony, year.toString(), colSession, sessionID);
+    return { name: doc.name };
   }
 
   async getByNameAndPin(year: number, name: string, pin: string): Promise<Voter> {
-    const doc = await getOne<VoterDoc>(this.db, [
-      [colCeremony, year.toString()],
-      [colVoter, name],
-    ]);
+    const doc = await getOne<VoterDoc>(this.db, colCeremony, year.toString(), colVoter, name);
     if (doc.pin_code !== pin) {
       throw InvalidPinCodeError();
     }
-    return new Voter(doc.name, doc.pin_code);
+    return { name: doc.name };
   }
 
   async createVoter(year: number, name: string, pin: string): Promise<Voter> {
-    await setOne<VoterDoc>(
-      this.db,
-      [
-        [colCeremony, year.toString()],
-        [colVoter, name],
-      ],
-      { name, pin_code: pin },
-    );
-    return new Voter(name, pin);
+    await setOne<VoterDoc>(this.db, { name, pin_code: pin }, colCeremony, year.toString(), colVoter, name);
+    return { name };
   }
 
   async createSessionID(year: number, voter: Voter, sessionId: string): Promise<void> {
-    await setOne<SessionDoc>(
-      this.db,
-      [
-        [colCeremony, year.toString()],
-        [colSession, sessionId],
-      ],
-      { name: voter.name },
-    );
+    await setOne<SessionDoc>(this.db, { name: voter.name }, colCeremony, year.toString(), colSession, sessionId);
   }
 }
 
@@ -134,40 +113,22 @@ export class BallotRepositoryImpl implements BallotRepository {
 
   async getBallot(year: number, voter: Voter, department: Department): Promise<Ballot> {
     const ballotId = `${voter.name}#${department}`;
-    const ballot = await getOne<BallotDoc>(this.db, [
-      [colCeremony, year.toString()],
-      [colBallot, ballotId],
-    ]);
-    const dept = await getOne<DepartmentDoc>(this.db, [
-      [colCeremony, year.toString()],
-      [colDepartment, department],
-    ]);
-    return new Ballot({
-      year,
-      voter: voter,
-      department,
-      worksSet: departmentDocToEntity(year, dept),
-      rankings: ballot.rankings.map(({ ranking, work_name }) => ({
-        ranking,
-        workName: work_name,
-      })),
-    });
+    const ballot = await getOne<BallotDoc>(this.db, colCeremony, year.toString(), colBallot, ballotId);
+    const dept = await getOne<DepartmentDoc>(this.db, colCeremony, year.toString(), colDepartment, department);
+    return ballotDocToEntity(ballot, dept);
   }
 
-  saveBallot(ballot: Ballot): Promise<void> {
-    const ballotId = `${ballot.voter}#${ballot.department}`;
-    const rankings = ballot.rankings.map(({ ranking, work }) => ({
-      ranking,
-      work_name: work.name,
-    }));
-    return setOne<BallotDoc>(
-      this.db,
-      [
-        [colCeremony, ballot.year.toString()],
-        [colBallot, ballotId],
-      ],
-      { dept: ballot.department, voter: ballot.voter.name, rankings },
-    );
+  async getAllBallots(year: number, department: Department): Promise<Ballot[]> {
+    const ballots = await getAll<BallotDoc>(this.db, colCeremony, year.toString(), colBallot);
+    const dept = await getOne<DepartmentDoc>(this.db, colCeremony, year.toString(), colDepartment, department);
+    return ballots
+      .filter((ballot) => ballot.voter.endsWith(`#${department}`))
+      .map((ballot) => ballotDocToEntity(ballot, dept));
+  }
+
+  saveBallot(year: number, department: Department, ballot: Ballot): Promise<void> {
+    const ballotId = `${ballot.voter}#${department}`;
+    return setOne<BallotDoc>(this.db, ballotDocFromEntity(ballot), colCeremony, year.toString(), colBallot, ballotId);
   }
 }
 
@@ -175,23 +136,13 @@ export class AwardRepositoryImpl implements AwardRepository {
   constructor(public db: Firestore) {}
 
   async findAward(year: number, department: Department): Promise<Award | null> {
-    const doc = await getOne<AwardDoc>(this.db, [
-      [colCeremony, year.toString()],
-      [colAward, department],
-    ]);
-    return awardDocToEntity(doc, year);
+    const doc = await getOne<AwardDoc>(this.db, colCeremony, year.toString(), colAward, department);
+    return awardDocToEntity(doc);
   }
 
-  async saveAward(award: Award): Promise<void> {
+  async saveAward(year: number, department: Department, award: Award): Promise<void> {
     const doc = awardDocFromEntity(award);
-    return setOne<AwardDoc>(
-      this.db,
-      [
-        [colCeremony, award.year.toString()],
-        [colAward, award.department],
-      ],
-      doc,
-    );
+    return setOne<AwardDoc>(this.db, doc, colCeremony, year.toString(), colAward, department);
   }
 }
 
@@ -231,7 +182,7 @@ export async function generateDevData(db: Firestore): Promise<void> {
           throw new Error(`Invalid dev stage: ${devStage}`);
       }
     }
-    await setOne<YearDoc>(db, [[colCeremony, y.toString()]], year);
+    await setOne<YearDoc>(db, year, colCeremony, y.toString());
     if ((y === currentYear && devStage === Stage.Nomination) || devStage === Stage.Voting) {
       for (const dept of departments) {
         const works: WorkDoc[] = [];
@@ -242,14 +193,7 @@ export async function generateDevData(db: Firestore): Promise<void> {
             alias: [chineseLipsum()],
           });
         }
-        await setOne<DepartmentDoc>(
-          db,
-          [
-            [colCeremony, y.toString()],
-            [colDepartment, dept],
-          ],
-          { dept, works },
-        );
+        await setOne<DepartmentDoc>(db, { works }, colCeremony, y.toString(), colDepartment, dept);
       }
     } else {
       for (const dept of departments) {
@@ -262,14 +206,7 @@ export async function generateDevData(db: Firestore): Promise<void> {
           });
         }
         const rankings = works.map((work, i) => ({ ranking: i + 1, work }));
-        await setOne<AwardDoc>(
-          db,
-          [
-            [colCeremony, y.toString()],
-            [colAward, dept],
-          ],
-          { dept, rankings },
-        );
+        await setOne<AwardDoc>(db, { rankings }, colCeremony, y.toString(), colAward, dept);
       }
     }
   }

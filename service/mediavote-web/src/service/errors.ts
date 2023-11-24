@@ -50,3 +50,7 @@ export function NotFoundError(path: string[]) {
 export function InternalError(message: string) {
   return new Terror(ErrorCode.InternalServerError, message);
 }
+
+export function InvalidDatabasePathError(path: string[]) {
+  return new Terror(ErrorCode.InternalServerError, `Invalid database path: ${path.join('.')}`);
+}

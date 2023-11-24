@@ -7,6 +7,7 @@ import { getService } from '@service/init';
 import { Department, Stage, departmentInfo } from '@service/value';
 import { redirect } from 'next/navigation';
 import NomList from './NomList';
+import { getNominationRange, getStage } from '@service/entity';
 
 interface NominationPageProps {
   params: { year: number; dept: Department };
@@ -17,7 +18,7 @@ export default async function Page({ params }: NominationPageProps) {
   const service = await getService();
   const ceremony = await service.getCeremony(year);
   const now = new Date();
-  if (ceremony.stageAt(now) != Stage.Nomination) {
+  if (getStage(ceremony, now) != Stage.Nomination) {
     redirect(defaultRoute(ceremony, now, false)); //TODO: check logged in
   }
   const index = ceremony.departments.indexOf(dept);
@@ -28,7 +29,7 @@ export default async function Page({ params }: NominationPageProps) {
       <Title year={year.toString()} to="/"></Title>
       <div className="mt-8 mb-8">
         <Head1>作品提名</Head1>
-        <SmallText>{ceremony.nominationRange().join('-')}</SmallText>
+        <SmallText>{getNominationRange(ceremony).join('-')}</SmallText>
         <Text>
           {multiLine(
             '提名所有观赏或体验过的、满足范围限定的作品。在提名阶段被提名的作品，将在投票阶段进行最终的投票和排序。',

@@ -1,6 +1,7 @@
 import { defaultRoute, Route } from '@app/lib/route';
 import { Head1, Text } from '@app/shared/article';
 import Title from '@app/shared/Title';
+import { getStage } from '@service/entity';
 import { getService } from '@service/init';
 import { Stage } from '@service/value';
 import { redirect } from 'next/navigation';
@@ -11,7 +12,7 @@ export default async function Page({ params }: { params: { year: number } }) {
   const ceremony = await service.getCeremony(year);
   const voter = await service.getLoggedVoter();
   const now = new Date();
-  if (ceremony.stageAt(now) !== Stage.Voting || voter === undefined) {
+  if (getStage(ceremony, now) !== Stage.Voting || voter === undefined) {
     redirect(defaultRoute(ceremony, now, voter !== undefined));
   }
   const route = Route.Voting(ceremony, 0);

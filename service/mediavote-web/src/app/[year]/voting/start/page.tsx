@@ -5,6 +5,7 @@ import { Stage } from '@service/value';
 import { redirect } from 'next/navigation';
 import VoterForm from './VoterForm';
 import { defaultRoute } from '@app/lib/route';
+import { getStage, getVotingRange } from '@service/entity';
 
 export default async function Page({ params }: { params: { year: number } }) {
   const { year } = params;
@@ -12,7 +13,7 @@ export default async function Page({ params }: { params: { year: number } }) {
   const ceremony = await service.getCeremony(year);
   const now = new Date();
   const voter = await service.getLoggedVoter();
-  if (ceremony.stageAt(now) !== Stage.Voting || voter !== undefined) {
+  if (getStage(ceremony, now) !== Stage.Voting || voter !== undefined) {
     redirect(defaultRoute(ceremony, now, voter !== undefined));
   }
   return (
@@ -21,7 +22,7 @@ export default async function Page({ params }: { params: { year: number } }) {
       <div className="mt-8 mb-8 flex flex-col gap-y-4">
         <div>
           <Head1>作品投票</Head1>
-          <SmallText>{ceremony.votingRange()}</SmallText>
+          <SmallText>{getVotingRange(ceremony)}</SmallText>
         </div>
         <Text>
           投票采用

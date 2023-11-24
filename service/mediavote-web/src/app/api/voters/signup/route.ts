@@ -13,9 +13,9 @@ export interface SignUpResponse {
 export async function POST(request: Request): Promise<Response> {
   const req = (await request.json()) as SignUpRequest;
   const service = await getService();
-  const [voter, sessionid] = await service.signUpVoter(req.name);
-  const res = NextResponse.json<SignUpResponse>({ name: voter.name, pinCode: voter.pinCode });
-  res.cookies.set('sessionid', sessionid, {
+  const { voter, sessionId, pinCode } = await service.signUpVoter(req.name);
+  const res = NextResponse.json<SignUpResponse>({ name: voter.name, pinCode: pinCode });
+  res.cookies.set('sessionid', sessionId, {
     path: '/',
     expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
     secure: true,

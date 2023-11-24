@@ -3,6 +3,7 @@ import ToNextButton from '@app/shared/ToNextButton';
 import { getService } from '@service/init';
 import { Stage, stageCNString } from '@service/value';
 import { defaultRoute } from './lib/route';
+import { getStage } from '@service/entity';
 
 interface AnnualItemProps {
   year: number;
@@ -25,7 +26,7 @@ export default async function Home() {
   const logged = (await service.getLoggedVoter()) !== undefined;
   const now = new Date();
   const items = ceremonies.map((c) => {
-    const stage = c.stageAt(now);
+    const stage = getStage(c, now);
     const to = stage !== Stage.Preparation ? defaultRoute(c, now, logged) : undefined;
     const label = stageCNString(stage);
     return <AnnualItem key={c.year} year={c.year} to={to} label={label} />;

@@ -6,18 +6,19 @@ import { getService } from '@service/init';
 import { Department, Stage, departmentTitle } from '@service/value';
 import { redirect } from 'next/navigation';
 import BallotSheet from './BallotSheet';
+import { getStage, getVotingRange } from '@service/entity';
 
 interface NominationPageProps {
   params: { year: number; dept: Department };
 }
 
 export default async function Page({ params }: NominationPageProps) {
-  const service = await  getService();
+  const service = await getService();
   const { year, dept } = params;
   const ceremony = await service.getCeremony(year);
   const now = new Date();
   const voter = await service.getLoggedVoter();
-  if (ceremony.stageAt(now) !== Stage.Voting || voter === undefined) {
+  if (getStage(ceremony, now) !== Stage.Voting || voter === undefined) {
     redirect(defaultRoute(ceremony, now, voter !== undefined));
   }
 
@@ -31,7 +32,7 @@ export default async function Page({ params }: NominationPageProps) {
       <div className="mt-8 mb-8 flex flex-col gap-y-4">
         <div>
           <Head1>作品投票</Head1>
-          <SmallText>{ceremony.votingRange()}</SmallText>
+          <SmallText>{getVotingRange(ceremony)}</SmallText>
         </div>
         <Text>
           投票采用

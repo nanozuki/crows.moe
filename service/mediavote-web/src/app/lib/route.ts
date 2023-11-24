@@ -1,4 +1,4 @@
-import { Ceremony } from '@service/entity';
+import { Ceremony, getStage } from '@service/entity';
 import { Stage } from '@service/value';
 
 export const Route = {
@@ -19,7 +19,8 @@ export const Route = {
 };
 
 export const defaultRoute = function (ceremony: Ceremony, at: Date, logged: boolean): string {
-  switch (ceremony.stageAt(at)) {
+  const stage = getStage(ceremony, at);
+  switch (stage) {
     case Stage.Nomination:
       return Route[Stage.Nomination](ceremony, 0);
     case Stage.Voting:

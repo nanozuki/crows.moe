@@ -1,20 +1,21 @@
 import { defaultRoute } from '@app/lib/route';
 import Title from '@app/shared/Title';
 import { Head1, Head2, Text } from '@app/shared/article';
-import { Award } from '@service/entity';
+import { Award, getStage } from '@service/entity';
 import { getService } from '@service/init';
-import { Stage, departmentTitle } from '@service/value';
+import { Department, Stage, departmentTitle } from '@service/value';
 import { redirect } from 'next/navigation';
 
 interface GrandPrizeProps {
   award: Award;
+  department: Department
 }
 
-function GrandPrize({ award }: GrandPrizeProps) {
+function GrandPrize({ award, department }: GrandPrizeProps) {
   const items = award.rankings.filter((r) => r.ranking === 1);
   return (
     <div className="flex flex-col gap-y-2">
-      <Text>{departmentTitle[award.department]}部门</Text>
+      <Text>{departmentTitle[department]}部门</Text>
       {items.map((item) => [
         <p key={`${item.work.name}-name`} className="font-serif font-extrabold text-3xl">
           {item.work.name}
@@ -29,12 +30,13 @@ function GrandPrize({ award }: GrandPrizeProps) {
 
 interface PrizeProps {
   award: Award;
+  department: Department
 }
 
-function Prize({ award }: PrizeProps) {
+function Prize({ award, department }: PrizeProps) {
   return (
     <div className="flex flex-col gap-y-2">
-      <Text>{departmentTitle[award.department]}部门</Text>
+      <Text>{departmentTitle[department]}部门</Text>
       <div className="w-full grid grid-cols-ballot">
         {award.rankings.map((item) => [
           <div key={`${item.work.name}-ranking`} className="w-8 text-subtle">
@@ -52,10 +54,15 @@ export default async function Page({ params }: { params: { year: number } }) {
   const service = await getService();
   const ceremony = await service.getCeremony(year);
   const now = new Date();
-  if (ceremony.stageAt(now) != Stage.Award) {
+  if (getStage(ceremony, now) != Stage.Award) {
     redirect(defaultRoute(ceremony, now, false)); //TODO: check logged in
   }
-  const awards = await Promise.all(ceremony.departments.map(async (dept) => service.getAward(year, dept)));
+  const items = await Promise.all(ceremony.departments.map(async (dept) => {
+    return {
+      award: await service.getAward(year, dept),
+      department: dept,
+    };
+  }));
 
   return (
     <div>
@@ -63,14 +70,14 @@ export default async function Page({ params }: { params: { year: number } }) {
       <Head1>获奖作品</Head1>
       <div className="mt-8 mb-8 flex flex-col gap-y-8">
         <Head1>大赏</Head1>
-        {awards.map((award) => (
-          <GrandPrize key={award.department} award={award} />
+        {items.map(({ award, department }) => (
+          <GrandPrize key={department} department={department} award={award} />
         ))}
       </div>
       <div className="mt-8 mb-8 flex flex-col gap-y-4">
         <Head2>详情</Head2>
-        {awards.map((award) => (
-          <Prize key={award.department} award={award} />
+        {items.map(({ award, department }) => (
+          <Prize key={department} department={department} award={award} />
         ))}
       </div>
     </div>
