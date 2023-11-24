@@ -2,7 +2,7 @@ import { defaultRoute } from '@app/lib/route';
 import TabLine from '@app/shared/TabLine';
 import Title from '@app/shared/Title';
 import { Head1, Head2, HyperLink, SmallText, Text, multiLine } from '@app/shared/article';
-import { service } from '@service/init';
+import { getService } from '@service/init';
 import { Department, Stage, departmentTitle } from '@service/value';
 import { redirect } from 'next/navigation';
 import BallotSheet from './BallotSheet';
@@ -12,6 +12,7 @@ interface NominationPageProps {
 }
 
 export default async function Page({ params }: NominationPageProps) {
+  const service = await  getService();
   const { year, dept } = params;
   const ceremony = await service.getCeremony(year);
   const now = new Date();

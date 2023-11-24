@@ -1,6 +1,6 @@
 import Title from '@app/shared/Title';
 import ToNextButton from '@app/shared/ToNextButton';
-import { service } from '@service/init';
+import { getService } from '@service/init';
 import { Stage, stageCNString } from '@service/value';
 import { defaultRoute } from './lib/route';
 
@@ -20,6 +20,7 @@ function AnnualItem({ year, label, to }: AnnualItemProps) {
 }
 
 export default async function Home() {
+  const service = await getService();
   const ceremonies = await service.getCeremonies();
   const logged = (await service.getLoggedVoter()) !== undefined;
   const now = new Date();

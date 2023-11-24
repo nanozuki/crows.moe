@@ -1,6 +1,6 @@
 import Title from '@app/shared/Title';
 import { Head1, HyperLink, SmallText, Text, multiLine } from '@app/shared/article';
-import { service } from '@service/init';
+import { getService } from '@service/init';
 import { Stage } from '@service/value';
 import { redirect } from 'next/navigation';
 import VoterForm from './VoterForm';
@@ -8,6 +8,7 @@ import { defaultRoute } from '@app/lib/route';
 
 export default async function Page({ params }: { params: { year: number } }) {
   const { year } = params;
+  const service = await getService();
   const ceremony = await service.getCeremony(year);
   const now = new Date();
   const voter = await service.getLoggedVoter();

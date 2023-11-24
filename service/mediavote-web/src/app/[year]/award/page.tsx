@@ -2,7 +2,7 @@ import { defaultRoute } from '@app/lib/route';
 import Title from '@app/shared/Title';
 import { Head1, Head2, Text } from '@app/shared/article';
 import { Award } from '@service/entity';
-import { service } from '@service/init';
+import { getService } from '@service/init';
 import { Stage, departmentTitle } from '@service/value';
 import { redirect } from 'next/navigation';
 
@@ -49,6 +49,7 @@ function Prize({ award }: PrizeProps) {
 
 export default async function Page({ params }: { params: { year: number } }) {
   const { year } = params;
+  const service = await getService();
   const ceremony = await service.getCeremony(year);
   const now = new Date();
   if (ceremony.stageAt(now) != Stage.Award) {

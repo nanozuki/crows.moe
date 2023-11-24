@@ -14,12 +14,12 @@ build-image TAG:
 
 run-nomination:
 	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
-	NODE_EXTRA_CA_CERTS=$(mkcert -CAROOT)/rootCA.pem FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_DEV_STAGE=Nomination pnpm run dev
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_DEV_STAGE=Nomination pnpm run dev
 
 run-voting:
 	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
-	NODE_EXTRA_CA_CERTS=$(mkcert -CAROOT)/rootCA.pem FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_DEV_STAGE=Voting pnpm run dev
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_DEV_STAGE=Voting pnpm run dev
 
 run-award:
 	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
-	NODE_EXTRA_CA_CERTS=$(mkcert -CAROOT)/rootCA.pem FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_DEV_STAGE=Award pnpm run dev
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_DEV_STAGE=Award pnpm run dev

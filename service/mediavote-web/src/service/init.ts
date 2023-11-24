@@ -1,5 +1,6 @@
 import { Service } from '@service/service';
 import { Firestore } from '@google-cloud/firestore';
+import { unstable_cache } from 'next/cache';
 import {
   AwardRepositoryImpl,
   BallotRepositoryImpl,
@@ -29,11 +30,12 @@ async function make_service(): Promise<Service> {
   return service;
 }
 
-let _service: Promise<Service> | null = null;
+let service: Service;
 
-export const service = await (async () => {
-  if (!_service) {
-    _service = make_service();
+export const getService = async function () {
+  if (service) {
+    return service;
   }
-  return _service;
-})();
+  service = await make_service();
+  return service;
+};

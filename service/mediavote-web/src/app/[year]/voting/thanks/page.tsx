@@ -1,12 +1,13 @@
 import { defaultRoute, Route } from '@app/lib/route';
 import { Head1, Text } from '@app/shared/article';
 import Title from '@app/shared/Title';
-import { service } from '@service/init';
+import { getService } from '@service/init';
 import { Stage } from '@service/value';
 import { redirect } from 'next/navigation';
 
 export default async function Page({ params }: { params: { year: number } }) {
   const { year } = params;
+  const service = await getService();
   const ceremony = await service.getCeremony(year);
   const voter = await service.getLoggedVoter();
   const now = new Date();

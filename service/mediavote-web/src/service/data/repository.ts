@@ -196,6 +196,7 @@ export class AwardRepositoryImpl implements AwardRepository {
 }
 
 export async function generateDevData(db: Firestore): Promise<void> {
+  console.log('!!! ATTENTION: Make Dev Data !!!');
   const now = Timestamp.now();
   const currentYear = now.toDate().getFullYear();
   const years = [currentYear, currentYear - 1, currentYear - 2];

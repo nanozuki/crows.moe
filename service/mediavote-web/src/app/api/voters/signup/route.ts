@@ -1,4 +1,4 @@
-import { service } from '@service/init';
+import { getService } from '@service/init';
 import { NextResponse } from 'next/server';
 
 export interface SignUpRequest {
@@ -12,6 +12,7 @@ export interface SignUpResponse {
 
 export async function POST(request: Request): Promise<Response> {
   const req = (await request.json()) as SignUpRequest;
+  const service = await getService();
   const [voter, sessionid] = await service.signUpVoter(req.name);
   const res = NextResponse.json<SignUpResponse>({ name: voter.name, pinCode: voter.pinCode });
   res.cookies.set('sessionid', sessionid, {

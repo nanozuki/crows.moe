@@ -3,7 +3,7 @@ import DeptNav from '@app/shared/DeptNav';
 import TabLine from '@app/shared/TabLine';
 import Title from '@app/shared/Title';
 import { Head1, HyperLink, SmallText, Text, multiLine } from '@app/shared/article';
-import { service } from '@service/init';
+import { getService } from '@service/init';
 import { Department, Stage, departmentInfo } from '@service/value';
 import { redirect } from 'next/navigation';
 import NomList from './NomList';
@@ -14,6 +14,7 @@ interface NominationPageProps {
 
 export default async function Page({ params }: NominationPageProps) {
   const { year, dept } = params;
+  const service = await getService();
   const ceremony = await service.getCeremony(year);
   const now = new Date();
   if (ceremony.stageAt(now) != Stage.Nomination) {

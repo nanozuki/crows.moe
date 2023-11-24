@@ -1,4 +1,4 @@
-import { service } from '@service/init';
+import { getService } from '@service/init';
 import { NextResponse } from 'next/server';
 
 export interface LoginRequest {
@@ -11,6 +11,7 @@ export interface LoginResponse {
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
+  const service = await getService();
   const req = (await request.json()) as LoginRequest;
   const [voter, sessionid] = await service.logInVoter(req.name, req.pinCode);
   const res = NextResponse.json<LoginResponse>({ name: voter.name });
