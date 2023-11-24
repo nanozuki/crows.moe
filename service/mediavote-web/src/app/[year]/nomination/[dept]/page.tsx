@@ -45,7 +45,7 @@ export default async function Page({ params }: NominationPageProps) {
         <Text>{info.introduction}</Text>
         <Text>参考链接：</Text>
         {info.reference.map((ref) => (
-          <HyperLink text={ref.description} href={ref.url} />
+          <HyperLink key={ref.url} text={ref.description} href={ref.url} />
         ))}
       </div>
       <NomList className="mt-8 mb-8" year={year} dept={dept} noms={noms} />

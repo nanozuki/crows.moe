@@ -4,6 +4,7 @@ import { getService } from '@service/init';
 import { Stage, stageCNString } from '@service/value';
 import { defaultRoute } from './lib/route';
 import { getStage } from '@service/entity';
+import { cookies } from 'next/headers';
 
 interface AnnualItemProps {
   year: number;
@@ -21,6 +22,7 @@ function AnnualItem({ year, label, to }: AnnualItemProps) {
 }
 
 export default async function Home() {
+  cookies();
   const service = await getService();
   const ceremonies = await service.getCeremonies();
   const logged = (await service.getLoggedVoter()) !== undefined;

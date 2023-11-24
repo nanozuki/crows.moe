@@ -33,9 +33,6 @@
                 "./src/service/*"
             ]
         },
-        "types": [
-            "unplugin-icons/types/react"
-        ]
     },
     "include": [
         "next-env.d.ts",
