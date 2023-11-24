@@ -11,3 +11,15 @@ default:
 build-image TAG:
 	docker build --platform=linux/amd64 -t {{image}}:{{TAG}} .
 	docker push {{image}}:{{TAG}}
+
+run-nomination:
+	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_DEV_STAGE=Nomination pnpm run dev
+
+run-voting:
+	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_DEV_STAGE=Voting pnpm run dev
+
+run-award:
+	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_DEV_STAGE=Award pnpm run dev
