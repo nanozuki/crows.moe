@@ -2,7 +2,7 @@
 
 set shell := ["fish", "-c"]
 
-proj := "github.com/nanozuki/crows.moe/mediavote-api/"
+proj := "github.com/nanozuki/crows.moe/cmd/ema-import/"
 image := "asia-east1-docker.pkg.dev/crows-moe/images/mediavote-api"
 
 default:

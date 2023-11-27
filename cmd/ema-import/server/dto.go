@@ -1,6 +1,6 @@
 package server
 
-import "github.com/nanozuki/crows.moe/mediavote-api/core/entity"
+import "github.com/nanozuki/crows.moe/cmd/ema-import/core/entity"
 
 type Year struct {
 	Year              int   `json:"year,omitempty"`

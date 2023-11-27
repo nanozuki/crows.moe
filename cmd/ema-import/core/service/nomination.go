@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
-	"github.com/nanozuki/crows.moe/mediavote-api/core/store"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/core/entity"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/core/store"
 )
 
 func AddNomination(ctx context.Context, deptName entity.DepartmentName, workName string) (*entity.Department, error) {

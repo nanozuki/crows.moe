@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 
-	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
-	"github.com/nanozuki/crows.moe/mediavote-api/core/service"
-	"github.com/nanozuki/crows.moe/mediavote-api/core/store"
-	"github.com/nanozuki/crows.moe/mediavote-api/pkg/env"
-	"github.com/nanozuki/crows.moe/mediavote-api/server"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/core/entity"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/core/service"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/core/store"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/pkg/env"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/server"
 	"github.com/rs/zerolog/log"
 )
 

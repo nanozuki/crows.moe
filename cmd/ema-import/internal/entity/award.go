@@ -1,6 +1,6 @@
 package entity
 
-import "github.com/nanozuki/crows.moe/mediavote-api/internal/val"
+import "github.com/nanozuki/crows.moe/cmd/ema-import/internal/val"
 
 type Award struct {
 	Dept     val.DepartmentName `firestore:"dept,omitempty" json:"dept,omitempty"`

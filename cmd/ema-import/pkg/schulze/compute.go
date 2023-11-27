@@ -3,7 +3,7 @@ package schulze
 import (
 	"context"
 
-	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/core/entity"
 )
 
 func Compute(ctx context.Context, ballots []*entity.Ballot) ([]*entity.RankingItem, error) {

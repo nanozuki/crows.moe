@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
-	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
-	"github.com/nanozuki/crows.moe/mediavote-api/core/store"
-	"github.com/nanozuki/crows.moe/mediavote-api/pkg/schulze"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/core/entity"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/core/store"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/pkg/schulze"
 )
 
 func GetYears(ctx context.Context) ([]*entity.Year, error) {

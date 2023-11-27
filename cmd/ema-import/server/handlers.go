@@ -7,10 +7,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
-	"github.com/nanozuki/crows.moe/mediavote-api/core/service"
-	"github.com/nanozuki/crows.moe/mediavote-api/pkg/env"
-	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/core/entity"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/core/service"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/pkg/env"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/pkg/terror"
 	"github.com/rs/zerolog/log"
 )
 

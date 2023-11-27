@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
-	"github.com/nanozuki/crows.moe/mediavote-api/core/entity"
-	"github.com/nanozuki/crows.moe/mediavote-api/core/store"
-	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/core/entity"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/core/store"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/pkg/terror"
 )
 
 func NewVoter(ctx context.Context, name string) (*entity.Voter, *entity.Session, error) {

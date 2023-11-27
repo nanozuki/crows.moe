@@ -1,4 +1,4 @@
-module github.com/nanozuki/crows.moe/cmd/ema_import
+module github.com/nanozuki/crows.moe/cmd/ema-import
 
 go 1.20
 

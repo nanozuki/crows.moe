@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"cloud.google.com/go/firestore"
-	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/pkg/terror"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/api/iterator"
 )

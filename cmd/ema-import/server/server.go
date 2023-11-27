@@ -7,8 +7,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/nanozuki/crows.moe/mediavote-api/api"
-	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/api"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/pkg/terror"
 )
 
 type Server struct {

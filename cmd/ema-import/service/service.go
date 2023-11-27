@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
-	"github.com/nanozuki/crows.moe/mediavote-api/api"
-	"github.com/nanozuki/crows.moe/mediavote-api/internal/entity"
-	"github.com/nanozuki/crows.moe/mediavote-api/internal/val"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/api"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/internal/entity"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/internal/val"
 )
 
 type Service struct {
@@ -40,41 +40,41 @@ func (s *Service) GetAwards(ctx context.Context, req *api.GetAwardsRequest) (*ap
 	if err := year.ValidateDept(val.DepartmentName(req.Dept)); err != nil {
 		return nil, err
 	}
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (s *Service) GetNominations(ctx context.Context, req *api.GetNominationsRequest) (*api.GetNominationsResponse, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (s *Service) PostNominations(ctx context.Context, req *api.PostNominationsRequest) (*api.PostNominationsResponse, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (s *Service) GetLoggedVoter(ctx context.Context, req *api.GetLoggedVoterRequest) (*api.GetLoggedVoterResponse, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (s *Service) SignUpVoter(ctx context.Context, req *api.SignUpVoterRequest) (*api.SignUpVoterResponse, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (s *Service) LogInVoter(ctx context.Context, req *api.LogInVoterRequest) (*api.LogInVoterResponse, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (s *Service) GetBallot(ctx context.Context, req *api.GetBallotRequest) (*api.GetBallotResponse, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (s *Service) PutBallot(ctx context.Context, req *api.PutBallotRequest) (*api.PutBallotResponse, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }

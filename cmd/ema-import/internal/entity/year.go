@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/nanozuki/crows.moe/mediavote-api/api"
-	"github.com/nanozuki/crows.moe/mediavote-api/internal/val"
-	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/api"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/internal/val"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/pkg/terror"
 )
 
 type Year struct {

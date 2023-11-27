@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/pkg/terror"
 	"github.com/rs/zerolog/log"
 )
 

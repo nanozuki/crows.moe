@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/nanozuki/crows.moe/mediavote-api/pkg/terror"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/pkg/terror"
 	uuid "github.com/satori/go.uuid"
 )
 
