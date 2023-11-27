@@ -2,26 +2,29 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"flag"
 
-	"github.com/nanozuki/crows.moe/cmd/ema-import/core/entity"
-	"github.com/nanozuki/crows.moe/cmd/ema-import/core/service"
-	"github.com/nanozuki/crows.moe/cmd/ema-import/core/store"
-	"github.com/nanozuki/crows.moe/cmd/ema-import/pkg/env"
-	"github.com/nanozuki/crows.moe/cmd/ema-import/server"
 	"github.com/rs/zerolog/log"
 )
 
-func main() {
-	if env.Environment() == env.EnvDev {
-		store.LoadDevData()
-		stage := entity.Stage(env.DevStage())
-		if stage == entity.StageAward {
-			if _, err := service.ComputeAwards(context.Background(), 2022); err != nil {
-				log.Fatal().Msg(err.Error())
-			}
-		}
-	}
-	if err := server.RunServer(); err != nil {
-		log.Fatal().Msg(err.Error())
-	}
+var input string
+
+func init() {
+	flag.StringVar(&input, "input", "", "input file path")
 }
+
+func main() {
+	flag.Parse()
+	if input == "" {
+		log.Fatal().Msg("Usage: ema-import -input <input file path>")
+	}
+	var data EMAData
+	if err := json.Unmarshal([]byte(input), &data); err != nil {
+		log.Fatal().Msgf("unmarshal input: %v", err)
+	}
+	importer := NewImporter()
+	ctx := context.Background()
+	importer.importEMAData(ctx, &data)
+}
+
