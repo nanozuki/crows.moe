@@ -1,4 +1,4 @@
-module github.com/nanozuki/crows.moe/mediavote-api
+module github.com/nanozuki/crows.moe/cmd/ema_import
 
 go 1.20
 

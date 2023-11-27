@@ -1,7 +1,7 @@
 {
-  "name": "exodus-mediavote",
+  "name": "exodus-media-awards",
   "version": "1.0.0",
-  "description": "vote media works of the year",
+  "description": "Exodus Media Awards",
   "author": "Nanozuki Crows",
   "license": "MIT",
   "repository": {
