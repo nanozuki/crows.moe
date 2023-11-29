@@ -12,9 +12,9 @@ const adobeFont = `(function(d) {
 export default function Head() {
   return (
     <>
-      <title>Exodus 媒体艺术祭</title>
+      <title>Exodus 媒体艺术赏</title>
       <meta content="width=device-width, initial-scale=1" name="viewport" />
-      <meta property="og:title" content="Exodus媒体艺术祭" />
+      <meta property="og:title" content="Exodus 媒体艺术赏" />
       <Script id="adobe-font" dangerouslySetInnerHTML={{ __html: adobeFont }} />
     </>
   );

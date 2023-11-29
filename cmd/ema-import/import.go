@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -47,6 +48,10 @@ func (ip *Importer) set(ctx context.Context, doc any, path ...string) {
 	if len(path)%2 != 0 {
 		log.Fatal().Msgf("invalid set path: %s", strings.Join(path, "."))
 	}
+	if dryRun {
+		fmt.Printf("set %s: %+v\n", strings.Join(path, "."), doc)
+		return
+	}
 	var ref *firestore.DocumentRef
 	for i := 0; i*2+1 < len(path); i += 1 {
 		if ref == nil {
@@ -61,30 +66,30 @@ func (ip *Importer) set(ctx context.Context, doc any, path ...string) {
 	}
 }
 
-func (ip *Importer) importEMAData(ctx context.Context, data *EMAData) {
-	for year, yearData := range *data {
-		ip.importYearData(ctx, year, &yearData)
+func (ip *Importer) importEMAData(ctx context.Context, data EMAData) {
+	for _, yearData := range data {
+		ip.importYearData(ctx, yearData)
 	}
 }
 
-func (ip *Importer) importYearData(ctx context.Context, year int, data *YearData) {
+func (ip *Importer) importYearData(ctx context.Context, data *YearData) {
 	var departments []Department
 	for dept := range data.Works {
 		departments = append(departments, dept)
 	}
 	doc := &YearDoc{
-		Year:              year,
+		Year:              data.Year,
 		NominationStartAt: data.NominationStartAt.Time(),
 		VotingStartAt:     data.VotingStartAt.Time(),
 		AwardStartAt:      data.AwardStartAt.Time(),
 		Departments:       departments,
 	}
-	ip.set(ctx, doc, colYear, idYear(year))
+	ip.set(ctx, doc, colYear, idYear(data.Year))
 
-	ip.importWorks(ctx, year, data.Works)
-	voters := ip.importBallots(ctx, year, data.Ballots)
-	ip.importVoters(ctx, year, voters)
-	ip.importAwards(ctx, year, data)
+	ip.importWorks(ctx, data.Year, data.Works)
+	voters := ip.importBallots(ctx, data.Year, data.Ballots)
+	ip.importVoters(ctx, data.Year, voters)
+	ip.importAwards(ctx, data.Year, data)
 }
 
 func (ip *Importer) importWorks(ctx context.Context, year int, datas map[Department][]*Work) {

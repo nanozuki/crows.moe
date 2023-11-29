@@ -5,9 +5,10 @@ import (
 	"time"
 )
 
-type EMAData map[int]YearData
+type EMAData []*YearData
 
 type YearData struct {
+	Year              int                       `json:"year,omitempty"`
 	NominationStartAt Date                      `json:"nomination_start_at,omitempty"`
 	VotingStartAt     Date                      `json:"voting_start_at,omitempty"`
 	AwardStartAt      Date                      `json:"award_start_at,omitempty"`
