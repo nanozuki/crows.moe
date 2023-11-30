@@ -1,4 +1,4 @@
-package main
+package domain
 
 import (
 	"context"
@@ -32,23 +32,24 @@ const (
 
 type Importer struct {
 	client *firestore.Client
+	dryRun bool
 }
 
-func NewImporter() *Importer {
+func NewImporter(dryRun bool) *Importer {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, err := firestore.NewClient(ctx, ProjectID)
 	if err != nil {
 		log.Fatal().Msgf("connect firestore: %v", err)
 	}
-	return &Importer{client}
+	return &Importer{client, dryRun}
 }
 
 func (ip *Importer) set(ctx context.Context, doc any, path ...string) {
 	if len(path)%2 != 0 {
 		log.Fatal().Msgf("invalid set path: %s", strings.Join(path, "."))
 	}
-	if dryRun {
+	if ip.dryRun {
 		fmt.Printf("set %s: %+v\n", strings.Join(path, "."), doc)
 		return
 	}
@@ -66,7 +67,7 @@ func (ip *Importer) set(ctx context.Context, doc any, path ...string) {
 	}
 }
 
-func (ip *Importer) importEMAData(ctx context.Context, data EMAData) {
+func (ip *Importer) ImportEMAData(ctx context.Context, data EMAData) {
 	for _, yearData := range data {
 		ip.importYearData(ctx, yearData)
 	}

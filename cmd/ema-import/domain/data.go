@@ -1,11 +1,36 @@
-package main
+package domain
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 )
 
 type EMAData []*YearData
+
+func NewEMADataFromFile(filename string) (EMAData, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return nil, fmt.Errorf("open input: %w", err)
+	}
+	var data EMAData
+	if err := json.NewDecoder(f).Decode(&data); err != nil {
+		return nil, fmt.Errorf("unmarshal input: %w", err)
+	}
+	return data, nil
+}
+
+func (d EMAData) SaveToFile(filename string) error {
+	f, err := os.Create(filename)
+	if err != nil {
+		return fmt.Errorf("create output: %w", err)
+	}
+	if err := json.NewEncoder(f).Encode(d); err != nil {
+		return fmt.Errorf("marshal output: %w", err)
+	}
+	return nil
+}
 
 type YearData struct {
 	Year              int                       `json:"year,omitempty"`
@@ -71,7 +96,7 @@ func (d *Department) UnmarshalJSON(data []byte) error {
 }
 
 func (d *Department) MarshalJSON() ([]byte, error) {
-	return []byte(string(*d)), nil
+	return json.Marshal(string(*d))
 }
 
 type Work struct {
