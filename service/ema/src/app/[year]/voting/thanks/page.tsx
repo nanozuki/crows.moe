@@ -25,7 +25,7 @@ export default async function Page({ params }: { params: { year: number } }) {
         <Text>
           点击或保存此链接：
           <a href={route} className="text-pine ml-1 mr-1 underline">
-            {`https://mediavote.crows.moe${route}`}
+            {`https://ema.crows.moe${route}`}
           </a>
           。在投票期间可以随时查看和修改自己的投票。
         </Text>

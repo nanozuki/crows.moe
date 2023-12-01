@@ -40,15 +40,10 @@ jobs:
           docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/blog:${{ env.TAG }}" service/blog
           docker push "${{ env.IMAGE_LOCATION }}/blog:${{ env.TAG }}"
 
-      - name: build mediavote-api
+      - name: build ema
         run: |-
-          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/mediavote-api:${{ env.TAG }}" service/mediavote-api
-          docker push "${{ env.IMAGE_LOCATION }}/mediavote-api:${{ env.TAG }}"
-
-      - name: build mediavote-web
-        run: |-
-          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/mediavote-web:${{ env.TAG }}" service/mediavote-web
-          docker push "${{ env.IMAGE_LOCATION }}/mediavote-web:${{ env.TAG }}"
+          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/ema:${{ env.TAG }}" service/ema
+          docker push "${{ env.IMAGE_LOCATION }}/ema:${{ env.TAG }}"
 
       - name: build urldbot
         run: |-

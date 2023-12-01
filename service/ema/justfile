@@ -2,8 +2,7 @@
 
 set shell := ["fish", "-c"]
 
-proj := "github.com/nanozuki/crows.moe/mediavote-web/"
-image := "asia-east1-docker.pkg.dev/crows-moe/images/mediavote-web"
+image := "asia-east1-docker.pkg.dev/crows-moe/images/ema"
 
 default:
 	just --list
@@ -14,12 +13,12 @@ build-image TAG:
 
 run-nomination:
 	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
-	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_DEV_STAGE=Nomination pnpm run dev
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 EMA_DEV_STAGE=Nomination pnpm run dev
 
 run-voting:
 	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
-	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_DEV_STAGE=Voting pnpm run dev
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 EMA_DEV_STAGE=Voting pnpm run dev
 
 run-award:
 	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
-	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 MEDIAVOTE_DEV_STAGE=Award pnpm run dev
+	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 EMA_DEV_STAGE=Award pnpm run dev

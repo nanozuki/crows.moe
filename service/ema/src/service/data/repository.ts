@@ -152,7 +152,7 @@ export async function generateDevData(db: Firestore): Promise<void> {
   const currentYear = now.toDate().getFullYear();
   const years = [currentYear, currentYear - 1, currentYear - 2];
   const departments = [Department.Anime, Department.MangaAndNovel, Department.Game];
-  const devStage = process.env['MEDIAVOTE_DEV_STAGE'] as Stage;
+  const devStage = process.env['EMA_DEV_STAGE'] as Stage;
   for (const y of years) {
     const year = {
       year: y,
