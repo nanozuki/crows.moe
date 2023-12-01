@@ -1,10 +1,11 @@
 package domain
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/goccy/go-yaml"
 )
 
 type EMAData []*YearData
@@ -15,7 +16,7 @@ func NewEMADataFromFile(filename string) (EMAData, error) {
 		return nil, fmt.Errorf("open input: %w", err)
 	}
 	var data EMAData
-	if err := json.NewDecoder(f).Decode(&data); err != nil {
+	if err := yaml.NewDecoder(f).Decode(&data); err != nil {
 		return nil, fmt.Errorf("unmarshal input: %w", err)
 	}
 	return data, nil
@@ -26,7 +27,7 @@ func (d EMAData) SaveToFile(filename string) error {
 	if err != nil {
 		return fmt.Errorf("create output: %w", err)
 	}
-	if err := json.NewEncoder(f).Encode(d); err != nil {
+	if err := yaml.NewEncoder(f).Encode(d); err != nil {
 		return fmt.Errorf("marshal output: %w", err)
 	}
 	return nil
@@ -53,7 +54,7 @@ func (yd *YearData) FindWork(dept Department, name string) *Work {
 
 type Date time.Time
 
-func (d *Date) UnmarshalJSON(data []byte) error {
+func (d *Date) UnmarshalYAML(data []byte) error {
 	t, err := time.Parse(`"2006-01-02"`, string(data))
 	if err != nil {
 		return err
@@ -62,7 +63,7 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (d *Date) MarshalJSON() ([]byte, error) {
+func (d *Date) MarshalYAML() ([]byte, error) {
 	return []byte(fmt.Sprintf(`"%s"`, time.Time(*d).Format("2006-01-02"))), nil
 }
 
@@ -84,7 +85,7 @@ const (
 	DeptNovel      Department = "novel"
 )
 
-func (d *Department) UnmarshalJSON(data []byte) error {
+func (d *Department) UnmarshalYAML(data []byte) error {
 	dept := Department(string(data))
 	switch dept {
 	case DeptAnime, DeptMangaAndNovel, DeptGame, DeptTVAnime, DeptNonTVAnime, DeptManga, DeptNovel:
@@ -95,8 +96,8 @@ func (d *Department) UnmarshalJSON(data []byte) error {
 	}
 }
 
-func (d *Department) MarshalJSON() ([]byte, error) {
-	return json.Marshal(string(*d))
+func (d *Department) MarshalYAML() ([]byte, error) {
+	return yaml.Marshal(string(*d))
 }
 
 type Work struct {

@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -50,7 +51,8 @@ func (ip *Importer) set(ctx context.Context, doc any, path ...string) {
 		log.Fatal().Msgf("invalid set path: %s", strings.Join(path, "."))
 	}
 	if ip.dryRun {
-		fmt.Printf("set %s: %+v\n", strings.Join(path, "."), doc)
+		docJson, _ := json.Marshal(doc)
+		fmt.Printf("set %s:\n\t%v\n", strings.Join(path, "."), string(docJson))
 		return
 	}
 	var ref *firestore.DocumentRef
