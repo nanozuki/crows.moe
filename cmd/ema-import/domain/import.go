@@ -36,9 +36,7 @@ type Importer struct {
 }
 
 func NewImporter(dryRun bool) *Importer {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	client, err := firestore.NewClient(ctx, ProjectID)
+	client, err := firestore.NewClient(context.Background(), ProjectID)
 	if err != nil {
 		log.Fatal().Msgf("connect firestore: %v", err)
 	}

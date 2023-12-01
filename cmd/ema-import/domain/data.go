@@ -101,13 +101,9 @@ func (d *Department) MarshalYAML() ([]byte, error) {
 }
 
 type Work struct {
-	Name       string   `json:"name,omitempty"`
-	OriginName string   `json:"origin_name,omitempty"`
-	Alias      []string `json:"alias,omitempty"`
-}
-
-type DepartmentDoc struct {
-	Works []*Work
+	Name       string   `json:"name,omitempty" firestore:"name,omitempty"`
+	OriginName string   `json:"origin_name,omitempty" firestore:"origin_name,omitempty"`
+	Alias      []string `json:"alias,omitempty" firestore:"alias,omitempty"`
 }
 
 type BallotData struct {
@@ -116,18 +112,14 @@ type BallotData struct {
 	Rankings   []*RankedWorkName `json:"rankings,omitempty"`
 }
 
-type BallotDoc struct {
-	Rankings []*RankedWorkName `json:"rankings,omitempty"`
-}
-
 type RankedWorkName struct {
-	Ranking  int    `json:"ranking,omitempty"`
-	WorkName string `json:"work_name,omitempty"`
+	Ranking  int    `json:"ranking,omitempty" firestore:"ranking,omitempty"`
+	WorkName string `json:"work_name,omitempty" firestore:"work_name,omitempty"`
 }
 
 type RankedWork struct {
-	Ranking int   `json:"ranking,omitempty"`
-	Work    *Work `json:"work,omitempty"`
+	Ranking int   `json:"ranking,omitempty" firestore:"ranking,omitempty"`
+	Work    *Work `json:"work,omitempty" firestore:"work,omitempty"`
 }
 
 type AwardData struct {
@@ -135,20 +127,28 @@ type AwardData struct {
 }
 
 type YearDoc struct {
-	Year              int          `json:"year,omitempty"`
-	NominationStartAt time.Time    `json:"nomination_start_at,omitempty"`
-	VotingStartAt     time.Time    `json:"voting_start_at,omitempty"`
-	AwardStartAt      time.Time    `json:"award_start_at,omitempty"`
-	Departments       []Department `json:"departments,omitempty"`
+	Year              int          `json:"year,omitempty" firestore:"year,omitempty"`
+	NominationStartAt time.Time    `json:"nomination_start_at,omitempty" firestore:"nomination_start_at,omitempty"`
+	VotingStartAt     time.Time    `json:"voting_start_at,omitempty" firestore:"voting_start_at,omitempty"`
+	AwardStartAt      time.Time    `json:"award_start_at,omitempty" firestore:"award_start_at,omitempty"`
+	Departments       []Department `json:"departments,omitempty" firestore:"departments,omitempty"`
+}
+
+type BallotDoc struct {
+	Rankings []*RankedWorkName `json:"rankings,omitempty" firestore:"rankings,omitempty"`
 }
 
 type AwardDoc struct {
-	Rankings []*RankedWork `json:"rankings,omitempty"`
+	Rankings []*RankedWork `json:"rankings,omitempty" firestore:"rankings,omitempty"`
 }
 
 type VoterDoc struct {
-	Name    string `json:"name,omitempty"`
-	PinCode string `json:"pin_code,omitempty"`
+	Name    string `json:"name,omitempty" firestore:"name,omitempty"`
+	PinCode string `json:"pin_code,omitempty" firestore:"pin_code,omitempty"`
+}
+
+type DepartmentDoc struct {
+	Works []*Work `firestore:"works,omitempty"`
 }
 
 func idYear(year int) string {
