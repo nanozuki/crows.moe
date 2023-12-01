@@ -51,8 +51,10 @@ func (ip *Importer) set(ctx context.Context, doc any, path ...string) {
 		log.Fatal().Msgf("invalid set path: %s", strings.Join(path, "."))
 	}
 	if ip.dryRun {
-		docJson, _ := json.Marshal(doc)
-		fmt.Printf("set %s:\n\t%v\n", strings.Join(path, "."), string(docJson))
+		docJson, _ := json.MarshalIndent(doc, "", "    ")
+		fmt.Println("----")
+		fmt.Printf("SET %s:\n", strings.Join(path, "."))
+		fmt.Println(string(docJson))
 		return
 	}
 	var ref *firestore.DocumentRef
@@ -90,7 +92,7 @@ func (ip *Importer) importYearData(ctx context.Context, data *YearData) {
 	ip.set(ctx, doc, colYear, idYear(data.Year))
 
 	ip.importWorks(ctx, data.Year, data.Works)
-	voters := ip.importBallots(ctx, data.Year, data.Ballots)
+	voters := ip.importBallots(ctx, data.Year, data)
 	ip.importVoters(ctx, data.Year, voters)
 	ip.importAwards(ctx, data.Year, data)
 }
@@ -101,12 +103,21 @@ func (ip *Importer) importWorks(ctx context.Context, year int, datas map[Departm
 	}
 }
 
-func (ip *Importer) importBallots(ctx context.Context, year int, datas []*BallotData) []*VoterDoc {
+func (ip *Importer) importBallots(ctx context.Context, year int, data *YearData) []*VoterDoc {
 	voterNames := map[string]struct{}{}
-	for _, data := range datas {
-		doc := &BallotDoc{Rankings: data.Rankings}
-		ip.set(ctx, doc, colYear, idYear(year), colBallot, idBallot(data))
-		voterNames[data.VoterName] = struct{}{}
+	for _, ballot := range data.Ballots {
+		if len(ballot.Rankings) == 0 {
+			continue
+		}
+		for _, ranking := range ballot.Rankings {
+			work := data.FindWork(ballot.Department, ranking.WorkName)
+			if work == nil {
+				log.Fatal().Msgf("work not found: %s", ranking.WorkName)
+			}
+		}
+		doc := &BallotDoc{Rankings: ballot.Rankings}
+		ip.set(ctx, doc, colYear, idYear(year), colBallot, idBallot(ballot))
+		voterNames[ballot.VoterName] = struct{}{}
 	}
 	var voters []*VoterDoc
 	for name := range voterNames {
@@ -125,9 +136,13 @@ func (i *Importer) importAwards(ctx context.Context, year int, data *YearData) {
 	for dept, award := range data.Awards {
 		rankings := make([]*RankedWork, len(award.Rankings))
 		for i, ranking := range award.Rankings {
+			work := data.FindWork(dept, ranking.WorkName)
+			if work == nil {
+				log.Fatal().Msgf("work not found: %s", ranking.WorkName)
+			}
 			rankings[i] = &RankedWork{
 				Ranking: ranking.Ranking,
-				Work:    data.FindWork(dept, ranking.WorkName),
+				Work:    work,
 			}
 		}
 		doc := &AwardDoc{Rankings: rankings}
