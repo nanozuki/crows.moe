@@ -1,0 +1,5 @@
+# test files
+testdata/gopath/*
+!testdata/gopath/.keep
+
+data/*
