@@ -106,6 +106,10 @@ type Work struct {
 	Alias      []string `json:"alias,omitempty"`
 }
 
+type DepartmentDoc struct {
+	Works []*Work
+}
+
 type BallotData struct {
 	Department Department        `json:"department,omitempty"`
 	VoterName  string            `json:"voter_name,omitempty"`

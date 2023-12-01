@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/rs/zerolog/log"
@@ -67,7 +66,7 @@ func (ip *Importer) set(ctx context.Context, doc any, path ...string) {
 	}
 	_, err := ref.Set(ctx, doc)
 	if err != nil {
-		log.Fatal().Msgf("set %s: %v", path, err)
+		log.Fatal().Msgf("set %s: %v", strings.Join(path, "."), err)
 	}
 }
 
@@ -99,7 +98,8 @@ func (ip *Importer) importYearData(ctx context.Context, data *YearData) {
 
 func (ip *Importer) importWorks(ctx context.Context, year int, datas map[Department][]*Work) {
 	for dept, works := range datas {
-		ip.set(ctx, works, colYear, idYear(year), colDepartment, idDept(dept))
+		doc := &DepartmentDoc{Works: works}
+		ip.set(ctx, doc, colYear, idYear(year), colDepartment, idDept(dept))
 	}
 }
 
