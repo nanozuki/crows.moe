@@ -1,6 +1,6 @@
 resource "google_cloud_run_service" "blog" {
   name     = "blog"
-  location = "asia-east1"
+  location = "asia-southeast1"
 
   template {
     metadata {
@@ -15,7 +15,7 @@ resource "google_cloud_run_service" "blog" {
     }
     spec {
       containers {
-        image = "asia-east1-docker.pkg.dev/crows-moe/images/blog:${var.deploy_tag}"
+        image = "asia-southeast1-docker.pkg.dev/crows-moe/images/blog:${var.deploy_tag}"
         ports {
           container_port = 3000
         }

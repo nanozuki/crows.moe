@@ -24,13 +24,13 @@ variable "urldbot_token" {
 
 provider "google" {
   project = "crows-moe"
-  region  = "asia-east1"
-  zone    = "asia-east1-a"
+  region  = "asia-southeast1"
+  zone    = "asia-southeast1-a"
 }
 
 resource "google_firestore_database" "database" {
-  name                        = "(default)"
-  location_id                 = "asia-east1"
+  name                        = "exodus-media-awards"
+  location_id                 = "asia-southeast1"
   type                        = "FIRESTORE_NATIVE"
   concurrency_mode            = "OPTIMISTIC"
   app_engine_integration_mode = "DISABLED"
@@ -42,7 +42,7 @@ resource "google_firestore_database" "database" {
 resource "google_artifact_registry_repository" "images" {
   repository_id = "images"
   format        = "DOCKER"
-  location      = "asia-east1"
+  location      = "asia-southeast1"
   description   = "default docker repository"
 }
 

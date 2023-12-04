@@ -1,6 +1,6 @@
 resource "google_cloud_run_service" "urldbot" {
   name     = "urldbot"
-  location = "asia-east1"
+  location = "asia-southeast1"
 
   template {
     metadata {
@@ -15,7 +15,7 @@ resource "google_cloud_run_service" "urldbot" {
     }
     spec {
       containers {
-        image = "asia-east1-docker.pkg.dev/crows-moe/images/urldbot:${var.deploy_tag}"
+        image = "asia-southeast1-docker.pkg.dev/crows-moe/images/urldbot:${var.deploy_tag}"
         env {
           name  = "URLDBOT_TOKEN"
           value = var.urldbot_token
