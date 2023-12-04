@@ -28,16 +28,16 @@ provider "google" {
   zone    = "asia-southeast1-a"
 }
 
-# resource "google_firestore_database" "database" {
-#   name                        = "exodus-media-awards"
-#   location_id                 = "asia-southeast1"
-#   type                        = "FIRESTORE_NATIVE"
-#   concurrency_mode            = "OPTIMISTIC"
-#   app_engine_integration_mode = "DISABLED"
-#   lifecycle {
-#     prevent_destroy = true
-#   }
-# }
+resource "google_firestore_database" "database" {
+  name                        = "exodus-media-awards"
+  location_id                 = "asia-southeast1"
+  type                        = "FIRESTORE_NATIVE"
+  concurrency_mode            = "OPTIMISTIC"
+  app_engine_integration_mode = "DISABLED"
+  lifecycle {
+    prevent_destroy = true
+  }
+}
 
 resource "google_artifact_registry_repository" "images" {
   repository_id = "images"

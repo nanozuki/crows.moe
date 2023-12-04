@@ -12,9 +12,10 @@ import { AwardUseCase, BallotUseCase, VoterUseCase, WorksSetUseCase, CeremonyUse
 import { Calculator } from '@service/calculator';
 
 const projectId = 'crows-moe';
+const databaseId = 'exodus-media-awards';
 
 async function make_service(): Promise<Service> {
-  const db = new Firestore({ projectId, ignoreUndefinedProperties: true });
+  const db = new Firestore({ projectId, databaseId, ignoreUndefinedProperties: true });
   const calculator = new Calculator();
   const ballotRepository = new BallotRepositoryImpl(db);
   const service = new Service(
