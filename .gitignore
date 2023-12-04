@@ -37,3 +37,4 @@ yarn-error.log*
 # editor
 .idea/
 .vscode/
+*auto.tfvars*
