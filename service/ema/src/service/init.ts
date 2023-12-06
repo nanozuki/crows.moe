@@ -10,6 +10,7 @@ import {
 } from '@service/data/repository';
 import { AwardUseCase, BallotUseCase, VoterUseCase, WorksSetUseCase, CeremonyUseCase } from '@service/use_case';
 import { Calculator } from '@service/calculator';
+import { isDev } from '@service/env';
 
 const projectId = 'crows-moe';
 const databaseId = 'exodus-media-awards';
@@ -25,7 +26,7 @@ async function make_service(): Promise<Service> {
     new BallotUseCase(ballotRepository),
     new AwardUseCase(new AwardRepositoryImpl(db), ballotRepository, calculator),
   );
-  if (process.env.NODE_ENV === 'development') {
+  if (isDev) {
     await generateDevData(db);
   }
   return service;

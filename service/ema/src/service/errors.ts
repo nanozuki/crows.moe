@@ -31,8 +31,8 @@ export function NotInStageError(...stages: string[]) {
   return new Terror(ErrorCode.Forbidden, `This page is not available during the '${stages.join(', ')}‘ stage`);
 }
 
-export function NoSessionIDError() {
-  return new Terror(ErrorCode.Unauthorized, 'No session id');
+export function NoTokenError() {
+  return new Terror(ErrorCode.Unauthorized, 'No valid token');
 }
 
 export function InvalidPinCodeError() {

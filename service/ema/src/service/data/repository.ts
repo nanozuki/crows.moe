@@ -12,7 +12,6 @@ import {
   AwardDoc,
   BallotDoc,
   DepartmentDoc,
-  SessionDoc,
   VoterDoc,
   WorkDoc,
   YearDoc,
@@ -29,12 +28,12 @@ import {
 } from './doc';
 import { Department, Stage } from '@service/value';
 import { chineseLipsum, englishLipsum, japaneseLipsum } from '@service/pkg/lipsum';
+import { devStage } from '@service/env';
 
 /* collections:
 mediavote_years: store yearly time infos
 	-> departments: {dept -> works[]}
 	-> voters:      {name -> {name, pinCode}}
-	-> sessions:    {key -> user}
 	-> ballots:     {dept,voteName -> rankings}
 	-> awards:      {dept -> rankings}
 */
@@ -42,7 +41,6 @@ mediavote_years: store yearly time infos
 const colCeremony = 'mediavote_years';
 const colDepartment = 'departments';
 const colVoter = 'voters';
-const colSession = 'sessions';
 const colBallot = 'ballots';
 const colAward = 'awards';
 
@@ -85,11 +83,6 @@ export class WorksSetRepositoryImpl implements WorksSetRepository {
 export class VoterRepositoryImpl implements VoterRepository {
   constructor(public db: Firestore) {}
 
-  async getBySessionID(year: number, sessionID: string): Promise<Voter> {
-    const doc = await getOne<SessionDoc>(this.db, colCeremony, year.toString(), colSession, sessionID);
-    return { name: doc.name };
-  }
-
   async getByNameAndPin(year: number, name: string, pin: string): Promise<Voter> {
     const doc = await getOne<VoterDoc>(this.db, colCeremony, year.toString(), colVoter, name);
     if (doc.pin_code !== pin) {
@@ -101,10 +94,6 @@ export class VoterRepositoryImpl implements VoterRepository {
   async createVoter(year: number, name: string, pin: string): Promise<Voter> {
     await setOne<VoterDoc>(this.db, { name, pin_code: pin }, colCeremony, year.toString(), colVoter, name);
     return { name };
-  }
-
-  async createSessionID(year: number, voter: Voter, sessionId: string): Promise<void> {
-    await setOne<SessionDoc>(this.db, { name: voter.name }, colCeremony, year.toString(), colSession, sessionId);
   }
 }
 
@@ -152,7 +141,6 @@ export async function generateDevData(db: Firestore): Promise<void> {
   const currentYear = now.toDate().getFullYear();
   const years = [currentYear, currentYear - 1, currentYear - 2];
   const departments = [Department.Anime, Department.MangaAndNovel, Department.Game];
-  const devStage = process.env['EMA_DEV_STAGE'] as Stage;
   for (const y of years) {
     const year = {
       year: y,

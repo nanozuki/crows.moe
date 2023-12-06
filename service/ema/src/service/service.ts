@@ -5,6 +5,8 @@ import {
   WorksSetUseCase,
   CeremonyUseCase,
   SignUpReply,
+  verifyCookie,
+  newCookie,
 } from '@service/use_case';
 import {
   Award,
@@ -17,8 +19,9 @@ import {
   makeRankingsFromNames,
 } from '@service/entity';
 import { Department, RankedWorkName, Stage, Work } from '@service/value';
-import { ErrorCode, NoSessionIDError, Terror } from '@service/errors';
+import { ErrorCode, NoTokenError, Terror } from '@service/errors';
 import { cookies } from 'next/headers';
+import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
 export class Service {
   constructor(
@@ -52,35 +55,22 @@ export class Service {
     return ws;
   }
 
-  async getLoggedVoter(): Promise<Voter | undefined> {
+  async getLoggedVoter(): Promise<Voter | null> {
     const c = await this.ceremony.current();
     if (getStage(c, new Date()) !== Stage.Voting) {
-      return undefined;
+      return null;
     }
-    const sessionid = cookies().get('sessionid')?.value;
-    if (!sessionid) {
-      return undefined;
-    }
-    try {
-      return await this.voter.ensureAuth(c.year, sessionid);
-    } catch (e) {
-      const te = Terror.handleError(e);
-      if (te.code === ErrorCode.NotFound) {
-        return undefined;
-      } else {
-        throw e;
-      }
-    }
+    return await verifyCookie(cookies());
   }
 
   async requireLoggedVoter(): Promise<Voter> {
     const c = await this.ceremony.current();
     await this.ceremony.getInStages(c.year, Stage.Voting);
-    const sessionid = cookies().get('sessionid')?.value;
-    if (!sessionid) {
-      throw NoSessionIDError();
+    const voter = await this.getLoggedVoter();
+    if (!voter) {
+      throw NoTokenError();
     }
-    return await this.voter.ensureAuth(c.year, sessionid);
+    return voter;
   }
 
   async signUpVoter(name: string): Promise<SignUpReply> {
@@ -89,12 +79,12 @@ export class Service {
     return await this.voter.signUp(c.year, name);
   }
 
-  async logInVoter(name: string, pinCode: string): Promise<[Voter, string]> {
+  async logInVoter(name: string, pinCode: string): Promise<[Voter, ResponseCookie]> {
     const c = await this.ceremony.current();
     await this.ceremony.getInStages(c.year, Stage.Voting);
     const voter = await this.voter.login(c.year, name, pinCode);
-    const sessionid = await this.voter.makeSession(c.year, voter);
-    return [voter, sessionid];
+    const cookie = await newCookie(new Date(), voter);
+    return [voter, cookie];
   }
 
   async getBallot(year: number, department: Department): Promise<Ballot> {

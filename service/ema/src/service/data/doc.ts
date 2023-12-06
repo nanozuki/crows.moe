@@ -106,10 +106,6 @@ export interface VoterDoc {
   pin_code: string;
 }
 
-export interface SessionDoc {
-  name: string;
-}
-
 export interface BallotDoc {
   voter: string;
   rankings: { ranking: number; work_name: string }[];

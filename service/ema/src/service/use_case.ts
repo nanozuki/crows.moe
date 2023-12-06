@@ -1,8 +1,10 @@
-import { v4 as uuidV4 } from 'uuid';
 import { Award, Ballot, Voter, WorksSet, Ceremony, getStage } from '@service/entity';
 import { Department, RankedWork, Stage } from '@service/value';
 import { NotInStageError } from '@service/errors';
 import { SignJWT, jwtVerify } from 'jose';
+import { jwtSecret } from '@service/env';
+import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
+import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 
 export interface CeremonyRepository {
   find(year: number): Promise<Ceremony>;
@@ -54,24 +56,18 @@ export class WorksSetUseCase {
 }
 
 export interface VoterRepository {
-  getBySessionID(year: number, sessionID: string): Promise<Voter>;
   getByNameAndPin(year: number, name: string, pin: string): Promise<Voter>;
   createVoter(year: number, name: string, pin: string): Promise<Voter>;
-  createSessionID(year: number, voter: Voter, sessionId: string): Promise<void>;
 }
 
 export interface SignUpReply {
   voter: Voter;
-  sessionId: string;
   pinCode: string;
+  cookie: ResponseCookie;
 }
 
 export class VoterUseCase {
   constructor(private voterRepository: VoterRepository) {}
-
-  async ensureAuth(year: number, sessionID: string): Promise<Voter> {
-    return this.voterRepository.getBySessionID(year, sessionID);
-  }
 
   async login(year: number, name: string, pin: string): Promise<Voter> {
     return this.voterRepository.getByNameAndPin(year, name, pin);
@@ -81,37 +77,48 @@ export class VoterUseCase {
     // generate pin from '10000' to '99999'
     const pin = Math.floor(Math.random() * 90000) + 10000;
     const voter = await this.voterRepository.createVoter(year, name, pin.toString());
-    const sessionId = uuidV4();
-    await this.voterRepository.createSessionID(year, voter, sessionId);
-    return { voter, sessionId, pinCode: pin.toString() };
+    return { voter, pinCode: pin.toString(), cookie: await newCookie(new Date(), voter) };
   }
+}
 
-  async makeSession(year: number, voter: Voter): Promise<string> {
-    const sessionId = uuidV4();
-    await this.voterRepository.createSessionID(year, voter, sessionId);
-    return sessionId;
-  }
+const tokenOptions = {
+  name: 'token',
+  issuer: 'https://crows.moe',
+  audience: 'https://ema.crows.moe',
+  expireTime: 1000 * 60 * 60 * 24 * 30, // 30 days
+};
 
-  async signToken(voter: Voter): Promise<string> {
-    const secret = new TextEncoder().encode('secret'); // TODO: get in env
-    const jwt = await new SignJWT({ name: voter.name })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setIssuer('https://crows.moe')
-      .setAudience('https://ema.crows.moe')
-      .setExpirationTime('30d')
-      .sign(secret);
-    return jwt;
-  }
+export async function newCookie(from: Date, voter: Voter): Promise<ResponseCookie> {
+  const expires = new Date(from.getTime() + tokenOptions.expireTime);
+  const jwt = await new SignJWT({ name: voter.name })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setIssuer(tokenOptions.issuer)
+    .setAudience(tokenOptions.audience)
+    .setExpirationTime(expires)
+    .sign(jwtSecret);
+  return {
+    name: tokenOptions.name,
+    value: jwt,
+    path: '/',
+    expires,
+    secure: true,
+    httpOnly: true,
+    sameSite: 'strict',
+  };
+}
 
-  async verifyToken(jwt: string): Promise<Voter> {
-    const secret = new TextEncoder().encode('secret'); // TODO: get in env
-    const { payload } = await jwtVerify(jwt, secret, {
-      issuer: 'https://crows.moe',
-      audience: 'https://ema.crows.moe',
-    });
-    return { name: payload.name as string };
+export async function verifyCookie(cookies: ReadonlyRequestCookies): Promise<Voter | null> {
+  const token = cookies.get(tokenOptions.name)?.value;
+  if (!token) {
+    return null;
   }
+  const { payload } = await jwtVerify(token, jwtSecret, {
+    issuer: tokenOptions.issuer,
+    audience: tokenOptions.audience,
+    requiredClaims: ['iss', 'aud', 'exp', 'iat', 'name'],
+  });
+  return { name: payload.name as string };
 }
 
 export interface BallotRepository {
