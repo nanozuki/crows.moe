@@ -7,7 +7,7 @@ import {
   WorksSetRepositoryImpl,
   CeremonyRepositoryImpl,
   generateDevData,
-} from '@service/data/repository';
+} from '@service/fs-data/repository';
 import { AwardUseCase, BallotUseCase, VoterUseCase, WorksSetUseCase, CeremonyUseCase } from '@service/use_case';
 import { Calculator } from '@service/calculator';
 import { isDev } from '@service/env';

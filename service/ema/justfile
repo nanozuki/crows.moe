@@ -22,3 +22,8 @@ run-voting:
 run-award:
 	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
 	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 EMA_DEV_STAGE=Award pnpm run dev
+
+gen-migration:
+	# do first: docker run --rm --name ema-db -p 5432:5432 -e POSTGRES_PASSWORD=password -e POSTGRES_USER=ema -e POSTGRES_DB=ema -d postgres
+	EMA_POSTGRES_URL=postgresql://ema:ema@localhost:5432/ema pnpm drizzle-kit generate:pg
+
