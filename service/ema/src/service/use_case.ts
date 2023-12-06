@@ -2,6 +2,7 @@ import { v4 as uuidV4 } from 'uuid';
 import { Award, Ballot, Voter, WorksSet, Ceremony, getStage } from '@service/entity';
 import { Department, RankedWork, Stage } from '@service/value';
 import { NotInStageError } from '@service/errors';
+import { SignJWT, jwtVerify } from 'jose';
 
 export interface CeremonyRepository {
   find(year: number): Promise<Ceremony>;
@@ -89,6 +90,27 @@ export class VoterUseCase {
     const sessionId = uuidV4();
     await this.voterRepository.createSessionID(year, voter, sessionId);
     return sessionId;
+  }
+
+  async signToken(voter: Voter): Promise<string> {
+    const secret = new TextEncoder().encode('secret'); // TODO: get in env
+    const jwt = await new SignJWT({ name: voter.name })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setIssuer('https://crows.moe')
+      .setAudience('https://ema.crows.moe')
+      .setExpirationTime('30d')
+      .sign(secret);
+    return jwt;
+  }
+
+  async verifyToken(jwt: string): Promise<Voter> {
+    const secret = new TextEncoder().encode('secret'); // TODO: get in env
+    const { payload } = await jwtVerify(jwt, secret, {
+      issuer: 'https://crows.moe',
+      audience: 'https://ema.crows.moe',
+    });
+    return { name: payload.name as string };
   }
 }
 
