@@ -8,16 +8,7 @@ import {
   verifyCookie,
   newCookie,
 } from '@service/use_case';
-import {
-  Award,
-  Ballot,
-  Voter,
-  Ceremony,
-  validateDepartment,
-  addWorkToSet,
-  getStage,
-  makeRankingsFromNames,
-} from '@service/entity';
+import { Award, Ballot, Voter, Ceremony, validateDepartment, getStage, makeRankingsFromNames } from '@service/entity';
 import { Department, RankedWorkName, Stage, Work } from '@service/value';
 import { ErrorCode, NoTokenError, Terror } from '@service/errors';
 import { cookies } from 'next/headers';
@@ -49,10 +40,8 @@ export class Service {
   async addNomination(year: number, department: Department, workName: string): Promise<Work[]> {
     const c = await this.ceremony.getInStages(year, Stage.Nomination);
     validateDepartment(c, department);
-    const ws = await this.worksSet.get(year, department);
-    addWorkToSet(ws, workName);
-    await this.worksSet.save(year, department, ws);
-    return ws;
+    await this.worksSet.save(year, department, workName);
+    return this.worksSet.get(year, department);
   }
 
   async getLoggedVoter(): Promise<Voter | null> {

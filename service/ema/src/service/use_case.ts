@@ -39,19 +39,19 @@ export class CeremonyUseCase {
 }
 
 export interface WorksSetRepository {
-  get(year: number, department: string): Promise<WorksSet>;
-  save(year: number, department: string, works: WorksSet): Promise<void>;
+  get(year: number, department: Department): Promise<WorksSet>;
+  add(year: number, department: Department, name: string): Promise<void>;
 }
 
 export class WorksSetUseCase {
   constructor(private worksSetRepository: WorksSetRepository) {}
 
-  async get(year: number, department: string): Promise<WorksSet> {
+  async get(year: number, department: Department): Promise<WorksSet> {
     return this.worksSetRepository.get(year, department);
   }
 
-  async save(year: number, department: string, works: WorksSet): Promise<void> {
-    return this.worksSetRepository.save(year, department, works);
+  async save(year: number, department: Department, name: string): Promise<void> {
+    return this.worksSetRepository.add(year, department, name);
   }
 }
 
