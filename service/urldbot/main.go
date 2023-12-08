@@ -73,16 +73,25 @@ func makeResponse(queryId string, replies []Reply) tg.InlineConfig {
 		IsPersonal:    false,
 	}
 	for i, reply := range replies {
-		response.Results = append(response.Results, tg.NewInlineQueryResultArticle(
-			fmt.Sprint(i),
-			reply.Title,
-			reply.Url,
-		))
+		article := tg.NewInlineQueryResultArticle(fmt.Sprint(i), reply.Title, reply.Url)
+		article.Description = reply.Url
+		response.Results = append(response.Results, article)
 	}
 	return response
 }
 
-var httpReg = regexp.MustCompile(`(https?://)?\w+(\.\w+)+(/\S*)?`)
+type CureFunc func(*url.URL, string) []Reply
+
+var (
+	httpReg = regexp.MustCompile(`(https?://)?\w+(\.\w+)+(/\S*)?`)
+	cures   = map[string]CureFunc{
+		"b23.tv":         cureBilibili,
+		"twitter.com":    cureTwitter,
+		"x.com":          cureTwitter,
+		"youtu.be":       cureYoutube,
+		"www.reddit.com": cureReddit,
+	}
+)
 
 func handleInlineQuery(bot *tg.BotAPI, query *tg.InlineQuery) {
 	fmt.Printf("[%s] %s\n", query.From.UserName, query.Query)
@@ -97,57 +106,25 @@ func handleInlineQuery(bot *tg.BotAPI, query *tg.InlineQuery) {
 		return
 	}
 	fmt.Println("query host is: ", u.Host)
-	switch u.Host {
-	case "b23.tv":
-		response := makeResponse(query.ID, cureBilibili(urlInQuery))
-		fmt.Println("bot response: ", response)
-		if len(response.Results) == 0 {
-			log.Printf("No response for query: %s", urlInQuery)
-			return
-		}
-		_, err = bot.Send(response)
-		if err != nil {
-			log.Printf("Error sending inline query response: %s", err)
-		}
-	case "twitter.com", "x.com":
-		response := makeResponse(query.ID, cureTwitter(urlInQuery))
-		fmt.Println("bot response: ", response)
-		if len(response.Results) == 0 {
-			log.Printf("No response for query: %s", urlInQuery)
-			return
-		}
-		_, err = bot.Send(response)
-		if err != nil {
-			log.Printf("Error sending inline query response: %s", err)
-		}
-	case "youtu.be":
-		response := makeResponse(query.ID, cureYoutube(u, urlInQuery))
-		fmt.Println("bot response: ", response)
-		if len(response.Results) == 0 {
-			log.Printf("No response for query: %s", urlInQuery)
-			return
-		}
-		_, err = bot.Send(response)
-		if err != nil {
-			log.Printf("Error sending inline query response: %s", err)
-		}
-	case "www.reddit.com":
-		response := makeResponse(query.ID, cureReddit(u, urlInQuery))
-		fmt.Println("bot response: ", response)
-		if len(response.Results) == 0 {
-			log.Printf("No response for query: %s", urlInQuery)
-			return
-		}
-		_, err = bot.Send(response)
-		if err != nil {
-			log.Printf("Error sending inline query response: %s", err)
-		}
+	cure, ok := cures[u.Host]
+	if !ok {
+		return
+	}
+	response := makeResponse(query.ID, cure(u, urlInQuery))
+	fmt.Println("bot response: ", response)
+	if len(response.Results) == 0 {
+		log.Printf("No response for query: %s", urlInQuery)
+		return
+	}
+	_, err = bot.Send(response)
+	if err != nil {
+		log.Printf("Error sending inline query response: %s", err)
 	}
 }
 
 var b23Reg = regexp.MustCompile(`href="(https://www\.bilibili[^"<>]*)"`)
 
-func cureBilibili(source string) []Reply {
+func cureBilibili(urlObj *url.URL, source string) []Reply {
 	req, err := http.NewRequest("GET", source, nil)
 	if err != nil {
 		log.Printf("Error build query: %s", err)
@@ -190,16 +167,15 @@ func cureBilibili(source string) []Reply {
 	}
 }
 
-func cureTwitter(source string) []Reply {
-	u, _ := url.Parse(source)
-	path := strings.TrimPrefix(u.Path, "/")
+func cureTwitter(urlObj *url.URL, source string) []Reply {
+	path := strings.TrimPrefix(urlObj.Path, "/")
 	parts := strings.Split(path, "/")
 	log.Printf("twitter parts: %v", parts)
 	if len(parts) != 3 || parts[1] != "status" {
 		return nil
 	}
 	fxTwitter := "https://fxtwitter.com/"
-	if u.Host == "x.com" {
+	if urlObj.Host == "x.com" {
 		fxTwitter = "https://fixupx.com/"
 	}
 	return []Reply{
@@ -216,7 +192,7 @@ func cureTwitter(source string) []Reply {
 
 func cureYoutube(urlObj *url.URL, urlStr string) []Reply {
 	query := url.Values{}
-	query.Set("v", urlObj.Path)
+	query.Set("v", strings.TrimPrefix(urlObj.Path, "/"))
 	if urlObj.Query().Get("t") != "" {
 		query.Set("t", urlObj.Query().Get("t"))
 	}
