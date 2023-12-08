@@ -75,7 +75,7 @@ func makeResponse(queryId string, replies []Reply) tg.InlineConfig {
 	for i, reply := range replies {
 		response.Results = append(response.Results, tg.NewInlineQueryResultArticle(
 			fmt.Sprint(i),
-			fmt.Sprintf("%s\n%s", reply.Title, reply.Url),
+			reply.Title,
 			reply.Url,
 		))
 	}
@@ -120,10 +120,32 @@ func handleInlineQuery(bot *tg.BotAPI, query *tg.InlineQuery) {
 		if err != nil {
 			log.Printf("Error sending inline query response: %s", err)
 		}
+	case "youtu.be":
+		response := makeResponse(query.ID, cureYoutube(u, urlInQuery))
+		fmt.Println("bot response: ", response)
+		if len(response.Results) == 0 {
+			log.Printf("No response for query: %s", urlInQuery)
+			return
+		}
+		_, err = bot.Send(response)
+		if err != nil {
+			log.Printf("Error sending inline query response: %s", err)
+		}
+	case "www.reddit.com":
+		response := makeResponse(query.ID, cureReddit(u, urlInQuery))
+		fmt.Println("bot response: ", response)
+		if len(response.Results) == 0 {
+			log.Printf("No response for query: %s", urlInQuery)
+			return
+		}
+		_, err = bot.Send(response)
+		if err != nil {
+			log.Printf("Error sending inline query response: %s", err)
+		}
 	}
 }
 
-var b23Reg = regexp.MustCompile(`href="(https://www\.bilibili[^"]*)"`)
+var b23Reg = regexp.MustCompile(`href="(https://www\.bilibili[^"<>]*)"`)
 
 func cureBilibili(source string) []Reply {
 	req, err := http.NewRequest("GET", source, nil)
@@ -189,5 +211,93 @@ func cureTwitter(source string) []Reply {
 			Title: "VxTwitter",
 			Url:   "https://vxtwitter.com/" + path,
 		},
+	}
+}
+
+func cureYoutube(urlObj *url.URL, urlStr string) []Reply {
+	query := url.Values{}
+	query.Set("v", urlObj.Path)
+	if urlObj.Query().Get("t") != "" {
+		query.Set("t", urlObj.Query().Get("t"))
+	}
+	target := url.URL{
+		Scheme:   "https",
+		Host:     "youtube.com",
+		Path:     "/watch",
+		RawQuery: query.Encode(),
+	}
+	return []Reply{
+		{
+			Title: "Youtube",
+			Url:   target.String(),
+		},
+	}
+}
+
+var redditReg = regexp.MustCompile(`href="(https://www\.reddit\.com/[^"<>]*)"`)
+
+func cureReddit(urlObj *url.URL, urlStr string) []Reply {
+	if !strings.Contains(urlObj.Path, "/s/") {
+		// not share url, just clean query
+		target := url.URL{
+			Scheme: "https",
+			Host:   "www.reddit.com",
+			Path:   urlObj.Path,
+		}
+		oldTarget := url.URL{
+			Scheme: "https",
+			Host:   "old.reddit.com",
+			Path:   urlObj.Path,
+		}
+		return []Reply{
+			{Title: "Reddit", Url: target.String()},
+			{Title: "OldReddit", Url: oldTarget.String()},
+		}
+	}
+	req, err := http.NewRequest("GET", urlStr, nil)
+	if err != nil {
+		log.Printf("Error build query: %s", err)
+		return nil
+	}
+	req.Header.Set("User-Agent", "curl/8.1.2")
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+	res, err := client.Do(req)
+	if err != nil {
+		log.Printf("Error query reddit url: %s", err)
+		return nil
+	}
+	defer res.Body.Close()
+	ress, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Printf("Error read reddit response: %s", err)
+		return nil
+	}
+	log.Printf("reddit response: %s", ress)
+	addresses := redditReg.FindStringSubmatch(string(ress))
+	if len(addresses) == 0 {
+		return nil
+	}
+	log.Printf("fetch reddit address: %s", addresses[1])
+	u, err := url.Parse(string(addresses[1]))
+	if err != nil {
+		return nil
+	}
+	target := url.URL{
+		Scheme: "https",
+		Host:   u.Host,
+		Path:   u.Path,
+	}
+	oldTarget := url.URL{
+		Scheme: "https",
+		Host:   "old.reddit.com",
+		Path:   u.Path,
+	}
+	return []Reply{
+		{Title: "Reddit", Url: target.String()},
+		{Title: "OldReddit", Url: oldTarget.String()},
 	}
 }
