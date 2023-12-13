@@ -7,6 +7,16 @@ image := "asia-southeast1-docker.pkg.dev/crows-moe/images/ema"
 default:
 	just --list
 
+gen-migration:
+	pnpm drizzle-kit generate:pg
+
+build-image TAG:
+	docker build --platform=linux/amd64 -t {{image}}:{{TAG}} .
+	docker push {{image}}:{{TAG}}
+
+migrate:
+	pnpm tsx ./src/lib/server/data/migrate.ts
+
 run-dev-db:
 	docker run --name ema-db -p 5432:5432 \
 		-e POSTGRES_PASSWORD=ema -e POSTGRES_USER=ema -e POSTGRES_DB=ema \
@@ -16,23 +26,8 @@ run-dev-db:
 clean-dev-db:
 	docker stop ema-db && docker remove ema-db && rm -rf devdata/pgdata
 
+dev-migrate:
+	EMA_POSTGRES_URL=postgresql://ema:ema@localhost:5432/ema pnpm tsx ./src/lib/server/data/migrate.ts
 
-build-image TAG:
-	docker build --platform=linux/amd64 -t {{image}}:{{TAG}} .
-	docker push {{image}}:{{TAG}}
-
-run-nomination:
-	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
-	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 EMA_DEV_STAGE=Nomination pnpm run dev
-
-run-voting:
-	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
-	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 EMA_DEV_STAGE=Voting pnpm run dev
-
-run-award:
-	# do first: gcloud emulators firestore start --host-port=127.0.0.1:9000
-	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 EMA_DEV_STAGE=Award pnpm run dev
-
-gen-migration:
-	pnpm drizzle-kit generate:pg
-
+dev-server:
+	EMA_POSTGRES_URL=postgresql://ema:ema@localhost:5432/ema pnpm run dev

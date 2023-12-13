@@ -33,8 +33,8 @@ export default {
       },
     },
     fontFamily: {
-      sans: ['source-han-sans-cjk-sc', 'sans-serif'],
-      serif: ['source-han-serif-sc', 'serif'],
+      sans: ['Noto Sans SC', 'sans-serif'],
+      serif: ['Noto Serif SC', 'serif'],
     },
     screens: {
       mid: '480px',

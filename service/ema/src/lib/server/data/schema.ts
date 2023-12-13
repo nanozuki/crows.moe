@@ -1,4 +1,4 @@
-import { Department } from '../../domain/value';
+import { Department } from '$lib/domain/value';
 import { index, integer, jsonb, pgEnum, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const department = pgEnum('department', [
