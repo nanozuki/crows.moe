@@ -24,18 +24,18 @@ func (d *Date) UnmarshalCSV(csv string) error {
 }
 
 type Ceremony struct {
-	Year              int              `json:"year,omitempty"`
-	Departments       []val.Department `json:"departments,omitempty"`
-	NominationStartAt Date             `json:"nomination_start_at,omitempty"`
-	VotingStartAt     Date             `json:"voting_start_at,omitempty"`
-	AwardStartAt      Date             `json:"award_start_at,omitempty"`
+	Year              int              `json:"year,omitempty" csv:"year"`
+	Departments       []val.Department `json:"departments,omitempty" csv:"departments"`
+	NominationStartAt Date             `json:"nomination_start_at,omitempty" csv:"nomination_start_at"`
+	VotingStartAt     Date             `json:"voting_start_at,omitempty" csv:"voting_start_at"`
+	AwardStartAt      Date             `json:"award_start_at,omitempty" csv:"award_start_at"`
 }
 
 type Work struct {
-	Id         int            `json:"id,omitempty"`
-	Year       int            `json:"year,omitempty"`
-	Department val.Department `json:"department,omitempty"`
-	Ranking    int            `json:"ranking,omitempty"`
+	Id         int            `json:"id,omitempty" csv:"id"`
+	Year       int            `json:"year,omitempty" csv:"year"`
+	Department val.Department `json:"department,omitempty" csv:"department"`
+	Ranking    int            `json:"ranking,omitempty" csv:"ranking"`
 }
 
 type WorkNameType string
@@ -47,29 +47,30 @@ const (
 )
 
 type WorkName struct {
-	Id     int          `json:"id,omitempty"`
-	WorkId int          `json:"work_id,omitempty"`
-	Name   string       `json:"name,omitempty"`
-	Type   WorkNameType `json:"type,omitempty"`
+	Id         int            `json:"id,omitempty" csv:"id"`
+	WorkId     int            `json:"work_id,omitempty" csv:"work_id"`
+	Department val.Department `json:"department,omitempty" csv:"department"`
+	Name       string         `json:"name,omitempty" csv:"name"`
+	Type       WorkNameType   `json:"type,omitempty" csv:"type"`
 }
 
 type Voter struct {
-	Id           int    `json:"id,omitempty"`
-	Name         string `json:"name,omitempty"`
-	Salt         string `json:"salt,omitempty"`
-	PasswordHash string `json:"password_hash,omitempty"`
+	Id           int    `json:"id,omitempty" csv:"id"`
+	Name         string `json:"name,omitempty" csv:"name"`
+	Salt         string `json:"salt,omitempty" csv:"salt"`
+	PasswordHash string `json:"password_hash,omitempty" csv:"password_hash"`
 }
 
 type Vote struct {
-	Id         int            `json:"id,omitempty"`
-	VoterId    int            `json:"voter_id,omitempty"`
-	Year       int            `json:"year,omitempty"`
-	Department val.Department `json:"department,omitempty"`
+	Id         int            `json:"id,omitempty" csv:"id"`
+	VoterId    int            `json:"voter_id,omitempty" csv:"voter_id"`
+	Year       int            `json:"year,omitempty" csv:"year"`
+	Department val.Department `json:"department,omitempty" csv:"department"`
 }
 
 type RankingInVote struct {
-	Id      int `json:"id,omitempty"`
-	VoteId  int `json:"vote_id,omitempty"`
-	WorkId  int `json:"work_id,omitempty"`
-	Ranking int `json:"ranking,omitempty"`
+	Id      int `json:"id,omitempty" csv:"id"`
+	VoteId  int `json:"vote_id,omitempty" csv:"vote_id"`
+	WorkId  int `json:"work_id,omitempty" csv:"work_id"`
+	Ranking int `json:"ranking,omitempty" csv:"ranking"`
 }

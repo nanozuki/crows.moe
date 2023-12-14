@@ -18,17 +18,18 @@ CREATE TABLE IF NOT EXISTS "ceremony" (
 	"award_start_at" timestamp NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "ranking_in_vote" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"vote_id" integer NOT NULL,
+	"work_id" integer NOT NULL,
+	"ranking" integer NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "vote" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"year" integer NOT NULL,
 	"voter_id" integer NOT NULL,
 	"department" "department" NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "vote_to_work" (
-	"vote_id" integer NOT NULL,
-	"work_id" integer NOT NULL,
-	CONSTRAINT vote_to_work_vote_id_work_id_pk PRIMARY KEY("vote_id","work_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "voter" (
@@ -54,10 +55,23 @@ CREATE TABLE IF NOT EXISTS "work_name" (
 	CONSTRAINT "work_name_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "ranking_in_vote_vote_id_idx" ON "ranking_in_vote" ("vote_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "ranking_in_vote_work_id_idx" ON "ranking_in_vote" ("work_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "vote_voter_id_idx" ON "vote" ("voter_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "vote_year_department_idx" ON "vote" ("year","department");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "vote_to_work_work_id_idx" ON "vote_to_work" ("work_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "work_name_work_id_idx" ON "work_name" ("work_id");--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "ranking_in_vote" ADD CONSTRAINT "ranking_in_vote_vote_id_vote_id_fk" FOREIGN KEY ("vote_id") REFERENCES "vote"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "ranking_in_vote" ADD CONSTRAINT "ranking_in_vote_work_id_work_id_fk" FOREIGN KEY ("work_id") REFERENCES "work"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "vote" ADD CONSTRAINT "vote_year_ceremony_year_fk" FOREIGN KEY ("year") REFERENCES "ceremony"("year") ON DELETE no action ON UPDATE no action;
 EXCEPTION
@@ -66,18 +80,6 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "vote" ADD CONSTRAINT "vote_voter_id_voter_id_fk" FOREIGN KEY ("voter_id") REFERENCES "voter"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "vote_to_work" ADD CONSTRAINT "vote_to_work_vote_id_vote_id_fk" FOREIGN KEY ("vote_id") REFERENCES "vote"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "vote_to_work" ADD CONSTRAINT "vote_to_work_work_id_work_id_fk" FOREIGN KEY ("work_id") REFERENCES "work"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

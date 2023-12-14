@@ -1,6 +1,6 @@
 {
-  "id": "6e65a120-ce1e-40eb-bc9c-11d6dcb9e775",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "57e72687-18c7-47a1-bf27-fe37624be026",
+  "prevId": "6e65a120-ce1e-40eb-bc9c-11d6dcb9e775",
   "version": "5",
   "dialect": "pg",
   "tables": {
@@ -304,6 +304,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "department": {
+          "name": "department",
+          "type": "department",
+          "primaryKey": false,
+          "notNull": true
+        },
         "name": {
           "name": "name",
           "type": "text",
@@ -318,6 +324,14 @@
         }
       },
       "indexes": {
+        "work_name_name_idx": {
+          "name": "work_name_name_idx",
+          "columns": [
+            "name",
+            "department"
+          ],
+          "isUnique": false
+        },
         "work_name_work_id_idx": {
           "name": "work_name_work_id_idx",
           "columns": [
@@ -342,15 +356,7 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "work_name_name_unique": {
-          "name": "work_name_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        }
-      }
+      "uniqueConstraints": {}
     }
   },
   "enums": {

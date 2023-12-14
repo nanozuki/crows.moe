@@ -7,6 +7,16 @@ image := "asia-southeast1-docker.pkg.dev/crows-moe/images/ema"
 default:
 	just --list
 
+run-dev-db:
+	docker run --name ema-db -p 5432:5432 \
+		-e POSTGRES_PASSWORD=ema -e POSTGRES_USER=ema -e POSTGRES_DB=ema \
+		-e PGDATA=/var/lib/postgresql/data/pgdata -v $(pwd)/devdata/pgdata:/var/lib/postgresql/data \
+		-d postgres
+
+clean-dev-db:
+	docker stop ema-db && docker remove ema-db && rm -rf devdata/pgdata
+
+
 build-image TAG:
 	docker build --platform=linux/amd64 -t {{image}}:{{TAG}} .
 	docker push {{image}}:{{TAG}}
@@ -24,6 +34,5 @@ run-award:
 	FIRESTORE_EMULATOR_HOST=127.0.0.1:9000 EMA_DEV_STAGE=Award pnpm run dev
 
 gen-migration:
-	# do first: docker run --rm --name ema-db -p 5432:5432 -e POSTGRES_PASSWORD=password -e POSTGRES_USER=ema -e POSTGRES_DB=ema -d postgres
-	EMA_POSTGRES_URL=postgresql://ema:ema@localhost:5432/ema pnpm drizzle-kit generate:pg
+	pnpm drizzle-kit generate:pg
 

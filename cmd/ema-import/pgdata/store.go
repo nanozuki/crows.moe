@@ -2,12 +2,13 @@ package pgdata
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 	"strings"
 
+	"github.com/gocarina/gocsv"
 	"github.com/nanozuki/crows.moe/cmd/ema-import/fsdata"
 	"github.com/nanozuki/crows.moe/cmd/ema-import/val"
+	"github.com/rs/zerolog/log"
 )
 
 type Table struct {
@@ -23,7 +24,8 @@ type Index struct {
 	CeremonyPk      map[int]*Ceremony
 	WorkPk          map[int]*Work
 	WorkNamePk      map[int]*WorkName
-	WorkNameWorkIdx map[int]map[string]*Work // year -> name -> work
+	WorkNameWorkIdx map[int]map[string]*Work           // year -> name -> work
+	WorkNameUnique  map[string]map[val.Department]bool // name -> department -> true
 	VoterPk         map[int]*Voter
 	VoterNameIdx    map[string]*Voter
 	VotePk          map[int]*Vote
@@ -61,35 +63,35 @@ func (s *Store) AddDepartmentDoc(year int, department val.Department, dd *fsdata
 }
 
 func (s *Store) addWorkName(work *Work, workDoc *fsdata.Work) {
-	names := []*WorkName{{
-		Id:     len(s.table.WorkName) + 1,
-		WorkId: work.Id,
-		Name:   workDoc.Name,
-		Type:   MainName,
-	}}
-	if workDoc.OriginName != "" {
-		names = append(names, &WorkName{
-			Id:     len(s.table.WorkName) + 1,
-			WorkId: work.Id,
-			Name:   workDoc.OriginName,
-			Type:   OriginName,
-		})
-	}
-	for _, alias := range workDoc.Alias {
-		names = append(names, &WorkName{
-			Id:     len(s.table.WorkName) + 1,
-			WorkId: work.Id,
-			Name:   alias,
-			Type:   AliasName,
-		})
-	}
-	for _, name := range names {
-		s.table.WorkName = append(s.table.WorkName, name)
-		s.index.WorkNamePk[name.Id] = name
+	addName := func(name string, typ WorkNameType) {
+		if s.index.WorkNameUnique[name] != nil && s.index.WorkNameUnique[name][work.Department] {
+			log.Fatal().Msgf("duplicate work name: %s, in work %+v", name, work)
+		} else if s.index.WorkNameUnique[name] == nil {
+			s.index.WorkNameUnique[name] = map[val.Department]bool{}
+		}
+		s.index.WorkNameUnique[name][work.Department] = true
+		n := WorkName{
+			Id:         len(s.table.WorkName) + 1,
+			WorkId:     work.Id,
+			Department: work.Department,
+			Name:       name,
+			Type:       typ,
+		}
+		s.table.WorkName = append(s.table.WorkName, &n)
+		s.index.WorkNamePk[n.Id] = &n
 		if _, ok := s.index.WorkNameWorkIdx[work.Year]; !ok {
 			s.index.WorkNameWorkIdx[work.Year] = map[string]*Work{}
 		}
-		s.index.WorkNameWorkIdx[work.Year][name.Name] = s.index.WorkPk[work.Id]
+		s.index.WorkNameWorkIdx[work.Year][n.Name] = s.index.WorkPk[work.Id]
+	}
+	addName(workDoc.Name, MainName)
+	if workDoc.OriginName != "" && workDoc.OriginName != workDoc.Name {
+		addName(workDoc.OriginName, OriginName)
+	}
+	for _, alias := range workDoc.Alias {
+		if alias != workDoc.Name {
+			addName(alias, AliasName)
+		}
 	}
 }
 
@@ -144,11 +146,11 @@ func (s *Store) AddAwardDoc(year int, department val.Department, doc *fsdata.Awa
 
 func (s *Store) WriteToFile(dir string) error {
 	writeTable := func(name string, table interface{}) error {
-		f, err := os.OpenFile(dir+"/"+name+".json", os.O_CREATE|os.O_WRONLY, 0o644)
+		f, err := os.OpenFile(dir+"/"+name+".csv", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
 		if err != nil {
 			return err
 		}
-		if err := json.NewEncoder(f).Encode(table); err != nil {
+		if err := gocsv.MarshalFile(table, f); err != nil {
 			return err
 		}
 		return nil
@@ -182,6 +184,7 @@ func NewStoreFromFirestore(ctx context.Context) (*Store, error) {
 			WorkPk:          map[int]*Work{},
 			WorkNamePk:      map[int]*WorkName{},
 			WorkNameWorkIdx: map[int]map[string]*Work{},
+			WorkNameUnique:  map[string]map[val.Department]bool{},
 			VoterPk:         map[int]*Voter{},
 			VoterNameIdx:    map[string]*Voter{},
 			VotePk:          map[int]*Vote{},
