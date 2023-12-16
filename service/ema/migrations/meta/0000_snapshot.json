@@ -1,5 +1,5 @@
 {
-  "id": "6e65a120-ce1e-40eb-bc9c-11d6dcb9e775",
+  "id": "8ab61f48-b4df-44ef-947b-7b1723cea3c2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -16,10 +16,9 @@
         },
         "departments": {
           "name": "departments",
-          "type": "jsonb",
+          "type": "department[]",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
+          "notNull": true
         },
         "nomination_start_at": {
           "name": "nomination_start_at",
@@ -262,6 +261,24 @@
           "primaryKey": false,
           "notNull": true
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "origin_name": {
+          "name": "origin_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aliases": {
+          "name": "aliases",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
         "ranking": {
           "name": "ranking",
           "type": "integer",
@@ -269,7 +286,35 @@
           "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "work_name_idx": {
+          "name": "work_name_idx",
+          "columns": [
+            "year",
+            "department",
+            "name"
+          ],
+          "isUnique": false
+        },
+        "work_origin_name_idx": {
+          "name": "work_origin_name_idx",
+          "columns": [
+            "year",
+            "department",
+            "origin_name"
+          ],
+          "isUnique": false
+        },
+        "work_aliases_idx": {
+          "name": "work_aliases_idx",
+          "columns": [
+            "year",
+            "department",
+            "aliases"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "work_year_ceremony_year_fk": {
           "name": "work_year_ceremony_year_fk",
@@ -287,70 +332,6 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
-    },
-    "work_name": {
-      "name": "work_name",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "work_id": {
-          "name": "work_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "type": {
-          "name": "type",
-          "type": "name_type",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "work_name_work_id_idx": {
-          "name": "work_name_work_id_idx",
-          "columns": [
-            "work_id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "work_name_work_id_work_id_fk": {
-          "name": "work_name_work_id_work_id_fk",
-          "tableFrom": "work_name",
-          "tableTo": "work",
-          "columnsFrom": [
-            "work_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "work_name_name_unique": {
-          "name": "work_name_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        }
-      }
     }
   },
   "enums": {
@@ -364,14 +345,6 @@
         "non-tv-anime": "non-tv-anime",
         "manga": "manga",
         "novel": "novel"
-      }
-    },
-    "name_type": {
-      "name": "name_type",
-      "values": {
-        "main": "main",
-        "origin": "origin",
-        "alias": "alias"
       }
     }
   },

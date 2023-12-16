@@ -1,5 +1,5 @@
-import { Department, Stage } from '@service/value';
 import { NoDepartmentError } from '$lib/domain/errors';
+import { Department, Stage } from '$lib/domain/value';
 
 // Ceremony store the ceremony information of a year
 export interface Ceremony {
@@ -40,8 +40,8 @@ export interface Work {
   department: Department;
   name: string;
   originName: string;
-  aliasNames: string[];
-  ranking: number;
+  aliases: string[];
+  ranking?: number;
 }
 
 export interface Voter {

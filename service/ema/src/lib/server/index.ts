@@ -5,7 +5,7 @@ import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 
 function initService(): Service {
-  const dbClient = drizzle(postgres(env.EMA_POSTGRES_URL!));
+  const dbClient = drizzle(postgres(env.EMA_POSTGRES_URL!), { logger: true });
   const ceremony = new CeremonyRepositoryImpl(dbClient);
   const work = new WorkRepositoryImpl(dbClient);
   return new Service(ceremony, work);

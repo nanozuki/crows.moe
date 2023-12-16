@@ -15,7 +15,7 @@ build-image TAG:
 	docker push {{image}}:{{TAG}}
 
 migrate:
-	pnpm tsx ./src/lib/server/data/migrate.ts
+	pnpx tsx ./src/lib/server/data/migrate.ts
 
 run-dev-db:
 	docker run --name ema-db -p 5432:5432 \
@@ -24,10 +24,10 @@ run-dev-db:
 		-d postgres
 
 clean-dev-db:
-	docker stop ema-db && docker remove ema-db && rm -rf devdata/pgdata
+	docker stop ema-db && docker rm ema-db && rm -rf devdata/pgdata
 
 dev-migrate:
-	EMA_POSTGRES_URL=postgresql://ema:ema@localhost:5432/ema pnpm tsx ./src/lib/server/data/migrate.ts
+	EMA_POSTGRES_URL=postgresql://ema:ema@localhost:5432/ema pnpx tsx ./src/lib/server/data/migrate.ts
 
 dev-server:
 	EMA_POSTGRES_URL=postgresql://ema:ema@localhost:5432/ema pnpm run dev

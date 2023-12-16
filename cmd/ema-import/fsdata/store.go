@@ -92,7 +92,12 @@ func GetOne[T any](s *Store, ctx context.Context, path ...string) (*T, error) {
 	return &result, nil
 }
 
-func GetAll[T any](s *Store, ctx context.Context, path ...string) (map[string]*T, error) {
+type Result[T any] struct {
+	Id  string
+	Doc *T
+}
+
+func GetAll[T any](s *Store, ctx context.Context, path ...string) ([]Result[T], error) {
 	if len(path)%2 != 1 {
 		log.Fatal().Msgf("invalid set path: %s", strings.Join(path, "."))
 	}
@@ -103,7 +108,7 @@ func GetAll[T any](s *Store, ctx context.Context, path ...string) (map[string]*T
 	}
 
 	iter := ref.Documents(ctx)
-	results := map[string]*T{}
+	var results []Result[T]
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
@@ -116,7 +121,7 @@ func GetAll[T any](s *Store, ctx context.Context, path ...string) (map[string]*T
 		if err := doc.DataTo(&result); err != nil {
 			return nil, err
 		}
-		results[doc.Ref.ID] = &result
+		results = append(results, Result[T]{doc.Ref.ID, &result})
 	}
 	return results, nil
 }

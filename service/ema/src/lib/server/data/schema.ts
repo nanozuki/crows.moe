@@ -1,5 +1,5 @@
-import { Department } from '$lib/domain/value';
-import { index, integer, jsonb, pgEnum, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { Department } from '../../domain/value';
+import { index, integer, pgEnum, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const department = pgEnum('department', [
   Department.Anime,
@@ -13,38 +13,30 @@ export const department = pgEnum('department', [
 
 export const ceremony = pgTable('ceremony', {
   year: integer('year').primaryKey(),
-  departments: jsonb('departments').notNull().default([]).$type<Department[]>(),
+  departments: department('departments').array().notNull(),
   nominationStartAt: timestamp('nomination_start_at').notNull(),
   votingStartAt: timestamp('voting_start_at').notNull(),
   awardStartAt: timestamp('award_start_at').notNull(),
 });
 
-export const work = pgTable('work', {
-  id: serial('id').primaryKey(),
-  year: integer('year')
-    .notNull()
-    .references(() => ceremony.year),
-  department: department('department').notNull(),
-  ranking: integer('ranking'),
-});
-
-export const nameType = pgEnum('name_type', ['main', 'origin', 'alias']);
-
-export const workName = pgTable(
-  'work_name',
+export const work = pgTable(
+  'work',
   {
     id: serial('id').primaryKey(),
-    workId: integer('work_id')
+    year: integer('year')
       .notNull()
-      .references(() => work.id),
+      .references(() => ceremony.year),
     department: department('department').notNull(),
     name: text('name').notNull(),
-    type: nameType('type').notNull(),
+    originName: text('origin_name'),
+    aliases: text('aliases').array(),
+    ranking: integer('ranking'),
   },
   (table) => {
     return {
-      nameIdx: index('work_name_name_idx').on(table.name, table.department),
-      workIdx: index('work_name_work_id_idx').on(table.workId),
+      nameIdx: index('work_name_idx').on(table.year, table.department, table.name),
+      originNameIdx: index('work_origin_name_idx').on(table.year, table.department, table.originName),
+      aliasesIdx: index('work_aliases_idx').on(table.year, table.department, table.aliases),
     };
   },
 );

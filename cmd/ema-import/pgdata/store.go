@@ -8,13 +8,11 @@ import (
 	"github.com/gocarina/gocsv"
 	"github.com/nanozuki/crows.moe/cmd/ema-import/fsdata"
 	"github.com/nanozuki/crows.moe/cmd/ema-import/val"
-	"github.com/rs/zerolog/log"
 )
 
 type Table struct {
 	Ceremony      []*Ceremony
 	Work          []*Work
-	WorkName      []*WorkName
 	Voter         []*Voter
 	Vote          []*Vote
 	RankingInVote []*RankingInVote
@@ -23,9 +21,7 @@ type Table struct {
 type Index struct {
 	CeremonyPk      map[int]*Ceremony
 	WorkPk          map[int]*Work
-	WorkNamePk      map[int]*WorkName
-	WorkNameWorkIdx map[int]map[string]*Work           // year -> name -> work
-	WorkNameUnique  map[string]map[val.Department]bool // name -> department -> true
+	WorkNameWorkIdx map[int]map[string]*Work // year -> name -> work
 	VoterPk         map[int]*Voter
 	VoterNameIdx    map[string]*Voter
 	VotePk          map[int]*Vote
@@ -55,43 +51,16 @@ func (s *Store) AddDepartmentDoc(year int, department val.Department, dd *fsdata
 			Id:         len(s.table.Work) + 1,
 			Year:       year,
 			Department: department,
+			Name:       work.Name,
+			OriginName: work.OriginName,
+			Aliases:    work.Alias,
 		}
 		s.table.Work = append(s.table.Work, &w)
 		s.index.WorkPk[w.Id] = &w
-		s.addWorkName(&w, work)
-	}
-}
-
-func (s *Store) addWorkName(work *Work, workDoc *fsdata.Work) {
-	addName := func(name string, typ WorkNameType) {
-		if s.index.WorkNameUnique[name] != nil && s.index.WorkNameUnique[name][work.Department] {
-			log.Fatal().Msgf("duplicate work name: %s, in work %+v", name, work)
-		} else if s.index.WorkNameUnique[name] == nil {
-			s.index.WorkNameUnique[name] = map[val.Department]bool{}
+		if _, ok := s.index.WorkNameWorkIdx[year]; !ok {
+			s.index.WorkNameWorkIdx[year] = map[string]*Work{}
 		}
-		s.index.WorkNameUnique[name][work.Department] = true
-		n := WorkName{
-			Id:         len(s.table.WorkName) + 1,
-			WorkId:     work.Id,
-			Department: work.Department,
-			Name:       name,
-			Type:       typ,
-		}
-		s.table.WorkName = append(s.table.WorkName, &n)
-		s.index.WorkNamePk[n.Id] = &n
-		if _, ok := s.index.WorkNameWorkIdx[work.Year]; !ok {
-			s.index.WorkNameWorkIdx[work.Year] = map[string]*Work{}
-		}
-		s.index.WorkNameWorkIdx[work.Year][n.Name] = s.index.WorkPk[work.Id]
-	}
-	addName(workDoc.Name, MainName)
-	if workDoc.OriginName != "" && workDoc.OriginName != workDoc.Name {
-		addName(workDoc.OriginName, OriginName)
-	}
-	for _, alias := range workDoc.Alias {
-		if alias != workDoc.Name {
-			addName(alias, AliasName)
-		}
+		s.index.WorkNameWorkIdx[year][w.Name] = &w
 	}
 }
 
@@ -113,6 +82,9 @@ func (s *Store) FindAndCreateVoter(name string) *Voter {
 }
 
 func (s *Store) AddBallotDoc(year int, voterName string, department val.Department, doc *fsdata.BallotDoc) {
+	if len(doc.Rankings) == 0 {
+		return
+	}
 	voter := s.FindAndCreateVoter(voterName)
 
 	vote := Vote{
@@ -161,9 +133,6 @@ func (s *Store) WriteToFile(dir string) error {
 	if err := writeTable("work", s.table.Work); err != nil {
 		return err
 	}
-	if err := writeTable("work_name", s.table.WorkName); err != nil {
-		return err
-	}
 	if err := writeTable("voter", s.table.Voter); err != nil {
 		return err
 	}
@@ -182,9 +151,7 @@ func NewStoreFromFirestore(ctx context.Context) (*Store, error) {
 		index: Index{
 			CeremonyPk:      map[int]*Ceremony{},
 			WorkPk:          map[int]*Work{},
-			WorkNamePk:      map[int]*WorkName{},
 			WorkNameWorkIdx: map[int]map[string]*Work{},
-			WorkNameUnique:  map[string]map[val.Department]bool{},
 			VoterPk:         map[int]*Voter{},
 			VoterNameIdx:    map[string]*Voter{},
 			VotePk:          map[int]*Vote{},
@@ -196,45 +163,46 @@ func NewStoreFromFirestore(ctx context.Context) (*Store, error) {
 		return nil, err
 	}
 	for _, year := range years {
-		store.AddYearDoc(year)
+		store.AddYearDoc(year.Doc)
 
 		voters, err := fsdata.GetAll[fsdata.VoterDoc](fss, ctx,
-			fsdata.ColYear, fsdata.IdYear(year.Year), fsdata.ColVoter)
+			fsdata.ColYear, fsdata.IdYear(year.Doc.Year), fsdata.ColVoter)
 		if err != nil {
 			return nil, err
 		}
 		for _, voter := range voters {
-			store.FindAndCreateVoter(voter.Name)
+			store.FindAndCreateVoter(voter.Doc.Name)
 		}
 
 		departments, err := fsdata.GetAll[fsdata.DepartmentDoc](fss, ctx,
-			fsdata.ColYear, fsdata.IdYear(year.Year), fsdata.ColDepartment)
+			fsdata.ColYear, fsdata.IdYear(year.Doc.Year), fsdata.ColDepartment)
 		if err != nil {
 			return nil, err
 		}
-		for id, ddoc := range departments {
-			store.AddDepartmentDoc(year.Year, val.Department(id), ddoc)
+		for _, d := range departments {
+			id, doc := val.Department(d.Id), d.Doc
+			store.AddDepartmentDoc(year.Doc.Year, id, doc)
 		}
 
 		ballots, err := fsdata.GetAll[fsdata.BallotDoc](fss, ctx,
-			fsdata.ColYear, fsdata.IdYear(year.Year), fsdata.ColBallot)
+			fsdata.ColYear, fsdata.IdYear(year.Doc.Year), fsdata.ColBallot)
 		if err != nil {
 			return nil, err
 		}
-		for id, ballot := range ballots {
-			parts := strings.Split(id, "#")
+		for _, b := range ballots {
+			parts := strings.Split(b.Id, "#")
 			voterName, department := parts[0], val.Department(parts[1])
-			store.AddBallotDoc(year.Year, voterName, department, ballot)
+			store.AddBallotDoc(year.Doc.Year, voterName, department, b.Doc)
 		}
 
 		awards, err := fsdata.GetAll[fsdata.AwardDoc](fss, ctx,
-			fsdata.ColYear, fsdata.IdYear(year.Year), fsdata.ColAward)
+			fsdata.ColYear, fsdata.IdYear(year.Doc.Year), fsdata.ColAward)
 		if err != nil {
 			return nil, err
 		}
-		for id, award := range awards {
-			department := val.Department(id)
-			store.AddAwardDoc(year.Year, department, award)
+		for _, award := range awards {
+			department := val.Department(award.Id)
+			store.AddAwardDoc(year.Doc.Year, department, award.Doc)
 		}
 	}
 	return store, nil
