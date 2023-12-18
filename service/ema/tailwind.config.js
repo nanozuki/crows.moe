@@ -37,8 +37,8 @@ export default {
       serif: ['Noto Serif SC', 'serif'],
     },
     screens: {
-      mid: '480px',
-      wide: '672px', // 640 + 16*2
+      mid: '448px', // 400 + 24*2
+      wide: '688px', // 640 + 24*2
     },
   },
   plugins: [],

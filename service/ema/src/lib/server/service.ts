@@ -1,4 +1,5 @@
 import type { Ceremony, Work } from '$lib/domain/entity';
+import type { Department } from '$lib/domain/value';
 import type { CeremonyRepository, WorkRepository } from '$lib/server/adapter';
 
 export class Service {
@@ -13,5 +14,9 @@ export class Service {
 
   async getWinners(): Promise<Map<number, Work[]>> {
     return await this.workRepository.getAllWinners();
+  }
+
+  async getAwardsByYear(year: number): Promise<Map<Department, Work[]>> {
+    return await this.workRepository.getAwardsByYear(year);
   }
 }
