@@ -71,6 +71,21 @@ export function newRankedWorks(sortedWorks: Work[]): RankedWork[] {
 export interface Voter {
   id: number;
   name: string;
+  hasPassword: boolean;
+}
+
+// hashPassword hashes the password with salt and returns 16-bit string
+export async function hashPassword(password: string, salt: string): Promise<string> {
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + password));
+  const bytes = new Uint8Array(hash);
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+// verifyPassword verifies the password with salt and hash
+export async function verifyPassword(password: string, salt: string, hash: string): Promise<boolean> {
+  return hash === (await hashPassword(password, salt));
 }
 
 export interface Vote {

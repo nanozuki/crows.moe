@@ -32,7 +32,7 @@
   <div class="flex flex-col gap-y-4">
     <div class="flex items-center justify-between">
       <p class="text-xl leading-tight">大赏</p>
-      <a href={`./awards/${department}`} class="text-pine underline leading-tight">查看详情</a>
+      <a href={`./awards/${department}`} class="text-pine underline leading-tight">详情</a>
     </div>
     {#each highlight[0].works as work (work.id)}
       <div>

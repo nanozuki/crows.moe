@@ -14,7 +14,6 @@ interface LoadParams {
 }
 
 export async function load({ params, parent }: LoadParams): Promise<AwardLayoutData> {
-  console.log('received data from parent:', parent);
   const year = parseInt(params.year);
   const service = getService();
   const parentData = await parent();

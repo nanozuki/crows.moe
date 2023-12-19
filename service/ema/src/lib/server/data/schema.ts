@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import { Department } from '../../domain/value';
 import { index, integer, pgEnum, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
@@ -22,7 +23,9 @@ export const ceremony = pgTable('ceremony', {
 export const work = pgTable(
   'work',
   {
-    id: serial('id').primaryKey(),
+    id: serial('id')
+      .primaryKey()
+      .default(sql`nextval('work_id_seq')`),
     year: integer('year')
       .notNull()
       .references(() => ceremony.year),
@@ -42,16 +45,19 @@ export const work = pgTable(
 );
 
 export const voter = pgTable('voter', {
-  id: serial('id').primaryKey(),
+  id: serial('id')
+    .primaryKey()
+    .default(sql`nextval('voter_id_seq')`),
   name: text('name').notNull().unique(),
-  salt: text('salt'),
   passwordHash: text('password_hash'),
 });
 
 export const vote = pgTable(
   'vote',
   {
-    id: serial('id').primaryKey(),
+    id: serial('id')
+      .primaryKey()
+      .default(sql`nextval('vote_id_seq')`),
     year: integer('year')
       .notNull()
       .references(() => ceremony.year),
@@ -71,7 +77,9 @@ export const vote = pgTable(
 export const rankingInVote = pgTable(
   'ranking_in_vote',
   {
-    id: serial('id').primaryKey(),
+    id: serial('id')
+      .primaryKey()
+      .default(sql`nextval('ranking_in_vote_id_seq')`),
     voteId: integer('vote_id')
       .notNull()
       .references(() => vote.id),
