@@ -4,7 +4,7 @@
   import type { Work } from '@service/value';
 
   export let ceremony: Ceremony;
-  export let winners: Work[];
+  export let bestWorks: Work[];
   export let now: Date;
 
   function stageText(stage: Stage) {
@@ -21,7 +21,7 @@
   }
 
   $: isAwardStage = getStage(ceremony, now) === Stage.Award;
-  $: texts = isAwardStage ? winners.map((w) => w.name) : [stageText(getStage(ceremony, now))];
+  $: texts = isAwardStage ? bestWorks.map((w) => w.name) : [stageText(getStage(ceremony, now))];
   $: count = texts.length;
 </script>
 
@@ -33,7 +33,7 @@
 >
   <div class="text-clip whitespace-nowrap winner-text font-serif text-highlight-high font-bold flex-1 overflow-hidden">
     {#if isAwardStage}
-      {#each winners || [] as winner (winner.name)}
+      {#each bestWorks || [] as winner (winner.name)}
         <p class="winner-text" style="--count:{count}">{winner.name}</p>
       {/each}
     {:else}

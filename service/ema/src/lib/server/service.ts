@@ -1,4 +1,5 @@
-import type { Ceremony, Work } from '$lib/domain/entity';
+import { newRankedWorks } from '$lib/domain/entity';
+import type { Ceremony, Work, RankedWork } from '$lib/domain/entity';
 import type { Department } from '$lib/domain/value';
 import type { CeremonyRepository, WorkRepository } from '$lib/server/adapter';
 
@@ -12,11 +13,16 @@ export class Service {
     return await this.ceremonyRepository.getCeremonies();
   }
 
-  async getWinners(): Promise<Map<number, Work[]>> {
+  async getBestWorks(): Promise<Map<number, Work[]>> {
     return await this.workRepository.getAllWinners();
   }
 
-  async getAwardsByYear(year: number): Promise<Map<Department, Work[]>> {
-    return await this.workRepository.getAwardsByYear(year);
+  async getWinningWorks(year: number): Promise<Map<Department, RankedWork[]>> {
+    const winnings = await this.workRepository.getAwardsByYear(year);
+    const rankedWinnings = new Map<Department, RankedWork[]>();
+    for (const [department, works] of winnings.entries()) {
+      rankedWinnings.set(department, newRankedWorks(works));
+    }
+    return rankedWinnings;
   }
 }

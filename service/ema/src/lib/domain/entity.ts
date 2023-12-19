@@ -44,6 +44,30 @@ export interface Work {
   ranking?: number;
 }
 
+export interface RankedWork {
+  ranking: number;
+  works: Work[];
+}
+
+export function newRankedWorks(sortedWorks: Work[]): RankedWork[] {
+  const rw: RankedWork[] = [];
+  const addWork = (work: Work) => {
+    for (const r of rw) {
+      if (r.ranking == work.ranking) {
+        r.works.push(work);
+        return;
+      }
+    }
+    if (work.ranking) {
+      rw.push({ ranking: work.ranking, works: [work] });
+    }
+  };
+  for (const work of sortedWorks) {
+    addWork(work);
+  }
+  return rw;
+}
+
 export interface Voter {
   id: number;
   name: string;

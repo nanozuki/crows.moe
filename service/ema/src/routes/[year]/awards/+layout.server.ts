@@ -1,11 +1,11 @@
-import type { Ceremony, Work } from '$lib/domain/entity';
+import type { Ceremony, RankedWork } from '$lib/domain/entity';
 import type { Department } from '$lib/domain/value';
 import { getService } from '$lib/server/index.js';
 import type { RootLayoutData } from '../../+layout.server';
 
 export interface AwardLayoutData {
   ceremony: Ceremony;
-  awards: Map<Department, Work[]>;
+  winningsByDept: Map<Department, RankedWork[]>;
 }
 
 interface LoadParams {
@@ -19,7 +19,7 @@ export async function load({ params, parent }: LoadParams): Promise<AwardLayoutD
   const service = getService();
   const parentData = await parent();
   return {
-    ceremony: parentData.ceremonies.find((c) => c.year === year)!,
-    awards: await service.getAwardsByYear(year),
+    ceremony: parentData.ceremonies.find((c) => c.year === year)!, // TODO: 404
+    winningsByDept: await service.getWinningWorks(year),
   };
 }
