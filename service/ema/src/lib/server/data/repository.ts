@@ -58,6 +58,15 @@ export class WorkRepositoryImpl implements WorkRepository {
     }
     return awards;
   }
+
+  async getWorksInDept(year: number, department: Department): Promise<Work[]> {
+    const results = await this.db
+      .select()
+      .from(work)
+      .where(and(eq(work.year, year), eq(work.department, department)))
+      .orderBy(work.id);
+    return results.map(modelToWork);
+  }
 }
 
 export class VoterRepositoryImpl implements VoterRepository {

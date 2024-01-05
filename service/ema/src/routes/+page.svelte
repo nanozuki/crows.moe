@@ -1,10 +1,8 @@
 <script lang="ts">
-  import { isCeremonyActive } from '$lib/domain/entity';
+  import { dataString, isCeremonyActive } from '$lib/domain/entity';
   import type { HomePageData } from './+page.server';
   import type { RootLayoutData } from './+layout.server';
   import Entrance from './Entrance.svelte';
-
-  const dataString = (date: Date): string => `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`;
 
   export let data: HomePageData & RootLayoutData;
   $: thisYear = isCeremonyActive(data.ceremonies[0], data.now) ? data.ceremonies[0] : null;

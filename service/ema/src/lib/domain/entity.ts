@@ -22,6 +22,9 @@ export function getStage(c: Ceremony, time: Date): Stage {
   }
 }
 
+export const dataString = (date: Date): string =>
+  `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`;
+
 const awardHighlightDuration = 1000 * 60 * 60 * 24 * 30; // 30 days
 
 export function isCeremonyActive(c: Ceremony, time: Date): boolean {

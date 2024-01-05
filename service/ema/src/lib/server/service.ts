@@ -31,6 +31,10 @@ export class Service {
     return await this.ceremonyRepository.getCeremonies();
   }
 
+  async getWorksInDept(year: number, department: Department): Promise<Work[]> {
+    return await this.workRepository.getWorksInDept(year, department);
+  }
+
   async getBestWorks(): Promise<Map<number, Work[]>> {
     return await this.workRepository.getAllWinners();
   }
