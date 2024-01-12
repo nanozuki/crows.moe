@@ -2,15 +2,14 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"regexp"
-	"strings"
 
 	tg "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/nanozuki/crows.moe/service/urldbot/doctor"
 )
 
 var (
@@ -60,12 +59,7 @@ func main() {
 	}
 }
 
-type Reply struct {
-	Title string
-	Url   string
-}
-
-func makeResponse(queryId string, replies []Reply) tg.InlineConfig {
+func makeResponse(queryId string, replies []doctor.Reply) tg.InlineConfig {
 	response := tg.InlineConfig{
 		InlineQueryID: queryId,
 		Results:       []interface{}{},
@@ -80,19 +74,7 @@ func makeResponse(queryId string, replies []Reply) tg.InlineConfig {
 	return response
 }
 
-type CureFunc func(*url.URL, string) []Reply
-
-var (
-	httpReg = regexp.MustCompile(`(https?://)?\w+(\.\w+)+(/\S*)?`)
-	cures   = map[string]CureFunc{
-		"b23.tv":         cureBilibili,
-		"twitter.com":    cureTwitter,
-		"x.com":          cureTwitter,
-		"youtu.be":       cureYoutube,
-		"www.reddit.com": cureReddit,
-		"xhslink.com":    cureXiaohongshu,
-	}
-)
+var httpReg = regexp.MustCompile(`(https?://)?\w+(\.\w+)+(/\S*)?`)
 
 func handleInlineQuery(bot *tg.BotAPI, query *tg.InlineQuery) {
 	fmt.Printf("[%s] %s\n", query.From.UserName, query.Query)
@@ -107,11 +89,16 @@ func handleInlineQuery(bot *tg.BotAPI, query *tg.InlineQuery) {
 		return
 	}
 	fmt.Println("query host is: ", u.Host)
-	cure, ok := cures[u.Host]
-	if !ok {
-		return
+	var response tg.InlineConfig
+	for _, d := range doctor.Doctors {
+		if d.ShouldCure(u, urlInQuery) {
+			response = makeResponse(query.ID, d.Cure(u, urlInQuery))
+			break
+		}
 	}
-	response := makeResponse(query.ID, cure(u, urlInQuery))
+	if response.InlineQueryID == "" {
+		return // not found doctor
+	}
 	fmt.Println("bot response: ", response)
 	if len(response.Results) == 0 {
 		log.Printf("No response for query: %s", urlInQuery)
@@ -120,155 +107,5 @@ func handleInlineQuery(bot *tg.BotAPI, query *tg.InlineQuery) {
 	_, err = bot.Send(response)
 	if err != nil {
 		log.Printf("Error sending inline query response: %s", err)
-	}
-}
-
-var redirectHrefReg = regexp.MustCompile(`href="(https://[^"<>]*)"`)
-
-func getRedirectHref(urlStr string) *url.URL {
-	req, err := http.NewRequest("GET", urlStr, nil)
-	if err != nil {
-		log.Printf("Error build query: %s", err)
-		return nil
-	}
-	req.Header.Set("User-Agent", "curl/8.1.2")
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
-	res, err := client.Do(req)
-	if err != nil {
-		log.Printf("Error query url: %s", err)
-		return nil
-	}
-	defer res.Body.Close()
-	ress, err := io.ReadAll(res.Body)
-	if err != nil {
-		log.Printf("Error read response: %s", err)
-		return nil
-	}
-	log.Printf("get response: %s", ress)
-	addresses := redirectHrefReg.FindStringSubmatch(string(ress))
-	if len(addresses) == 0 {
-		return nil
-	}
-	log.Printf("find address in response: %s", addresses[1])
-	u, err := url.Parse(string(addresses[1]))
-	if err != nil {
-		log.Printf("response '%s' is not a valid url", addresses[1])
-		return nil
-	}
-	return u
-}
-
-func cureBilibili(urlObj *url.URL, source string) []Reply {
-	u := getRedirectHref(source)
-	if u == nil {
-		return nil
-	}
-	target := url.URL{
-		Scheme: "https",
-		Host:   u.Host,
-		Path:   u.Path,
-	}
-	return []Reply{
-		{Title: "Bilibili", Url: target.String()},
-	}
-}
-
-func cureTwitter(urlObj *url.URL, source string) []Reply {
-	path := strings.TrimPrefix(urlObj.Path, "/")
-	parts := strings.Split(path, "/")
-	log.Printf("twitter parts: %v", parts)
-	if len(parts) != 3 || parts[1] != "status" {
-		return nil
-	}
-	fxTwitter := "https://fxtwitter.com/"
-	if urlObj.Host == "x.com" {
-		fxTwitter = "https://fixupx.com/"
-	}
-	return []Reply{
-		{
-			Title: "FxTwitter",
-			Url:   fxTwitter + path,
-		},
-		{
-			Title: "VxTwitter",
-			Url:   "https://vxtwitter.com/" + path,
-		},
-	}
-}
-
-func cureYoutube(urlObj *url.URL, urlStr string) []Reply {
-	query := url.Values{}
-	query.Set("v", strings.TrimPrefix(urlObj.Path, "/"))
-	if urlObj.Query().Get("t") != "" {
-		query.Set("t", urlObj.Query().Get("t"))
-	}
-	target := url.URL{
-		Scheme:   "https",
-		Host:     "youtube.com",
-		Path:     "/watch",
-		RawQuery: query.Encode(),
-	}
-	return []Reply{
-		{
-			Title: "Youtube",
-			Url:   target.String(),
-		},
-	}
-}
-
-func cureReddit(urlObj *url.URL, urlStr string) []Reply {
-	if !strings.Contains(urlObj.Path, "/s/") {
-		// not share url, just clean query
-		target := url.URL{
-			Scheme: "https",
-			Host:   "www.reddit.com",
-			Path:   urlObj.Path,
-		}
-		oldTarget := url.URL{
-			Scheme: "https",
-			Host:   "old.reddit.com",
-			Path:   urlObj.Path,
-		}
-		return []Reply{
-			{Title: "Reddit", Url: target.String()},
-			{Title: "OldReddit", Url: oldTarget.String()},
-		}
-	}
-	u := getRedirectHref(urlStr)
-	if u != nil {
-		return nil
-	}
-	target := url.URL{
-		Scheme: "https",
-		Host:   u.Host,
-		Path:   u.Path,
-	}
-	oldTarget := url.URL{
-		Scheme: "https",
-		Host:   "old.reddit.com",
-		Path:   u.Path,
-	}
-	return []Reply{
-		{Title: "Reddit", Url: target.String()},
-		{Title: "OldReddit", Url: oldTarget.String()},
-	}
-}
-
-func cureXiaohongshu(urlObj *url.URL, urlStr string) []Reply {
-	u := getRedirectHref(urlStr)
-	if u == nil {
-		return nil
-	}
-	target := url.URL{
-		Scheme: "https",
-		Host:   u.Host,
-		Path:   u.Path,
-	}
-	return []Reply{
-		{Title: "小红书", Url: target.String()},
 	}
 }
