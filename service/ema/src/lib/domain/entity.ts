@@ -47,6 +47,17 @@ export interface Work {
   ranking?: number;
 }
 
+export function subnamesOfWork(w: Work): string[] {
+  const subnames: string[] = [];
+  if (w.originName !== w.name) {
+    subnames.push(w.originName);
+  }
+  for (const alias of w.aliases) {
+    subnames.push(alias);
+  }
+  return subnames;
+}
+
 export interface RankedWork {
   ranking: number;
   works: Work[];

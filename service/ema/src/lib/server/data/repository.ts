@@ -67,6 +67,10 @@ export class WorkRepositoryImpl implements WorkRepository {
       .orderBy(work.id);
     return results.map(modelToWork);
   }
+
+  async addNomination(year: number, department: Department, workName: string): Promise<void> {
+    await this.db.insert(work).values({ year, department, name: workName }); //.onConflictDoNothing();
+  }
 }
 
 export class VoterRepositoryImpl implements VoterRepository {

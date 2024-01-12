@@ -9,6 +9,7 @@ export interface WorkRepository {
   getAllWinners(): Promise<Map<number, Work[]>>; // year -> work[]
   getAwardsByYear(year: number): Promise<Map<Department, Work[]>>;
   getWorksInDept(year: number, department: Department): Promise<Work[]>;
+  addNomination(year: number, department: Department, workName: string): Promise<void>;
 }
 
 export interface VoterRepository {

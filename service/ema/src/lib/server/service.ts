@@ -35,6 +35,10 @@ export class Service {
     return await this.workRepository.getWorksInDept(year, department);
   }
 
+  async addNomination(year: number, department: Department, workName: string): Promise<void> {
+    return await this.workRepository.addNomination(year, department, workName);
+  }
+
   async getBestWorks(): Promise<Map<number, Work[]>> {
     return await this.workRepository.getAllWinners();
   }

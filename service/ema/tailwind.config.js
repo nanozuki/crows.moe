@@ -26,6 +26,7 @@ export default {
         em: '1em',
       },
       gridTemplateColumns: {
+        nomination: '1fr 10rem',
         ballot: '2rem minmax(2rem, 1fr)',
       },
       borderWidth: {
