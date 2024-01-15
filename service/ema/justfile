@@ -30,4 +30,7 @@ dev-migrate:
 	EMA_POSTGRES_URL=postgresql://ema:ema@localhost:5432/ema pnpx tsx ./src/lib/server/data/migrate.ts
 
 dev-server:
-	EMA_POSTGRES_URL=postgresql://ema:ema@localhost:5432/ema pnpm run dev
+	EMA_POSTGRES_URL=postgresql://ema:ema@localhost:5432/ema \
+		EMA_JWT_SECRET=secret \
+		EMA_INVITE_KEY=invite \
+		pnpm run dev

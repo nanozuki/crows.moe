@@ -3,6 +3,7 @@ import { redirect } from '@sveltejs/kit';
 
 export interface AuthLayoutData {
   username?: string;
+  invited: boolean;
 }
 
 export const load = async ({ cookies, url }): Promise<AuthLayoutData> => {
@@ -12,6 +13,7 @@ export const load = async ({ cookies, url }): Promise<AuthLayoutData> => {
     // already logged in
     throw redirect(302, '/');
   }
+  const invited = await service.verifyInvited(cookies);
   const username = url.searchParams.get('username');
-  return { username: username || undefined };
+  return { username: username || undefined, invited };
 };

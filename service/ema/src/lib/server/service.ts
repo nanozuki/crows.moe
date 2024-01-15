@@ -9,6 +9,7 @@ import { z } from 'zod';
 
 const tokenOptions = {
   name: 'token',
+  invitedName: 'invited',
   issuer: 'https://crows.moe',
   audience: 'https://ema.crows.moe',
   expireTime: 1000 * 60 * 60 * 24 * 30, // 30 days
@@ -75,6 +76,25 @@ export class Service {
     });
   }
 
+  async newInvitedCookie(cookies: Cookies, from: Date): Promise<void> {
+    const jwtSecret = new TextEncoder().encode(env.EMA_JWT_SECRET);
+    const expires = new Date(from.getTime() + tokenOptions.expireTime);
+    const jwt = await new SignJWT({ invited: true })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setIssuer(tokenOptions.issuer)
+      .setAudience(tokenOptions.audience)
+      .setExpirationTime(expires)
+      .sign(jwtSecret);
+    cookies.set(tokenOptions.invitedName, jwt, {
+      path: '/',
+      expires,
+      secure: true,
+      httpOnly: true,
+      sameSite: 'strict',
+    });
+  }
+
   async verifyToken(cookies: Cookies): Promise<Voter | undefined> {
     const jwtSecret = new TextEncoder().encode(env.EMA_JWT_SECRET);
     const token = cookies.get(tokenOptions.name);
@@ -87,13 +107,31 @@ export class Service {
         audience: tokenOptions.audience,
         requiredClaims: ['iss', 'aud', 'exp', 'iat', 'voter'],
       });
-      const validate = jwtPayloadSchema.safeParse(payload);
+      const validate = jwtPayloadSchema.safeParse(payload.voter);
       if (!validate.success) {
         return undefined;
       }
       return payload.voter as Voter;
     } catch (e) {
       return undefined;
+    }
+  }
+
+  async verifyInvited(cookies: Cookies): Promise<boolean> {
+    const jwtSecret = new TextEncoder().encode(env.EMA_JWT_SECRET);
+    const token = cookies.get(tokenOptions.invitedName);
+    if (!token) {
+      return false;
+    }
+    try {
+      const { payload } = await jwtVerify(token, jwtSecret, {
+        issuer: tokenOptions.issuer,
+        audience: tokenOptions.audience,
+        requiredClaims: ['iss', 'aud', 'exp', 'iat', 'invited'],
+      });
+      return payload.invited === true;
+    } catch (e) {
+      return false;
     }
   }
 
