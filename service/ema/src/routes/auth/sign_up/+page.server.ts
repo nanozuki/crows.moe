@@ -3,7 +3,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 
 export const actions = {
-  default: async ({ request, cookies }) => {
+  default: async ({ request, cookies, url }) => {
     const data = await request.formData();
     const username = data.get('username');
     if (typeof username !== 'string') {
@@ -22,6 +22,9 @@ export const actions = {
       return fail(400, { username, errors: { username: '', passwordEnsure: '两次输入不一致' } });
     }
     await getService().signUpVoter(username, password, cookies);
+    if (url.searchParams.has('redirect')) {
+      throw redirect(302, decodeURIComponent(url.searchParams.get('redirect')!));
+    }
     throw redirect(302, '/');
   },
 } satisfies Actions;

@@ -9,7 +9,7 @@ export interface AuthActionReturn {
 }
 
 export const actions = {
-  default: async ({ request }) => {
+  default: async ({ request, url }) => {
     const data = await request.formData();
     const username = data.get('username');
     if (typeof username !== 'string') {
@@ -18,13 +18,17 @@ export const actions = {
       return fail(400, { username: username, errors: { username: '不能为空' } });
     }
 
+    let query = '?username=' + encodeURIComponent(username);
+    if (url.searchParams.has('redirect')) {
+      query += '&redirect=' + encodeURIComponent(url.searchParams.get('redirect')!);
+    }
     const voter = await getService().getUserByName(username);
     if (!voter) {
-      throw redirect(302, '/auth/sign_up?username=' + encodeURIComponent(username));
+      throw redirect(302, '/auth/sign_up' + query);
     } else if (!voter.hasPassword) {
-      throw redirect(302, '/auth/set_password?username=' + encodeURIComponent(username));
+      throw redirect(302, '/auth/set_password' + query);
     } else {
-      throw redirect(302, '/auth/login?username=' + encodeURIComponent(username));
+      throw redirect(302, '/auth/login' + query);
     }
   },
 } satisfies Actions;

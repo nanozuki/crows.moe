@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ params, parent, cookies }) => {
   const voter = await service.verifyToken(cookies);
   console.log('voter: ', voter);
   if (!voter) {
-    const returnUrl = encodeURIComponent(`/${params.year}/nomination/${params.dept}`);
+    const returnUrl = encodeURIComponent(`/${params.year}/nominations/${params.dept}`);
     throw redirect(302, `/auth?redirect=${returnUrl}`);
   }
   const year = parseInt(params.year);
