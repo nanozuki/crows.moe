@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { Department } from '../../domain/value';
-import { index, integer, pgEnum, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { index, unique, integer, pgEnum, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const department = pgEnum('department', [
   Department.Anime,
@@ -69,7 +69,7 @@ export const vote = pgTable(
   (table) => {
     return {
       voterIdx: index('vote_voter_id_idx').on(table.voterId),
-      departmentIdx: index('vote_year_department_idx').on(table.year, table.department),
+      yearDepartmentVoteIdx: unique('vote_year_department_voter_idx').on(table.year, table.department, table.voterId),
     };
   },
 );

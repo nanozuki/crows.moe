@@ -1,7 +1,6 @@
 <script lang="ts">
   import { departmentInfo } from '$lib/assets';
-  import { TabLine } from '$lib/comp';
-  import StringInput from '$lib/comp/StringInput.svelte';
+  import { TabLine, StringInput, Nomination } from '$lib/comp';
   import { dataString, subnamesOfWork } from '$lib/domain/entity';
   import type { NomActionReturn, NomPageData } from './+page.server';
   import ChevronLeft from '~icons/material-symbols/chevron-left';
@@ -55,21 +54,14 @@
 
 <!-- Nomination List --->
 
-<div class="flex flex-col gap-y-4">
-  <p class="text-xl font-serif font-bold leading-normal">提名作品：</p>
-  {#each data.noms as work (work.id)}
-    <div class="flex flex-col wide:flex-row items-start wide:items-center px-4 py-2 bg-overlay rounded">
-      <p class="flex-1 font-serif text-2xl">{work.name}</p>
-      <div class="flex-1">
-        {#each subnamesOfWork(work) as name (name)}
-          <p class="text-subtle">
-            {name}
-          </p>
-        {/each}
-      </div>
-    </div>
-  {/each}
-</div>
+{#if data.noms.length !== 0}
+  <div class="flex flex-col gap-y-2">
+    <p class="text-xl font-serif font-bold leading-normal">已获提名的作品：</p>
+    {#each data.noms as work (work.id)}
+      <Nomination {work} />
+    {/each}
+  </div>
+{/if}
 
 <!-- New Nomination Form --->
 

@@ -1,10 +1,10 @@
-import type { RankedWork } from '$lib/domain/entity';
+import type { AwardRank } from '$lib/domain/entity';
 import type { Department } from '$lib/domain/value';
 import type { AwardLayoutData } from '../+layout.server';
 
 export interface AwardDetailData {
   department: Department;
-  rankedWorks: RankedWork[];
+  rankedWorks: AwardRank[];
 }
 
 interface LoadParams {

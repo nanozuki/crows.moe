@@ -25,7 +25,7 @@
       case Stage.Nomination:
         return `/${ceremony.year}/nominations/${ceremony.departments[0]}`;
       case Stage.Voting:
-        return `/${ceremony.year}/votings/${ceremony.departments[0]}`;
+        return `/${ceremony.year}/votes/${ceremony.departments[0]}`;
       case Stage.Award:
         return `/${ceremony.year}/awards/${ceremony.departments[0]}`;
       default:

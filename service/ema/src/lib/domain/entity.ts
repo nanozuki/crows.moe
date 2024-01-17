@@ -58,13 +58,13 @@ export function subnamesOfWork(w: Work): string[] {
   return subnames;
 }
 
-export interface RankedWork {
+export interface AwardRank {
   ranking: number;
   works: Work[];
 }
 
-export function newRankedWorks(sortedWorks: Work[]): RankedWork[] {
-  const rw: RankedWork[] = [];
+export function newAwardRank(sortedWorks: Work[]): AwardRank[] {
+  const rw: AwardRank[] = [];
   const addWork = (work: Work) => {
     for (const r of rw) {
       if (r.ranking == work.ranking) {
@@ -102,10 +102,15 @@ export async function verifyPassword(password: string, salt: string, hash: strin
   return hash === (await hashPassword(password, salt));
 }
 
+export interface VoteRank {
+  ranking: number;
+  work: Work;
+}
+
 export interface Vote {
   id: number;
   year: number;
   voterId: number;
   department: Department;
-  rankings: Record<number, number>; // ranking -> workId
+  rankings: VoteRank[];
 }

@@ -15,6 +15,20 @@
       "when": 1703499658070,
       "tag": "0001_perfect_menace",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1705568857050,
+      "tag": "0002_sloppy_vulcan",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1705568950789,
+      "tag": "0003_tough_sentinel",
+      "breakpoints": true
     }
   ]
 }

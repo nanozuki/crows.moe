@@ -13,7 +13,6 @@ export interface NomPageData {
 export const load: PageServerLoad = async ({ params, parent, cookies }) => {
   const service = getService();
   const voter = await service.verifyToken(cookies);
-  console.log('voter: ', voter);
   if (!voter) {
     const returnUrl = encodeURIComponent(`/${params.year}/nominations/${params.dept}`);
     throw redirect(302, `/auth?redirect=${returnUrl}`);

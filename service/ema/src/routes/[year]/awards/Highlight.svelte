@@ -1,16 +1,16 @@
 <script lang="ts">
   import type { Department } from '$lib/domain/value';
-  import type { RankedWork } from '$lib/domain/entity';
+  import type { AwardRank } from '$lib/domain/entity';
   import { departmentTitle } from '$lib/assets';
 
   export let department: Department;
-  export let rankedWorks: RankedWork[];
+  export let rankedWorks: AwardRank[];
 
   // highlight works:
   // 1. Must contains the works those ranking are 1 and 2
   // 2. Continues to add works as much as possible, but the number of works must be less than 5
-  function getHighlight(rankedWork: RankedWork[]): RankedWork[] {
-    const highlight: RankedWork[] = [];
+  function getHighlight(rankedWork: AwardRank[]): AwardRank[] {
+    const highlight: AwardRank[] = [];
     let count = 0;
     for (const ranked of rankedWork) {
       if (ranked.ranking <= 2 || count + ranked.works.length <= 5) {

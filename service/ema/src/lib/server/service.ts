@@ -1,10 +1,10 @@
-import { newRankedWorks } from '$lib/domain/entity';
-import type { Ceremony, Work, RankedWork, Voter } from '$lib/domain/entity';
+import type { Ceremony, Work, AwardRank, Voter, VoteRank } from '$lib/domain/entity';
+import type { CeremonyRepository, VoteRepository, VoterRepository, WorkRepository } from '$lib/server/adapter';
+import type { Cookies } from '@sveltejs/kit';
 import type { Department } from '$lib/domain/value';
-import type { CeremonyRepository, VoterRepository, WorkRepository } from '$lib/server/adapter';
 import { SignJWT, jwtVerify } from 'jose';
 import { env } from '$env/dynamic/private';
-import type { Cookies } from '@sveltejs/kit';
+import { newAwardRank } from '$lib/domain/entity';
 import { z } from 'zod';
 
 const tokenOptions = {
@@ -26,6 +26,7 @@ export class Service {
     private ceremonyRepository: CeremonyRepository,
     private workRepository: WorkRepository,
     private voterRepository: VoterRepository,
+    private voteRepository: VoteRepository,
   ) {}
 
   async getCeremonies(): Promise<Ceremony[]> {
@@ -44,11 +45,11 @@ export class Service {
     return await this.workRepository.getAllWinners();
   }
 
-  async getWinningWorks(year: number): Promise<Map<Department, RankedWork[]>> {
+  async getWinningWorks(year: number): Promise<Map<Department, AwardRank[]>> {
     const winnings = await this.workRepository.getAwardsByYear(year);
-    const rankedWinnings = new Map<Department, RankedWork[]>();
+    const rankedWinnings = new Map<Department, AwardRank[]>();
     for (const [department, works] of winnings.entries()) {
-      rankedWinnings.set(department, newRankedWorks(works));
+      rankedWinnings.set(department, newAwardRank(works));
     }
     return rankedWinnings;
   }
@@ -155,4 +156,27 @@ export class Service {
     await this.newCookie(cookies, new Date(), voter);
     return voter;
   }
+
+  async getVote(year: number, department: Department, voter: Voter): Promise<VoteRank[]> {
+    const vote = await this.voteRepository.getVote(year, department, voter.id);
+    if (!vote) {
+      return [];
+    }
+    return vote.rankings;
+  }
+
+  async setVote(year: number, department: Department, voter: Voter, rankingIds: Map<number, number>): Promise<void> {
+    const rankings = await Promise.all(
+      Array.from(rankingIds.entries(), async ([workId, ranking]) => ({
+        work: (await this.workRepository.getById(workId))!,
+        ranking,
+      })),
+    );
+    return await this.voteRepository.setVote(year, department, voter.id, rankings);
+  }
+}
+
+export interface RankWorkId {
+  workId: number;
+  ranking: number;
 }

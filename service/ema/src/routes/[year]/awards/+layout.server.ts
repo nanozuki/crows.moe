@@ -1,11 +1,11 @@
-import type { Ceremony, RankedWork } from '$lib/domain/entity';
+import type { Ceremony, AwardRank } from '$lib/domain/entity';
 import type { Department } from '$lib/domain/value';
 import { getService } from '$lib/server/index.js';
 import type { RootLayoutData } from '../../+layout.server';
 
 export interface AwardLayoutData {
   ceremony: Ceremony;
-  winningsByDept: Map<Department, RankedWork[]>;
+  winningsByDept: Map<Department, AwardRank[]>;
 }
 
 interface LoadParams {
