@@ -45,6 +45,11 @@ jobs:
           docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/ema:${{ env.TAG }}" service/ema
           docker push "${{ env.IMAGE_LOCATION }}/ema:${{ env.TAG }}"
 
+      - name: build ema-next
+        run: |-
+          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/ema-next:${{ env.TAG }}" service/ema-next
+          docker push "${{ env.IMAGE_LOCATION }}/ema-next:${{ env.TAG }}"
+
       - name: build urldbot
         run: |-
           docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/urldbot:${{ env.TAG }}" service/urldbot
@@ -65,10 +70,16 @@ jobs:
       - name: Make Variables
         run: |-
           echo '{"deploy_tag":"${{ env.TAG }}",' > deploy.auto.tfvars.json
-          echo '"urldbot_token":"${{ env.URLDBOT_TOKEN }}"}' >> deploy.auto.tfvars.json
+          echo '"urldbot_token":"${{ env.URLDBOT_TOKEN }}",' >> deploy.auto.tfvars.json
+          echo '"ema_invite_key":"${{ env.EMA_INVITE_KEY }}",' >> deploy.auto.tfvars.json
+          echo '"ema_jwt_secret":"${{ env.EMA_JWT_SECRET }}",' >> deploy.auto.tfvars.json
+          echo '"ema_postgres_url":"${{ env.EMA_POSTGRES_URL }}"}' >> deploy.auto.tfvars.json
         env:
           TAG: ${{needs.build.outputs.tag}}
           URLDBOT_TOKEN: ${{ secrets.URLDBOT_TOKEN }}
+          EMA_INVITE_KEY: ${{ secrets.EMA_INVITE_KEY }}
+          EMA_JWT_SECRET: ${{ secrets.EMA_JWT_SECRET }}
+          EMA_POSTGRES_URL: ${{ secrets.EMA_POSTGRES_URL }}
 
       - name: Terraform Setup
         uses: hashicorp/setup-terraform@v2

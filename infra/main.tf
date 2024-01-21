@@ -22,6 +22,21 @@ variable "urldbot_token" {
   sensitive = true
 }
 
+variable "ema_invite_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "ema_jwt_secret" {
+  type      = string
+  sensitive = true
+}
+
+variable "ema_postgres_url" {
+  type      = string
+  sensitive = true
+}
+
 provider "google" {
   project = "crows-moe"
   region  = "asia-southeast1"
