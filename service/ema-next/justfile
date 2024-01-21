@@ -34,3 +34,9 @@ dev-server:
 		EMA_JWT_SECRET=secret \
 		EMA_INVITE_KEY=invite \
 		pnpm run dev
+
+node-server:
+	EMA_POSTGRES_URL=postgresql://ema:ema@localhost:5432/ema \
+		EMA_JWT_SECRET=secret \
+		EMA_INVITE_KEY=invite \
+		node build

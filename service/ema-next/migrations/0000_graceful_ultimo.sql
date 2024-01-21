@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS "ranking_in_vote" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "vote" (
-	"id" serial PRIMARY KEY DEFAULT nextval('vote_id_seq') NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"year" integer NOT NULL,
 	"voter_id" integer NOT NULL,
 	"department" "department" NOT NULL,
@@ -28,14 +28,14 @@ CREATE TABLE IF NOT EXISTS "vote" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "voter" (
-	"id" serial PRIMARY KEY DEFAULT nextval('voter_id_seq') NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"password_hash" text,
 	CONSTRAINT "voter_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "work" (
-	"id" serial PRIMARY KEY DEFAULT nextval('work_id_seq') NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"year" integer NOT NULL,
 	"department" "department" NOT NULL,
 	"name" text NOT NULL,

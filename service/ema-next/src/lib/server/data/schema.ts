@@ -1,4 +1,3 @@
-import { sql } from 'drizzle-orm';
 import { Department } from '../../domain/value';
 import { index, unique, integer, pgEnum, pgTable, primaryKey, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
@@ -23,9 +22,7 @@ export const ceremony = pgTable('ceremony', {
 export const work = pgTable(
   'work',
   {
-    id: serial('id')
-      .primaryKey()
-      .default(sql`nextval('work_id_seq')`),
+    id: serial('id').primaryKey(),
     year: integer('year')
       .notNull()
       .references(() => ceremony.year),
@@ -45,9 +42,7 @@ export const work = pgTable(
 );
 
 export const voter = pgTable('voter', {
-  id: serial('id')
-    .primaryKey()
-    .default(sql`nextval('voter_id_seq')`),
+  id: serial('id').primaryKey(),
   name: text('name').notNull().unique(),
   passwordHash: text('password_hash'),
 });
@@ -55,9 +50,7 @@ export const voter = pgTable('voter', {
 export const vote = pgTable(
   'vote',
   {
-    id: serial('id')
-      .primaryKey()
-      .default(sql`nextval('vote_id_seq')`),
+    id: serial('id').primaryKey(),
     year: integer('year')
       .notNull()
       .references(() => ceremony.year),
