@@ -17,7 +17,7 @@ resource "google_cloud_run_service" "ema-next" {
       containers {
         image = "asia-southeast1-docker.pkg.dev/crows-moe/images/ema-next:${var.deploy_tag}"
         env {
-          name = "ORIGIN"
+          name  = "ORIGIN"
           value = "https://ema-next.crows.moe"
         }
         env {
