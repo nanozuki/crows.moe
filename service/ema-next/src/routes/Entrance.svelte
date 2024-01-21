@@ -27,7 +27,7 @@
       case Stage.Voting:
         return `/${ceremony.year}/votes/${ceremony.departments[0]}`;
       case Stage.Award:
-        return `/${ceremony.year}/awards/${ceremony.departments[0]}`;
+        return `/${ceremony.year}/awards`;
       default:
         return null;
     }
