@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1702870333315,
-      "tag": "0000_many_medusa",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1703499658070,
-      "tag": "0001_perfect_menace",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1705568857050,
-      "tag": "0002_sloppy_vulcan",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1705568950789,
-      "tag": "0003_tough_sentinel",
+      "when": 1705824006371,
+      "tag": "0000_low_sasquatch",
       "breakpoints": true
     }
   ]

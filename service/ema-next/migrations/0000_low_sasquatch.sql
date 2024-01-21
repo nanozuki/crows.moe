@@ -13,29 +13,29 @@ CREATE TABLE IF NOT EXISTS "ceremony" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "ranking_in_vote" (
-	"id" serial PRIMARY KEY NOT NULL,
 	"vote_id" integer NOT NULL,
 	"work_id" integer NOT NULL,
-	"ranking" integer NOT NULL
+	"ranking" integer NOT NULL,
+	CONSTRAINT ranking_in_vote_vote_id_work_id_pk PRIMARY KEY("vote_id","work_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "vote" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY DEFAULT nextval('vote_id_seq') NOT NULL,
 	"year" integer NOT NULL,
 	"voter_id" integer NOT NULL,
-	"department" "department" NOT NULL
+	"department" "department" NOT NULL,
+	CONSTRAINT "vote_year_department_voter_idx" UNIQUE("year","department","voter_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "voter" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY DEFAULT nextval('voter_id_seq') NOT NULL,
 	"name" text NOT NULL,
-	"salt" text,
 	"password_hash" text,
 	CONSTRAINT "voter_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "work" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY DEFAULT nextval('work_id_seq') NOT NULL,
 	"year" integer NOT NULL,
 	"department" "department" NOT NULL,
 	"name" text NOT NULL,
@@ -44,10 +44,8 @@ CREATE TABLE IF NOT EXISTS "work" (
 	"ranking" integer
 );
 --> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "ranking_in_vote_vote_id_idx" ON "ranking_in_vote" ("vote_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "ranking_in_vote_work_id_idx" ON "ranking_in_vote" ("work_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "vote_voter_id_idx" ON "vote" ("voter_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "vote_year_department_idx" ON "vote" ("year","department");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "work_name_idx" ON "work" ("year","department","name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "work_origin_name_idx" ON "work" ("year","department","origin_name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "work_aliases_idx" ON "work" ("year","department","aliases");--> statement-breakpoint

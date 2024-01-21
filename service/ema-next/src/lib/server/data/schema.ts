@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { Department } from '../../domain/value';
-import { index, unique, integer, pgEnum, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { index, unique, integer, pgEnum, pgTable, primaryKey, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const department = pgEnum('department', [
   Department.Anime,
@@ -77,9 +77,6 @@ export const vote = pgTable(
 export const rankingInVote = pgTable(
   'ranking_in_vote',
   {
-    id: serial('id')
-      .primaryKey()
-      .default(sql`nextval('ranking_in_vote_id_seq')`),
     voteId: integer('vote_id')
       .notNull()
       .references(() => vote.id),
@@ -90,7 +87,7 @@ export const rankingInVote = pgTable(
   },
   (table) => {
     return {
-      voteIdIdx: index('ranking_in_vote_vote_id_idx').on(table.voteId),
+      pk: primaryKey({ columns: [table.voteId, table.workId] }),
       workIdIdx: index('ranking_in_vote_work_id_idx').on(table.workId),
     };
   },
