@@ -5,16 +5,19 @@
   import { Button, Nomination, TabLine } from '$lib/comp';
   import { dataString } from '$lib/domain/entity';
   import { departmentInfo } from '$lib/assets';
+    import type { WorkInVote } from './+page.server';
 
   export let data: PageData;
   export let form: ActionData;
   let inputed = false;
 
-  const inputValue = (workId: number) => {
-    if (form?.rankings.has(workId)) {
-      return form?.rankings.get(workId);
+  const inputValue = (work: WorkInVote) => {
+    if (form?.rankings.has(work.id)) {
+      console.log("form.get: ",form?.rankings.get(work.id))
+      return form?.rankings.get(work.id);
     } else {
-      return data.rankings.find((r) => r.work.id === workId)?.ranking;
+      console.log("work.ranking: ",work.ranking);
+      return work.ranking;
     }
   };
 
@@ -67,7 +70,7 @@
       <input
         type="number"
         name={work.id.toString()}
-        value={inputValue(work.id)}
+        value={inputValue(work)}
         min="1"
         class="[appearance:textfield] h-8 w-8 text-center leading-7 bg-surface rounded border-2 border-pine self-center focus:border-rose focus-visible:border-rose outline-none shadow-none"
         on:input={() => (inputed = true)}

@@ -102,15 +102,10 @@ export async function verifyPassword(password: string, salt: string, hash: strin
   return hash === (await hashPassword(password, salt));
 }
 
-export interface VoteRank {
-  ranking: number;
-  work: Work;
-}
-
 export interface Vote {
   id: number;
   year: number;
   voterId: number;
   department: Department;
-  rankings: VoteRank[];
+  rankings: Work[];
 }

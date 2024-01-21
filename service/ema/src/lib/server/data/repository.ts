@@ -1,4 +1,4 @@
-import type { Ceremony, Vote, VoteRank, Voter, Work } from '$lib/domain/entity';
+import type { Ceremony, Vote, Voter, Work } from '$lib/domain/entity';
 import type { CeremonyRepository, WorkRepository, VoterRepository, VoteRepository } from '$lib/server/adapter';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { ceremony, rankingInVote, vote, voter, work } from './schema';
@@ -152,21 +152,22 @@ export class VoteRepositoryImpl implements VoteRepository {
       .leftJoin(work, eq(rankingInVote.workId, work.id))
       .where(eq(rankingInVote.voteId, v.id))
       .orderBy(rankingInVote.ranking, rankingInVote.workId);
-    const rankings = rankingsRows.map((r) => ({
-      ranking: r.ranking_in_vote.ranking,
-      work: modelToWork(r.work!),
-    }));
+    const rankings = rankingsRows.map((r) => {
+      const work = modelToWork(r.work!);
+      work.ranking = r.ranking_in_vote.ranking;
+      return work;
+    });
     return { ...v, rankings };
   }
 
-  async setVote(year: number, department: Department, voterId: number, rankings: VoteRank[]): Promise<void> {
+  async setVote(year: number, department: Department, voterId: number, works: Work[]): Promise<void> {
     await this.db.insert(vote).values({ year, department, voterId }).onConflictDoNothing();
     const idRow = await this.db
       .select()
       .from(vote)
       .where(and(eq(vote.year, year), eq(vote.department, department), eq(vote.voterId, voterId)));
     const id = idRow[0].id;
-    const rankingsRows = rankings.map((r) => ({ voteId: id, ranking: r.ranking, workId: r.work.id }));
+    const rankingsRows = works.map((r) => ({ voteId: id, ranking: r.ranking!, workId: r.id }));
     await this.db.transaction(
       async (db) => {
         await db.delete(rankingInVote).where(eq(rankingInVote.voteId, id));

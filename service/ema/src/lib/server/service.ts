@@ -1,4 +1,4 @@
-import type { Ceremony, Work, AwardRank, Voter, VoteRank } from '$lib/domain/entity';
+import type { Ceremony, Work, AwardRank, Voter } from '$lib/domain/entity';
 import type { CeremonyRepository, VoteRepository, VoterRepository, WorkRepository } from '$lib/server/adapter';
 import type { Cookies } from '@sveltejs/kit';
 import type { Department } from '$lib/domain/value';
@@ -157,7 +157,7 @@ export class Service {
     return voter;
   }
 
-  async getVote(year: number, department: Department, voter: Voter): Promise<VoteRank[]> {
+  async getVote(year: number, department: Department, voter: Voter): Promise<Work[]> {
     const vote = await this.voteRepository.getVote(year, department, voter.id);
     if (!vote) {
       return [];
@@ -168,7 +168,7 @@ export class Service {
   async setVote(year: number, department: Department, voter: Voter, rankingIds: Map<number, number>): Promise<void> {
     const rankings = await Promise.all(
       Array.from(rankingIds.entries(), async ([workId, ranking]) => ({
-        work: (await this.workRepository.getById(workId))!,
+        ...(await this.workRepository.getById(workId))!,
         ranking,
       })),
     );

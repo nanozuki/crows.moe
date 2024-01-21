@@ -1,4 +1,4 @@
-import type { Ceremony, VoteRank, Work } from '$lib/domain/entity';
+import type { Ceremony, Work } from '$lib/domain/entity';
 import type { Department } from '$lib/domain/value';
 import { getService } from '$lib/server';
 import { redirect } from '@sveltejs/kit';
@@ -8,7 +8,6 @@ interface PageData {
   ceremony: Ceremony;
   department: Department;
   works: Work[];
-  rankings: VoteRank[];
 }
 
 function parseParams(params: RouteParams): [number, Department] {
@@ -27,11 +26,20 @@ export const load: PageServerLoad = async ({ params, parent, cookies }): Promise
   }
   const [year, dept] = parseParams(params);
   const parentData = await parent();
+  const works = await service.getVote(year, dept, voter);
+  works.sort((a, b) => (a.ranking || Infinity) - (b.ranking || Infinity));
+  console.log('works: ', JSON.stringify(works));
+  const votedWorkIds = new Set(works.map((w) => w.id));
+  const allWorks = await service.getWorksInDept(year, dept);
+  for (const work of allWorks) {
+    if (!votedWorkIds.has(work.id)) {
+      works.push({ ...work });
+    }
+  }
   return {
     ceremony: parentData.ceremonies.find((c) => c.year === year)!, // TODO: 404
     department: params.dept as Department,
-    works: await service.getWorksInDept(year, dept),
-    rankings: await service.getVote(year, dept, voter),
+    works: works,
   };
 };
 

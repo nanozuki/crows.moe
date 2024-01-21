@@ -1,4 +1,4 @@
-import type { Ceremony, Vote, VoteRank, Voter, Work } from '$lib/domain/entity';
+import type { Ceremony, Vote, Voter, Work } from '$lib/domain/entity';
 import type { Department } from '$lib/domain/value';
 
 export interface CeremonyRepository {
@@ -22,5 +22,5 @@ export interface VoterRepository {
 
 export interface VoteRepository {
   getVote(year: number, department: Department, voterId: number): Promise<Vote | undefined>;
-  setVote(year: number, department: Department, voterId: number, rankings: VoteRank[]): Promise<void>;
+  setVote(year: number, department: Department, voterId: number, rankings: Work[]): Promise<void>;
 }
