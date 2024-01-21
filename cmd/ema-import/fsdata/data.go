@@ -1,4 +1,4 @@
-package domain
+package fsdata
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/goccy/go-yaml"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/val"
 )
 
 type EMAData []*YearData
@@ -34,16 +35,16 @@ func (d EMAData) SaveToFile(filename string) error {
 }
 
 type YearData struct {
-	Year              int                       `json:"year,omitempty"`
-	NominationStartAt Date                      `json:"nomination_start_at,omitempty"`
-	VotingStartAt     Date                      `json:"voting_start_at,omitempty"`
-	AwardStartAt      Date                      `json:"award_start_at,omitempty"`
-	Works             map[Department][]*Work    `json:"works,omitempty"`
-	Ballots           []*BallotData             `json:"ballots,omitempty"`
-	Awards            map[Department]*AwardData `json:"awards,omitempty"`
+	Year              int                           `json:"year,omitempty"`
+	NominationStartAt Date                          `json:"nomination_start_at,omitempty"`
+	VotingStartAt     Date                          `json:"voting_start_at,omitempty"`
+	AwardStartAt      Date                          `json:"award_start_at,omitempty"`
+	Works             map[val.Department][]*Work    `json:"works,omitempty"`
+	Ballots           []*BallotData                 `json:"ballots,omitempty"`
+	Awards            map[val.Department]*AwardData `json:"awards,omitempty"`
 }
 
-func (yd *YearData) FindWork(dept Department, name string) *Work {
+func (yd *YearData) FindWork(dept val.Department, name string) *Work {
 	for _, work := range yd.Works[dept] {
 		if work.Name == name {
 			return work
@@ -71,35 +72,6 @@ func (d *Date) Time() time.Time {
 	return time.Time(*d)
 }
 
-type Department string
-
-const (
-	DeptAnime         Department = "anime"
-	DeptMangaAndNovel Department = "manga-novel"
-	DeptGame          Department = "game"
-
-	// legacy category
-	DeptTVAnime    Department = "tv-anime"
-	DeptNonTVAnime Department = "non-tv-anime"
-	DeptManga      Department = "manga"
-	DeptNovel      Department = "novel"
-)
-
-func (d *Department) UnmarshalYAML(data []byte) error {
-	dept := Department(string(data))
-	switch dept {
-	case DeptAnime, DeptMangaAndNovel, DeptGame, DeptTVAnime, DeptNonTVAnime, DeptManga, DeptNovel:
-		*d = dept
-		return nil
-	default:
-		return fmt.Errorf("invalid department: %s", dept)
-	}
-}
-
-func (d *Department) MarshalYAML() ([]byte, error) {
-	return yaml.Marshal(string(*d))
-}
-
 type Work struct {
 	Name       string   `json:"name,omitempty" firestore:"name,omitempty"`
 	OriginName string   `json:"origin_name,omitempty" firestore:"origin_name,omitempty"`
@@ -107,7 +79,7 @@ type Work struct {
 }
 
 type BallotData struct {
-	Department Department        `json:"department,omitempty"`
+	Department val.Department    `json:"department,omitempty"`
 	VoterName  string            `json:"voter_name,omitempty"`
 	Rankings   []*RankedWorkName `json:"rankings,omitempty"`
 }
@@ -127,11 +99,11 @@ type AwardData struct {
 }
 
 type YearDoc struct {
-	Year              int          `json:"year,omitempty" firestore:"year,omitempty"`
-	NominationStartAt time.Time    `json:"nomination_start_at,omitempty" firestore:"nomination_start_at,omitempty"`
-	VotingStartAt     time.Time    `json:"voting_start_at,omitempty" firestore:"voting_start_at,omitempty"`
-	AwardStartAt      time.Time    `json:"award_start_at,omitempty" firestore:"award_start_at,omitempty"`
-	Departments       []Department `json:"departments,omitempty" firestore:"departments,omitempty"`
+	Year              int              `json:"year,omitempty" firestore:"year,omitempty"`
+	NominationStartAt time.Time        `json:"nomination_start_at,omitempty" firestore:"nomination_start_at,omitempty"`
+	VotingStartAt     time.Time        `json:"voting_start_at,omitempty" firestore:"voting_start_at,omitempty"`
+	AwardStartAt      time.Time        `json:"award_start_at,omitempty" firestore:"award_start_at,omitempty"`
+	Departments       []val.Department `json:"departments,omitempty" firestore:"departments,omitempty"`
 }
 
 type BallotDoc struct {
@@ -151,14 +123,14 @@ type DepartmentDoc struct {
 	Works []*Work `firestore:"works,omitempty"`
 }
 
-func idYear(year int) string {
+func IdYear(year int) string {
 	return fmt.Sprint(year)
 }
 
-func idDept(dept Department) string {
+func IdDept(dept val.Department) string {
 	return string(dept)
 }
 
-func idBallot(ballot *BallotData) string {
+func IdBallot(ballot *BallotData) string {
 	return fmt.Sprintf("%s#%s", ballot.VoterName, ballot.Department)
 }

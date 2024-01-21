@@ -1,4 +1,4 @@
-package domain
+package fsdata21
 
 import (
 	"encoding/json"
@@ -7,16 +7,18 @@ import (
 	"strings"
 
 	"github.com/gocarina/gocsv"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/fsdata"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/val"
 )
 
-type Data2021 struct {
-	Ballots []*Ballot2021
-	Votes   []*Votes2021
-	Works   []*Works2021
+type Data struct {
+	Ballots []*Ballot
+	Votes   []*Votes
+	Works   []*Works
 }
 
-func NewData2021FromDirectory(dir string) (*Data2021, error) {
-	data := &Data2021{}
+func NewDataFromDirectory(dir string) (*Data, error) {
+	data := &Data{}
 	items := []struct {
 		file string
 		ptr  interface{}
@@ -38,7 +40,7 @@ func NewData2021FromDirectory(dir string) (*Data2021, error) {
 	return data, nil
 }
 
-func (d *Data2021) String() string {
+func (d *Data) String() string {
 	lines := []string{}
 	lines = append(lines, "Ballots:")
 	for _, ballot := range d.Ballots {
@@ -55,24 +57,24 @@ func (d *Data2021) String() string {
 	return fmt.Sprintf("Data2021:\n%s\n", strings.Join(lines, "\n"))
 }
 
-func (d *Data2021) ToEMAData() (EMAData, error) {
-	yearData := &YearData{
+func (d *Data) ToEMAData() (fsdata.EMAData, error) {
+	yearData := &fsdata.YearData{
 		Year:  2021,
-		Works: map[Department][]*Work{},
+		Works: map[val.Department][]*fsdata.Work{},
 	}
 	voterNames := map[string]string{} // {id: name}
 	for _, vote := range d.Votes {
 		voterNames[vote.Id] = vote.UserName
 	}
-	works := map[int]*Work{} // {id: work}
+	works := map[int]*fsdata.Work{} // {id: work}
 	for _, work := range d.Works {
-		works[work.Id] = &Work{Name: work.Name}
+		works[work.Id] = &fsdata.Work{Name: work.Name}
 		dept := work.Department.ToEMA()
 		yearData.Works[dept] = append(yearData.Works[dept], works[work.Id])
 	}
 
 	for _, ballot := range d.Ballots {
-		bd := &BallotData{
+		bd := &fsdata.BallotData{
 			Department: ballot.Department.ToEMA(),
 			VoterName:  voterNames[ballot.VoteId],
 		}
@@ -80,7 +82,7 @@ func (d *Data2021) ToEMAData() (EMAData, error) {
 			return nil, fmt.Errorf("vote id %s not found\n", ballot.VoteId)
 		}
 		for _, c := range ballot.Candidates {
-			var work *Work
+			var work *fsdata.Work
 			if c.Id != 0 {
 				work = works[c.Id]
 				names := append([]string{work.Name}, work.Alias...)
@@ -95,10 +97,10 @@ func (d *Data2021) ToEMAData() (EMAData, error) {
 					work.Alias = append(work.Alias, c.Name)
 				}
 			} else {
-				work = &Work{Name: c.Name}
+				work = &fsdata.Work{Name: c.Name}
 				yearData.Works[bd.Department] = append(yearData.Works[bd.Department], work)
 			}
-			bd.Rankings = append(bd.Rankings, &RankedWorkName{
+			bd.Rankings = append(bd.Rankings, &fsdata.RankedWorkName{
 				Ranking:  c.Ranking,
 				WorkName: work.Name,
 			})
@@ -106,76 +108,76 @@ func (d *Data2021) ToEMAData() (EMAData, error) {
 		yearData.Ballots = append(yearData.Ballots, bd)
 	}
 
-	return EMAData{yearData}, nil
+	return fsdata.EMAData{yearData}, nil
 }
 
-type Ballot2021 struct {
-	Id         int          `csv:"id"`
-	VoteId     string       `csv:"vote_id"`
-	Department Dept2021     `csv:"department"`
-	Candidates Rankings2021 `csv:"candidates"`
+type Ballot struct {
+	Id         int      `csv:"id"`
+	VoteId     string   `csv:"vote_id"`
+	Department Dept     `csv:"department"`
+	Candidates Rankings `csv:"candidates"`
 }
 
-type Votes2021 struct {
+type Votes struct {
 	Id       string `csv:"id"`
 	UserName string `csv:"user_name"`
 }
 
-type Works2021 struct {
-	Id         int      `csv:"id"`
-	Department Dept2021 `csv:"department"`
-	Name       string   `csv:"name"`
+type Works struct {
+	Id         int    `csv:"id"`
+	Department Dept   `csv:"department"`
+	Name       string `csv:"name"`
 }
 
-type RandedWork2021 struct {
+type RandedWork struct {
 	Id      int    `json:"id"`
 	Ranking int    `json:"ranking"`
 	Name    string `json:"name"`
 }
 
-func (w *RandedWork2021) String() string {
+func (w *RandedWork) String() string {
 	return fmt.Sprintf("<%d:%s>", w.Ranking, w.Name)
 }
 
-type Rankings2021 []*RandedWork2021
+type Rankings []*RandedWork
 
-func (r *RandedWork2021) MarshalCSV() (string, error) {
+func (r *RandedWork) MarshalCSV() (string, error) {
 	j, err := json.Marshal(r)
 	return string(j), err
 }
 
-func (r *RandedWork2021) UnmarshalCSV(csv string) error {
+func (r *RandedWork) UnmarshalCSV(csv string) error {
 	return json.Unmarshal([]byte(csv), r)
 }
 
-type Dept2021 uint
+type Dept uint
 
 const (
-	_                   Dept2021 = iota
-	Dept2021_TVAnime             // 1
-	Dept2021_NonTVAnime          // 2
-	Dept2021_Manga               // 3
-	Dept2021_Game                // 4
-	Dept2021_Novel               // 5
+	_              Dept = iota
+	DeptTVAnime         // 1
+	DeptNonTVAnime      // 2
+	DeptManga           // 3
+	DeptGame            // 4
+	DeptNovel           // 5
 )
 
-func (d Dept2021) ToEMA() Department {
+func (d Dept) ToEMA() val.Department {
 	switch d {
-	case Dept2021_TVAnime:
-		return DeptTVAnime
-	case Dept2021_NonTVAnime:
-		return DeptNonTVAnime
-	case Dept2021_Manga:
-		return DeptManga
-	case Dept2021_Game:
-		return DeptGame
-	case Dept2021_Novel:
-		return DeptNovel
+	case DeptTVAnime:
+		return val.DeptTVAnime
+	case DeptNonTVAnime:
+		return val.DeptNonTVAnime
+	case DeptManga:
+		return val.DeptManga
+	case DeptGame:
+		return val.DeptGame
+	case DeptNovel:
+		return val.DeptNovel
 	default:
 		return ""
 	}
 }
 
-func (d Dept2021) String() string {
+func (d Dept) String() string {
 	return string(d.ToEMA())
 }

@@ -4,7 +4,9 @@ import (
 	"context"
 	"flag"
 
-	"github.com/nanozuki/crows.moe/cmd/ema-import/domain"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/fsdata"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/fsdata21"
+	"github.com/nanozuki/crows.moe/cmd/ema-import/pgdata"
 	"github.com/rs/zerolog/log"
 )
 
@@ -12,6 +14,7 @@ const usage = `
 Usage:
 	ema-import -op import -input <input file path> [-apply]
 	ema-import -op convert -2021 -input <input file path> -output <output file path>
+	ema-import -op export -output <output file path>
 `
 
 var (
@@ -19,7 +22,6 @@ var (
 	input  string
 	output string
 	apply  bool
-	y2021  bool
 )
 
 func init() {
@@ -27,22 +29,21 @@ func init() {
 	flag.StringVar(&input, "input", "", "input file path")
 	flag.StringVar(&output, "output", "", "output file path")
 	flag.BoolVar(&apply, "apply", false, "apply changes to firestore")
-	flag.BoolVar(&y2021, "2021", false, "import 2021 data")
 }
 
 func main() {
 	flag.Parse()
 	switch op {
 	case "import":
-		emaData, err := domain.NewEMADataFromFile(input)
+		emaData, err := fsdata.NewEMADataFromFile(input)
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
-		importer := domain.NewImporter(!apply)
+		importer := fsdata.NewStore(!apply)
 		ctx := context.Background()
 		importer.ImportEMAData(ctx, emaData)
 	case "convert":
-		data2021, err := domain.NewData2021FromDirectory(input)
+		data2021, err := fsdata21.NewDataFromDirectory(input)
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		}
@@ -51,6 +52,14 @@ func main() {
 			log.Fatal().Msg(err.Error())
 		}
 		if err := emaData.SaveToFile(output); err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+	case "export":
+		store, err := pgdata.NewStoreFromFirestore(context.Background())
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+		if err := store.WriteToFile(output); err != nil {
 			log.Fatal().Msg(err.Error())
 		}
 	default:
