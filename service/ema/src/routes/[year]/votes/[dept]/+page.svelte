@@ -3,20 +3,19 @@
   import ChevronRight from '~icons/material-symbols/chevron-right';
   import type { ActionData, PageData } from './$types';
   import { Button, Nomination, TabLine } from '$lib/comp';
-  import { dataString } from '$lib/domain/entity';
+  import { dataString, type Work } from '$lib/domain/entity';
   import { departmentInfo } from '$lib/assets';
-    import type { WorkInVote } from './+page.server';
 
   export let data: PageData;
   export let form: ActionData;
   let inputed = false;
 
-  const inputValue = (work: WorkInVote) => {
+  const inputValue = (work: Work) => {
     if (form?.rankings.has(work.id)) {
-      console.log("form.get: ",form?.rankings.get(work.id))
+      console.log('form.get: ', form?.rankings.get(work.id));
       return form?.rankings.get(work.id);
     } else {
-      console.log("work.ranking: ",work.ranking);
+      console.log('work.ranking: ', work.ranking);
       return work.ranking;
     }
   };
@@ -103,6 +102,14 @@
           class="flex gap-y-2 justify-end pr-1 items-center text-pine bg-highlight-med flex-1 rounded"
         >
           <p class="text-text leading-10">下一步</p>
+          <ChevronRight class="block text-2xl text-rose" />
+        </a>
+      {:else}
+        <a
+          href={`/${data.ceremony.year}/votes/thanks`}
+          class="flex gap-y-2 justify-end pr-1 items-center text-pine bg-highlight-med flex-1 rounded"
+        >
+          <p class="text-text leading-10">完成</p>
           <ChevronRight class="block text-2xl text-rose" />
         </a>
       {/if}

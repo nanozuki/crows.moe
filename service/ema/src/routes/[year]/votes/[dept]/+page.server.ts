@@ -28,7 +28,6 @@ export const load: PageServerLoad = async ({ params, parent, cookies }): Promise
   const parentData = await parent();
   const works = await service.getVote(year, dept, voter);
   works.sort((a, b) => (a.ranking || Infinity) - (b.ranking || Infinity));
-  console.log('works: ', JSON.stringify(works));
   const votedWorkIds = new Set(works.map((w) => w.id));
   const allWorks = await service.getWorksInDept(year, dept);
   for (const work of allWorks) {
