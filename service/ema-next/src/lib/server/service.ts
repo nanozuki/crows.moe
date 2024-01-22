@@ -4,7 +4,7 @@ import type { Cookies } from '@sveltejs/kit';
 import type { Department } from '$lib/domain/value';
 import { SignJWT, jwtVerify } from 'jose';
 import { env } from '$env/dynamic/private';
-import { newAwardRank } from '$lib/domain/entity';
+import { newAwardRank, validateDepartment } from '$lib/domain/entity';
 import { z } from 'zod';
 
 const tokenOptions = {
@@ -37,8 +37,13 @@ export class Service {
     return await this.workRepository.getWorksInDept(year, department);
   }
 
-  async addNomination(year: number, department: Department, workName: string): Promise<void> {
-    return await this.workRepository.addNomination(year, department, workName);
+  async addNomination(year: string, department: string, workName: string): Promise<void> {
+    const ceremony = await this.ceremonyRepository.getByYear(parseInt(year));
+    if (!ceremony) {
+      throw new Error('Ceremony not found'); // TODO: better error
+    }
+    validateDepartment(ceremony, department as Department);
+    return await this.workRepository.addNomination(ceremony.year, department as Department, workName);
   }
 
   async getBestWorks(): Promise<Map<number, Work[]>> {
@@ -165,14 +170,22 @@ export class Service {
     return vote.rankings;
   }
 
-  async setVote(year: number, department: Department, voter: Voter, rankingIds: Map<number, number>): Promise<void> {
+  async setVote(cookies: Cookies, year: string, department: string, rankingIds: Map<number, number>): Promise<void> {
+    const ceremony = await this.ceremonyRepository.getByYear(parseInt(year));
+    if (!ceremony) {
+      throw new Error('Ceremony not found'); // TODO: better error
+    }
+    validateDepartment(ceremony, department as Department);
+    const voter = await this.verifyToken(cookies);
+    if (!voter) {
+      throw new Error('Voter not found'); // TODO: better error
+    }
     const rankings = await Promise.all(
       Array.from(rankingIds.entries(), async ([workId, ranking]) => ({
         ...(await this.workRepository.getById(workId))!,
         ranking,
       })),
     );
-    return await this.voteRepository.setVote(year, department, voter.id, rankings);
+    return await this.voteRepository.setVote(ceremony.year, department as Department, voter.id, rankings);
   }
 }
-

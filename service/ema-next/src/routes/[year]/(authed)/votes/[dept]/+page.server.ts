@@ -1,5 +1,5 @@
 import { getService } from '$lib/server';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import { parseParams } from '$lib';
 
@@ -58,21 +58,16 @@ function parseForm(data: FormData): VoteForm {
 }
 
 export const actions = {
-  default: async ({ cookies, request, params, url }) => {
+  default: async ({ cookies, request, params }) => {
     const data = await request.formData();
     const form = parseForm(data);
     if ('errors' in form) {
       return fail(400, form);
     }
 
-    const [year, dept] = parseParams(params);
+    const { year, dept } = params;
     const service = getService();
-    const voter = await service.verifyToken(cookies);
-    if (!voter) {
-      const returnUrl = encodeURIComponent(url.pathname);
-      throw redirect(302, `/auth?redirect=${returnUrl}`);
-    }
-    await service.setVote(year, dept, voter, form.rankings);
+    await service.setVote(cookies, year, dept, form.rankings);
     return;
   },
 } satisfies Actions;

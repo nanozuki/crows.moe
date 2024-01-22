@@ -26,7 +26,7 @@ function parseForm(data: FormData): NominationForm {
 
 export const actions = {
   default: async ({ request, params }) => {
-    const [year, department] = parseParams(params);
+    const { year, dept: department } = params;
     const data = await request.formData();
     const form = parseForm(data);
     if ('errors' in form) {
