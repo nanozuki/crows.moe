@@ -1,8 +1,8 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
 
-  export let title: string; // TODO: use slot
-  export let description: string; // TODO: use slot
+  export let title: string;
+  export let description: string;
   export let hasError: boolean;
 </script>
 

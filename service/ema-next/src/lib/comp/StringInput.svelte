@@ -10,7 +10,7 @@
     >{label}{#if error}<span class="text-love text-sm">{error}</span>{/if}</label
   >
   <input
-    type="string"
+    type="text"
     bind:value
     name={field}
     placeholder={label}

@@ -47,15 +47,15 @@ export interface Work {
   ranking?: number;
 }
 
-export function subnamesOfWork(w: Work): string[] {
-  const subnames: string[] = [];
+export function subNamesOfWork(w: Work): string[] {
+  const subNames: string[] = [];
   if (w.originName !== w.name) {
-    subnames.push(w.originName);
+    subNames.push(w.originName);
   }
   for (const alias of w.aliases) {
-    subnames.push(alias);
+    subNames.push(alias);
   }
-  return subnames;
+  return subNames;
 }
 
 export interface AwardRank {

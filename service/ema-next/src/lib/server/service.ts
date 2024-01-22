@@ -176,7 +176,3 @@ export class Service {
   }
 }
 
-export interface RankWorkId {
-  workId: number;
-  ranking: number;
-}

@@ -1,10 +1,8 @@
 <script lang="ts">
   import { dataString, isCeremonyActive } from '$lib/domain/entity';
-  import type { HomePageData } from './+page.server';
-  import type { RootLayoutData } from './+layout.server';
   import Entrance from './Entrance.svelte';
 
-  export let data: HomePageData & RootLayoutData;
+  export let data;
   $: thisYear = isCeremonyActive(data.ceremonies[0], data.now) ? data.ceremonies[0] : null;
   $: formerYears = thisYear ? data.ceremonies.slice(1) : data.ceremonies;
 </script>

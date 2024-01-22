@@ -7,7 +7,7 @@
   export let rankedWorks: AwardRank[];
 
   // highlight works:
-  // 1. Must contains the works those ranking are 1 and 2
+  // 1. Must contain the works those ranking are 1 and 2
   // 2. Continues to add works as much as possible, but the number of works must be less than 5
   function getHighlight(rankedWork: AwardRank[]): AwardRank[] {
     const highlight: AwardRank[] = [];

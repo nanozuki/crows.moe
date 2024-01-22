@@ -1,11 +1,6 @@
-import type { Work } from '$lib/domain/entity';
 import { getService } from '$lib/server';
 
-export interface HomePageData {
-  bestWorks: Map<number, Work[]>;
-}
-
-export async function load(): Promise<HomePageData> {
+export async function load() {
   const service = getService();
   return {
     bestWorks: await service.getBestWorks(),

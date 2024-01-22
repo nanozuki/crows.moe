@@ -1,8 +1,7 @@
 <script lang="ts">
   import { departmentTitle } from '$lib/assets';
-  import type { AwardDetailData } from './+page.server';
 
-  export let data: AwardDetailData;
+  export let data;
 </script>
 
 <p class="text-xl font-serif font-bold">{departmentTitle[data.department]}<span class="mx-1.5">·</span>详情</p>

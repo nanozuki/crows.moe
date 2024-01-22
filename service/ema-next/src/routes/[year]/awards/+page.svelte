@@ -1,23 +1,12 @@
 <script lang="ts">
-  import { Department } from '$lib/domain/value';
-  import type { AwardLayoutData } from './+layout.server';
+  import { orderedDepartments } from '$lib/domain/value';
   import Highlight from './Highlight.svelte';
 
-  export let data: AwardLayoutData;
-
-  const orderedDepartments = [
-    Department.TVAnime,
-    Department.NonTVAnime,
-    Department.Anime,
-    Department.Manga,
-    Department.MangaAndNovel,
-    Department.Game,
-    Department.Novel,
-  ];
+  export let data;
 </script>
 
 {#each orderedDepartments as dept (dept)}
-  {#if data.winningsByDept.get(dept)}
-    <Highlight department={dept} rankedWorks={data.winningsByDept.get(dept) || []} />
+  {#if data.winnersByDept.get(dept)}
+    <Highlight department={dept} rankedWorks={data.winnersByDept.get(dept) || []} />
   {/if}
 {/each}

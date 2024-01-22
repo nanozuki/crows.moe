@@ -1,21 +1,14 @@
-import type { AwardRank } from '$lib/domain/entity';
-import type { Department } from '$lib/domain/value';
-import type { AwardLayoutData } from '../+layout.server';
+import { parseDepartment } from '$lib/domain/value';
+import { error } from '@sveltejs/kit';
 
-export interface AwardDetailData {
-  department: Department;
-  rankedWorks: AwardRank[];
-}
-
-interface LoadParams {
-  params: { dept: Department };
-  parent: () => Promise<AwardLayoutData>;
-}
-
-export async function load({ params, parent }: LoadParams): Promise<AwardDetailData> {
+export async function load({ params, parent }) {
   const parentData = await parent();
+  const department = parseDepartment(params.dept);
+  if (!department) {
+    throw error(404);
+  }
   return {
-    department: params.dept,
-    rankedWorks: parentData.winningsByDept.get(params.dept)!, // TODO: 404
+    department,
+    rankedWorks: parentData.winnersByDept.get(department)!,
   };
 }

@@ -1,7 +1,5 @@
 <script lang="ts">
-  import type { AwardLayoutData } from './+layout.server';
-
-  export let data: AwardLayoutData;
+  export let data;
 </script>
 
 <a href={`/${data.ceremony.year}/awards`} class="text-2xl font-serif font-bold leading-normal">

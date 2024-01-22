@@ -1,15 +1,16 @@
-import type { Ceremony } from '$lib/domain/entity';
 import { getService } from '$lib/server';
 
-export interface RootLayoutData {
-  now: Date;
-  ceremonies: Ceremony[];
-}
-
-export async function load(): Promise<RootLayoutData> {
+export async function load({ cookies }) {
   const service = getService();
+  const [ceremonies, voter, invited] = await Promise.all([
+    service.getCeremonies(),
+    service.verifyToken(cookies),
+    service.verifyInvited(cookies),
+  ]);
   return {
     now: new Date(),
-    ceremonies: await service.getCeremonies(),
+    ceremonies,
+    voter,
+    invited,
   };
 }

@@ -1,12 +1,11 @@
 <script lang="ts">
   import { StringInput } from '$lib/comp';
-  import type { AuthActionReturn } from './+page.server';
   import AuthForm from './AuthForm.svelte';
 
-  export let form: AuthActionReturn;
+  export let form;
   const title = '确认用户名';
   const description =
-    '请使用telegram的ID或者用户名作为账户的用户名。往年参与过投票的朋友，可以输入用户名新设置密码,此前的数据将自动绑定至此账户。'; // TODO: add margin to chinese charector to letter.
+    '请使用telegram的ID或者用户名作为账户的用户名。往年参与过投票的朋友，可以输入用户名新设置密码,此前的数据将自动绑定至此账户。'; // TODO: add margin to chinese character to letter.
   const hasError = typeof form?.errors !== 'undefined';
 </script>
 

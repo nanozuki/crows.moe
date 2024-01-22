@@ -1,11 +1,9 @@
 <script lang="ts">
   import { StringInput, PasswordInput } from '$lib/comp';
-  import type { AuthLayoutData } from '../+layout.server';
-  import type { AuthActionReturn } from '../+page.server';
   import AuthForm from '../AuthForm.svelte';
 
-  export let data: AuthLayoutData;
-  export let form: AuthActionReturn;
+  export let data;
+  export let form;
 
   const title = '注册用户';
   const description = '请使用telegram的ID或者用户名作为账户的用户名';

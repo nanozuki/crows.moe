@@ -1,11 +1,9 @@
 <script lang="ts">
   import { StringInput, PasswordInput } from '$lib/comp';
-  import type { AuthLayoutData } from '../+layout.server';
-  import type { AuthActionReturn } from '../+page.server';
   import AuthForm from '../AuthForm.svelte';
 
-  export let data: AuthLayoutData;
-  export let form: AuthActionReturn;
+  export let data;
+  export let form;
 
   const title = '设置密码';
   const description = '欢迎回来！请设置密码以便登录。';

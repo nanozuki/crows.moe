@@ -10,7 +10,7 @@ export class CeremonyRepositoryImpl implements CeremonyRepository {
   constructor(private db: PostgresJsDatabase) {}
 
   async getCeremonies(): Promise<Ceremony[]> {
-    return await this.db.select().from(ceremony).orderBy(desc(ceremony.year));
+    return this.db.select().from(ceremony).orderBy(desc(ceremony.year));
   }
 }
 
