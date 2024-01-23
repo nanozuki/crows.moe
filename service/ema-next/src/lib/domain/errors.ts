@@ -1,4 +1,3 @@
-import { error } from '@sveltejs/kit';
 import { match } from 'ts-pattern';
 
 export const enum ErrorCode {
@@ -22,7 +21,7 @@ export const errors: Record<ErrorCode, ErrorInfo> = {
   InvalidParameter: { statusCode: 400, title: '参数错误' },
 };
 
-export class AppError extends Error {
+export class AppError extends Error implements App.Error {
   public title: string;
   public cause?: string;
 
@@ -33,22 +32,21 @@ export class AppError extends Error {
   ) {
     super(message);
     this.title = errors[code].title;
-    this.cause = cause ? JSON.stringify(cause) : undefined;
+    if (cause) {
+      if (cause instanceof Error) {
+        this.cause = cause.stack;
+      } else {
+        this.cause = JSON.stringify(cause);
+      }
+    }
   }
 
-  toSvelteKit() {
-    const { title } = errors[this.code];
-    const { message } = this;
-    const cause = this.cause ? JSON.stringify(this.cause) : undefined;
-    return { title, message, cause };
-  }
-
-  throwToSvelteKit() {
-    const { statusCode, title } = errors[this.code];
-    const { message } = this;
-    const cause = this.cause ? JSON.stringify(this.cause) : undefined;
-    const e: App.Error = { title, message, cause };
-    throw error(statusCode, e);
+  toError(): App.Error {
+    return {
+      title: this.title,
+      message: this.message,
+      cause: this.cause,
+    };
   }
 }
 

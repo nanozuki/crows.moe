@@ -90,6 +90,14 @@
         <p class="text-text leading-10">下一步</p>
         <ChevronRight class="block text-2xl text-rose" />
       </a>
+    {:else}
+      <a
+        href={`/${data.ceremony.year}/nominations/thanks`}
+        class="flex gap-y-2 justify-end pr-1 items-center text-pine bg-highlight-med flex-1 rounded"
+      >
+        <p class="text-text leading-10">完成</p>
+        <ChevronRight class="block text-2xl text-rose" />
+      </a>
     {/if}
   </div>
   <TabLine total={deptTotal} current={deptIndex} />

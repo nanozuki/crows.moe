@@ -44,11 +44,11 @@ export function token<T extends JWTPayload>(name: string, schema: z.Schema): Tok
           audience: opts.audience,
           requiredClaims: ['iss', 'aud', 'exp', 'iat'],
         });
-        const validate = schema.safeParse(payload.voter);
+        const validate = schema.safeParse(payload);
         if (!validate.success) {
           return undefined;
         }
-        return payload.voter as T;
+        return payload as T;
       } catch (e) {
         return undefined;
       }

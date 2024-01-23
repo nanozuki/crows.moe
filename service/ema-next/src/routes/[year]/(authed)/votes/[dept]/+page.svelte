@@ -12,10 +12,8 @@
 
   const inputValue = (work: Work) => {
     if (form?.rankings.has(work.id)) {
-      console.log('form.get: ', form?.rankings.get(work.id));
       return form?.rankings.get(work.id);
     } else {
-      console.log('work.ranking: ', work.ranking);
       return work.ranking;
     }
   };
