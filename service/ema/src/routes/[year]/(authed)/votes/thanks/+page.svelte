@@ -1,6 +1,7 @@
 <script lang="ts">
   import ChevronLeft from '~icons/material-symbols/chevron-left';
   import type { PageData } from './$types';
+  import { dataString } from '$lib/domain/entity';
   export let data: PageData;
 
   $: home = `/${data.ceremony.year}/votes/${data.ceremony.departments[0]}`;
@@ -11,8 +12,12 @@
 </a>
 <p class="text-xl font-serif font-bold leading-normal">投票完成！</p>
 <div class="flex flex-col gap-y-2">
-  <p class="text-subtle leading-normal">投票已完成！{data.voter.name}，感谢您的参与。</p>
-  <p class="text-subtle leading-normal">在投票期间可以随时查看和修改自己的投票。</p>
+  <p class="text-subtle leading-normal">
+    投票已完成！{data.voter.name}，感谢您的参与。在投票期间可以随时查看和修改自己的投票。
+  </p>
+  <p class="text-subtle leading-normal">
+    投票截止：{dataString(data.ceremony.awardStartAt)}
+  </p>
 </div>
 
 <div class="flex flex-col gap-y-4">

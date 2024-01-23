@@ -3,7 +3,7 @@
   import ChevronRight from '~icons/material-symbols/chevron-right';
   import type { ActionData, PageData } from './$types';
   import { Button, Nomination, TabLine } from '$lib/comp';
-  import { dataString, type Work } from '$lib/domain/entity';
+  import { dataRangeString, type Work } from '$lib/domain/entity';
   import { departmentInfo } from '$lib/assets';
 
   export let data: PageData;
@@ -27,7 +27,7 @@
 
 <!-- Title --->
 
-<div>
+<div class="flex flex-col gap-y-2">
   <a
     href={`/${data.ceremony.year}/nominations/${data.ceremony.departments[0]}`}
     class="text-2xl font-serif font-bold leading-normal"
@@ -35,7 +35,7 @@
     {data.ceremony.year}年度<span class="mx-1.5">·</span>投票
   </a>
   <p class="text-xs text-muted leading-normal">
-    {dataString(data.ceremony.nominationStartAt)} - {dataString(data.ceremony.votingStartAt)}
+    {dataRangeString(data.ceremony.votingStartAt, data.ceremony.awardStartAt)}
   </p>
   <p class="text-subtle leading-normal">
     投票采用<a

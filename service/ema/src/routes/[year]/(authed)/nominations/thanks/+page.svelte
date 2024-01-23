@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { dataString } from '$lib/domain/entity.js';
   import ChevronLeft from '~icons/material-symbols/chevron-left';
   export let data;
 
@@ -10,8 +11,12 @@
 </a>
 <p class="text-xl font-serif font-bold leading-normal">提名完成！</p>
 <div class="flex flex-col gap-y-2">
-  <p class="text-subtle leading-normal">提名已完成！{data.voter.name}，感谢您的参与。</p>
-  <p class="text-subtle leading-normal">在投票提名可以随时查看和添加提名。</p>
+  <p class="text-subtle leading-normal">
+    提名已完成！{data.voter.name}，感谢您的参与。在投票提名期间可以随时查看和添加提名。
+  </p>
+  <p class="text-subtle leading-normal">
+    提名截止：{dataString(data.ceremony.votingStartAt)}
+  </p>
 </div>
 
 <div class="flex flex-col gap-y-4">

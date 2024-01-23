@@ -13,9 +13,9 @@
   <div class="grid grid-cols-1 wide:grid-cols-2 wide:max-w-full gap-4 items-center">
     <Entrance ceremony={thisYear} bestWorks={data.bestWorks.get(thisYear.year) || []} now={data.now} />
     <div>
-      <p>开始提名：{dataString(thisYear.nominationStartAt)}</p>
-      <p>开始投票：{dataString(thisYear.votingStartAt)}</p>
-      <p>发表结果：{dataString(thisYear.awardStartAt)}</p>
+      <p class="text-subtle">开始提名：{dataString(thisYear.nominationStartAt)}</p>
+      <p class="text-subtle">开始投票：{dataString(thisYear.votingStartAt)}</p>
+      <p class="text-subtle">发表结果：{dataString(thisYear.awardStartAt)}</p>
     </div>
   </div>
   <!-- </div> -->

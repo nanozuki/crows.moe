@@ -1,7 +1,7 @@
 <script lang="ts">
   import { departmentInfo } from '$lib/assets';
   import { TabLine, StringInput, Nomination } from '$lib/comp';
-  import { dataString } from '$lib/domain/entity';
+  import { dataRangeString } from '$lib/domain/entity';
   import ChevronLeft from '~icons/material-symbols/chevron-left';
   import ChevronRight from '~icons/material-symbols/chevron-right';
 
@@ -17,7 +17,7 @@
 
 <!-- Title --->
 
-<div>
+<div class="flex flex-col gap-y-2">
   <a
     href={`/${data.ceremony.year}/nominations/${data.ceremony.departments[0]}`}
     class="text-2xl font-serif font-bold leading-normal"
@@ -25,7 +25,7 @@
     {data.ceremony.year}年度<span class="mx-1.5">·</span>作品提名
   </a>
   <p class="text-xs text-muted leading-normal">
-    {dataString(data.ceremony.nominationStartAt)} - {dataString(data.ceremony.votingStartAt)}
+    {dataRangeString(data.ceremony.nominationStartAt, data.ceremony.votingStartAt)}
   </p>
   <p class="text-subtle leading-normal">
     提名所有观赏或体验过的、满足范围限定的作品。在提名阶段被提名的作品，将在投票阶段进行最终的投票和排序。提名阶段，可以随时打开这个页面检查和提交。

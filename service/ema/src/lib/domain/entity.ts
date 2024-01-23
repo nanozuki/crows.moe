@@ -22,8 +22,23 @@ export function getStage(c: Ceremony, time: Date): Stage {
   }
 }
 
-export const dataString = (date: Date): string =>
-  `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`;
+const timeFormatter = new Intl.DateTimeFormat('zh-CN', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'Asia/Shanghai',
+});
+
+const formatTime = (d: Date): string => {
+  return timeFormatter.format(d).replaceAll('/', '-');
+};
+
+export const dataString = (date: Date): string => `北京时间 ${formatTime(date)}`;
+
+export const dataRangeString = (start: Date, end: Date): string =>
+  `北京时间 ${formatTime(start)} 至 ${formatTime(end)}`;
 
 const awardHighlightDuration = 1000 * 60 * 60 * 24 * 30; // 30 days
 
