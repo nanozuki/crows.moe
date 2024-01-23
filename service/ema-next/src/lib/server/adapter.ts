@@ -3,6 +3,7 @@ import type { Department } from '$lib/domain/value';
 
 export interface CeremonyRepository {
   getCeremonies(): Promise<Ceremony[]>;
+  getByYear(year: number): Promise<Ceremony>;
 }
 
 export interface WorkRepository {
@@ -14,7 +15,7 @@ export interface WorkRepository {
 }
 
 export interface VoterRepository {
-  getVoterByName(name: string): Promise<Voter | undefined>;
+  findVoter(name: string): Promise<Voter | undefined>;
   createVoter(name: string, password: string): Promise<Voter>;
   setPassword(name: string, password: string): Promise<Voter>;
   verifyPassword(name: string, password: string): Promise<Voter | undefined>;

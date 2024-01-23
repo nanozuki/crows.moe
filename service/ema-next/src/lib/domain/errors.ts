@@ -1,56 +1,97 @@
+import { error } from '@sveltejs/kit';
+import { match } from 'ts-pattern';
+
 export const enum ErrorCode {
-  BadRequest = 'BAD_REQUEST', // 400
-  NotFound = 'NOT_FOUND', // 404
-  Unauthorized = 'UNAUTHORIZED', // 401
-  Forbidden = 'FORBIDDEN', // 403
-  InternalServerError = 'INTERNAL_SERVER_ERROR', // 500
+  DatabaseError = 'DatabaseError',
+  InternalError = 'InternalError',
+  UnknownError = 'UnknownError',
+  NotFound = 'NotFound',
+  InvalidParameter = 'InvalidParameter',
 }
 
-export class Terror extends Error {
-  code: ErrorCode;
+export interface ErrorInfo {
+  statusCode: number;
+  title: string;
+}
 
-  constructor(code: ErrorCode, message: string) {
+export const errors: Record<ErrorCode, ErrorInfo> = {
+  DatabaseError: { statusCode: 500, title: '数据库错误' },
+  InternalError: { statusCode: 500, title: '内部错误' },
+  UnknownError: { statusCode: 500, title: '未知错误' },
+  NotFound: { statusCode: 404, title: '找不到内容' },
+  InvalidParameter: { statusCode: 400, title: '参数错误' },
+};
+
+export class AppError extends Error {
+  public title: string; // TODO: to svletekit error
+
+  constructor(
+    public code: ErrorCode,
+    public message: string,
+    public cause?: Error,
+  ) {
     super(message);
-    this.code = code;
+    this.title = errors[code].title;
   }
 
-  static handleError(error: unknown): Terror {
-    if (error instanceof Terror) {
-      return error;
-    } else {
-      return new Terror(ErrorCode.InternalServerError, `Unexpected Internal Error: ${error}`);
+  throwToSvelteKit() {
+    const { statusCode } = errors[this.code];
+    throw error(statusCode, { message: this.message });
+  }
+}
+
+function Database(operation: string, cause: Error): AppError {
+  return new AppError(ErrorCode.DatabaseError, `Database error when ${operation}`, cause);
+}
+
+function Internal(operation: string, cause: Error): AppError {
+  return new AppError(ErrorCode.InternalError, `Internal error when ${operation}`, cause);
+}
+
+function Unknown(error: Error): AppError {
+  return new AppError(ErrorCode.UnknownError, error.message, error);
+}
+
+function NotFound(object: string, ...keys: string[]): AppError {
+  return new AppError(ErrorCode.NotFound, `${object}(${keys.join('.')}) not found`);
+}
+
+function Invalid(type: string, value: unknown): AppError {
+  return new AppError(ErrorCode.InvalidParameter, `Invalid ${type}: ${JSON.stringify(value)}`);
+}
+
+async function catch_<T>(fn: () => T | Promise<T>, eh: (e: Error) => AppError): Promise<T> {
+  try {
+    return await fn();
+  } catch (e) {
+    if (e instanceof Error) {
+      throw eh(e);
     }
+    throw e;
   }
 }
 
-export function NoDepartmentError(department: string) {
-  return new Terror(ErrorCode.NotFound, `No such department: ${department}`);
+type Result<T> = { ok: true; value: T } | { ok: false; error: AppError };
+
+async function match_<T>(fn: () => T | Promise<T>) {
+  let result: Result<T>;
+  try {
+    result = { ok: true, value: await fn() };
+  } catch (e) {
+    if (e instanceof AppError) {
+      result = { ok: false, error: e };
+    }
+    throw e;
+  }
+  return match(result);
 }
 
-export function NotInStageError(...stages: string[]) {
-  return new Terror(ErrorCode.Forbidden, `This page is not available during the '${stages.join(', ')}‘ stage`);
-}
-
-export function NoTokenError() {
-  return new Terror(ErrorCode.Unauthorized, 'No valid token');
-}
-
-export function InvalidPinCodeError() {
-  return new Terror(ErrorCode.BadRequest, 'Invalid pin code');
-}
-
-export function WorkNotFoundError(name: string) {
-  return new Terror(ErrorCode.NotFound, `No such work: ${name}`);
-}
-
-export function NotFoundError(path: string[]) {
-  return new Terror(ErrorCode.NotFound, `Not found in ${path.join('.')}`);
-}
-
-export function InternalError(message: string) {
-  return new Terror(ErrorCode.InternalServerError, message);
-}
-
-export function InvalidDatabasePathError(path: string[]) {
-  return new Terror(ErrorCode.InternalServerError, `Invalid database path: ${path.join('.')}`);
-}
+export const Err = {
+  Database,
+  Internal,
+  Unknown,
+  NotFound,
+  Invalid,
+  catch: catch_,
+  match: match_,
+};

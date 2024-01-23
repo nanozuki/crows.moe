@@ -5,12 +5,27 @@ import { ceremony, rankingInVote, vote, voter, work } from './schema';
 import { desc, eq, and, gte } from 'drizzle-orm';
 import type { Department } from '$lib/domain/value';
 import bcrypt from 'bcrypt';
+import { Err } from '$lib/domain/errors';
 
 export class CeremonyRepositoryImpl implements CeremonyRepository {
   constructor(private db: PostgresJsDatabase) {}
 
   async getCeremonies(): Promise<Ceremony[]> {
-    return this.db.select().from(ceremony).orderBy(desc(ceremony.year));
+    return Err.catch(
+      () => this.db.select().from(ceremony).orderBy(desc(ceremony.year)),
+      (err) => Err.Database('ceremony.getCeremonies', err),
+    );
+  }
+
+  async getByYear(year: number): Promise<Ceremony> {
+    const results = await Err.catch(
+      () => this.db.select().from(ceremony).where(eq(ceremony.year, year)),
+      (err) => Err.Database(`ceremony.getByYear(${year})`, err),
+    );
+    if (results.length == 0) {
+      throw Err.NotFound('ceremony', year.toString());
+    }
+    return results[0];
   }
 }
 
@@ -30,7 +45,10 @@ export class WorkRepositoryImpl implements WorkRepository {
   constructor(private db: PostgresJsDatabase) {}
 
   async getAllWinners(): Promise<Map<number, Work[]>> {
-    const results = await this.db.select().from(work).where(eq(work.ranking, 1));
+    const results = await Err.catch(
+      () => this.db.select().from(work).where(eq(work.ranking, 1)),
+      (err) => Err.Database('work.getAllWinners', err),
+    );
     const works = new Map<number, Work[]>();
     for (const result of results) {
       const year = result.year;
@@ -43,39 +61,51 @@ export class WorkRepositoryImpl implements WorkRepository {
   }
 
   async getAwardsByYear(year: number): Promise<Map<Department, Work[]>> {
-    const results = await this.db
-      .select()
-      .from(work)
-      .where(and(eq(work.year, year), gte(work.ranking, 1)))
-      .orderBy(work.department, work.ranking);
+    const results = await Err.catch(
+      () =>
+        this.db
+          .select()
+          .from(work)
+          .where(and(eq(work.year, year), gte(work.ranking, 1)))
+          .orderBy(work.department, work.ranking),
+      (err) => Err.Database(`work.getAwardsByYear(${year})`, err),
+    );
     const awards = new Map<Department, Work[]>();
     for (const result of results) {
       const department = result.department;
-      if (!awards.has(department)) {
-        awards.set(department, []);
-      }
+      awards.get(department) || awards.set(department, []);
       awards.get(department)?.push(modelToWork(result));
     }
     return awards;
   }
 
   async getWorksInDept(year: number, department: Department): Promise<Work[]> {
-    const results = await this.db
-      .select()
-      .from(work)
-      .where(and(eq(work.year, year), eq(work.department, department)))
-      .orderBy(work.id);
+    const results = await Err.catch(
+      () =>
+        this.db
+          .select()
+          .from(work)
+          .where(and(eq(work.year, year), eq(work.department, department)))
+          .orderBy(work.id),
+      (err) => Err.Database(`work.getWorksInDept(${year}, ${department})`, err),
+    );
     return results.map(modelToWork);
   }
 
   async addNomination(year: number, department: Department, workName: string): Promise<void> {
-    await this.db.insert(work).values({ year, department, name: workName }); //.onConflictDoNothing();
+    await Err.catch(
+      () => this.db.insert(work).values({ year, department, name: workName }).onConflictDoNothing(),
+      (err) => Err.Database(`work.addNomination(${year}, ${department}, ${workName})`, err),
+    );
   }
 
-  async getById(id: number): Promise<Work | undefined> {
-    const results = await this.db.select().from(work).where(eq(work.id, id));
-    if (results.length == 0) {
-      return undefined;
+  async getById(id: number): Promise<Work> {
+    const results = await Err.catch(
+      () => this.db.select().from(work).where(eq(work.id, id)),
+      (err) => Err.Database(`work.getById(${id})`, err),
+    );
+    if (results.length === 0) {
+      throw Err.NotFound('work', id.toString());
     }
     return modelToWork(results[0]);
   }
@@ -84,8 +114,11 @@ export class WorkRepositoryImpl implements WorkRepository {
 export class VoterRepositoryImpl implements VoterRepository {
   constructor(private db: PostgresJsDatabase) {}
 
-  async getVoterByName(name: string): Promise<Voter | undefined> {
-    const results = await this.db.select().from(voter).where(eq(voter.name, name));
+  async findVoter(name: string): Promise<Voter | undefined> {
+    const results = await Err.catch(
+      () => this.db.select().from(voter).where(eq(voter.name, name)),
+      (err) => Err.Database(`voter.getVoterByName(${name})`, err),
+    );
     if (results.length == 0) {
       return undefined;
     }
@@ -97,40 +130,50 @@ export class VoterRepositoryImpl implements VoterRepository {
   }
 
   async createVoter(name: string, password: string): Promise<Voter> {
-    const passwordHash = await bcrypt.hash(password, 10);
-    const result = await this.db.insert(voter).values({ name, passwordHash }).returning({ id: voter.id });
+    const passwordHash = await Err.catch(
+      () => bcrypt.hash(password, 10),
+      (err) => Err.Internal('bcrypt.hash(password)', err),
+    );
+    const result = await Err.catch(
+      () => this.db.insert(voter).values({ name, passwordHash }).returning({ id: voter.id }),
+      (err) => Err.Database(`voter.createVoter(${name}, ${password})`, err),
+    );
     return { id: result[0].id, name, hasPassword: true };
   }
 
   async setPassword(name: string, password: string): Promise<Voter> {
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-    const result = await this.db
-      .update(voter)
-      .set({ passwordHash })
-      .where(eq(voter.name, name))
-      .returning({ id: voter.id });
+    const passwordHash = await Err.catch(
+      () => bcrypt.hash(password, 10),
+      (err) => Err.Internal('bcrypt.hash(password)', err),
+    );
+    const result = await Err.catch(
+      () => this.db.update(voter).set({ passwordHash }).where(eq(voter.name, name)).returning({ id: voter.id }),
+      (err) => Err.Database(`voter.setPassword(${name}, ${password})`, err),
+    );
     return { id: result[0].id, name, hasPassword: true };
   }
 
   async verifyPassword(name: string, password: string): Promise<Voter | undefined> {
-    const results = await this.db.select().from(voter).where(eq(voter.name, name));
-    if (results.length == 0) {
+    const results = await Err.catch(
+      () => this.db.select().from(voter).where(eq(voter.name, name)),
+      (err) => Err.Database(`voter.verifyPassword(${name}, ${password})`, err),
+    );
+    const passwordHash = results[0] && results[0].passwordHash;
+    if (!passwordHash) {
       return undefined;
     }
-    const passwordHash = results[0].passwordHash;
-    if (passwordHash == null) {
+    const equal = await Err.catch(
+      () => bcrypt.compare(password, passwordHash),
+      (err) => Err.Internal('bcrypt.compare(password, passwordHash)', err),
+    );
+    if (!equal) {
       return undefined;
     }
-    if (await bcrypt.compare(password, passwordHash)) {
-      return {
-        id: results[0].id,
-        name: results[0].name,
-        hasPassword: true,
-      };
-    } else {
-      return undefined;
-    }
+    return {
+      id: results[0].id,
+      name: results[0].name,
+      hasPassword: true,
+    };
   }
 }
 
@@ -138,42 +181,52 @@ export class VoteRepositoryImpl implements VoteRepository {
   constructor(private db: PostgresJsDatabase) {}
 
   async getVote(year: number, department: Department, voterId: number): Promise<Vote | undefined> {
-    const voteRows = await this.db
-      .select()
-      .from(vote)
-      .where(and(eq(vote.year, year), eq(vote.department, department), eq(vote.voterId, voterId)));
-    if (voteRows.length == 0) {
-      return undefined;
-    }
-    const v = voteRows[0];
-    const rankingsRows = await this.db
-      .select()
-      .from(rankingInVote)
-      .leftJoin(work, eq(rankingInVote.workId, work.id))
-      .where(eq(rankingInVote.voteId, v.id))
-      .orderBy(rankingInVote.ranking, rankingInVote.workId);
-    const rankings = rankingsRows.map((r) => {
-      const work = modelToWork(r.work!);
-      work.ranking = r.ranking_in_vote.ranking;
-      return work;
-    });
-    return { ...v, rankings };
+    return await Err.catch(
+      async () => {
+        const voteRows = await this.db
+          .select()
+          .from(vote)
+          .where(and(eq(vote.year, year), eq(vote.department, department), eq(vote.voterId, voterId)));
+        if (voteRows.length == 0) {
+          return undefined;
+        }
+        const v = voteRows[0];
+        const rankingsRows = await this.db
+          .select()
+          .from(rankingInVote)
+          .leftJoin(work, eq(rankingInVote.workId, work.id))
+          .where(eq(rankingInVote.voteId, v.id))
+          .orderBy(rankingInVote.ranking, rankingInVote.workId);
+        const rankings = rankingsRows.map((r) => {
+          const work = modelToWork(r.work!);
+          work.ranking = r.ranking_in_vote.ranking;
+          return work;
+        });
+        return { ...v, rankings };
+      },
+      (err) => Err.Database(`vote.getVote(${year}, ${department}, ${voterId})`, err),
+    );
   }
 
   async setVote(year: number, department: Department, voterId: number, works: Work[]): Promise<void> {
-    await this.db.insert(vote).values({ year, department, voterId }).onConflictDoNothing();
-    const idRow = await this.db
-      .select()
-      .from(vote)
-      .where(and(eq(vote.year, year), eq(vote.department, department), eq(vote.voterId, voterId)));
-    const id = idRow[0].id;
-    const rankingsRows = works.map((r) => ({ voteId: id, ranking: r.ranking!, workId: r.id }));
-    await this.db.transaction(
-      async (db) => {
-        await db.delete(rankingInVote).where(eq(rankingInVote.voteId, id));
-        await db.insert(rankingInVote).values(rankingsRows);
+    return await Err.catch(
+      async () => {
+        await this.db.insert(vote).values({ year, department, voterId }).onConflictDoNothing();
+        const idRow = await this.db
+          .select()
+          .from(vote)
+          .where(and(eq(vote.year, year), eq(vote.department, department), eq(vote.voterId, voterId)));
+        const id = idRow[0].id;
+        const rankingsRows = works.map((r) => ({ voteId: id, ranking: r.ranking!, workId: r.id }));
+        await this.db.transaction(
+          async (db) => {
+            await db.delete(rankingInVote).where(eq(rankingInVote.voteId, id));
+            await db.insert(rankingInVote).values(rankingsRows);
+          },
+          { isolationLevel: 'serializable' },
+        );
       },
-      { isolationLevel: 'serializable' },
+      (err) => Err.Database(`vote.setVote(${year}, ${department}, ${voterId}, ${works})`, err),
     );
   }
 }

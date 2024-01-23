@@ -39,9 +39,6 @@ export class Service {
 
   async addNomination(year: string, department: string, workName: string): Promise<void> {
     const ceremony = await this.ceremonyRepository.getByYear(parseInt(year));
-    if (!ceremony) {
-      throw new Error('Ceremony not found'); // TODO: better error
-    }
     validateDepartment(ceremony, department as Department);
     return await this.workRepository.addNomination(ceremony.year, department as Department, workName);
   }
@@ -60,7 +57,7 @@ export class Service {
   }
 
   async getUserByName(username: string): Promise<Voter | undefined> {
-    return await this.voterRepository.getVoterByName(username);
+    return await this.voterRepository.findVoter(username);
   }
 
   async newCookie(cookies: Cookies, from: Date, voter: Voter): Promise<void> {
