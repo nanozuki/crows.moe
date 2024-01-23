@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ['./src/**/*.{js,ts,jsx,tsx}'],
+export default {
+  content: ['./src/**/*.{js,ts,html,svelte}'],
   theme: {
     colors: {
       base: '#faf4ed',
@@ -26,6 +26,7 @@ module.exports = {
         em: '1em',
       },
       gridTemplateColumns: {
+        nomination: '1fr 10rem',
         ballot: '2rem minmax(2rem, 1fr)',
       },
       borderWidth: {
@@ -33,12 +34,13 @@ module.exports = {
       },
     },
     fontFamily: {
-      sans: ['source-han-sans-cjk-sc', 'sans-serif'],
-      serif: ['source-han-serif-sc', 'serif'],
+      sans: ['Noto Sans SC', 'sans-serif'],
+      serif: ['Noto Serif SC', 'serif'],
+      monospace: ['monospace'],
     },
     screens: {
-      mid: '480px',
-      wide: '672px', // 640 + 16*2
+      mid: '448px', // 400 + 24*2
+      wide: '688px', // 640 + 24*2
     },
   },
   plugins: [],

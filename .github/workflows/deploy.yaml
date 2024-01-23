@@ -45,11 +45,6 @@ jobs:
           docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/ema:${{ env.TAG }}" service/ema
           docker push "${{ env.IMAGE_LOCATION }}/ema:${{ env.TAG }}"
 
-      - name: build ema-next
-        run: |-
-          docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/ema-next:${{ env.TAG }}" service/ema-next
-          docker push "${{ env.IMAGE_LOCATION }}/ema-next:${{ env.TAG }}"
-
       - name: build urldbot
         run: |-
           docker build --platform=linux/amd64 -t "${{ env.IMAGE_LOCATION }}/urldbot:${{ env.TAG }}" service/urldbot

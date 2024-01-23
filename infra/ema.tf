@@ -16,6 +16,22 @@ resource "google_cloud_run_service" "ema" {
     spec {
       containers {
         image = "asia-southeast1-docker.pkg.dev/crows-moe/images/ema:${var.deploy_tag}"
+        env {
+          name  = "ORIGIN"
+          value = "https://ema.crows.moe"
+        }
+        env {
+          name  = "EMA_INVITE_KEY"
+          value = var.ema_invite_key
+        }
+        env {
+          name  = "EMA_JWT_SECRET"
+          value = var.ema_jwt_secret
+        }
+        env {
+          name  = "EMA_POSTGRES_URL"
+          value = var.ema_postgres_url
+        }
         ports {
           container_port = 3000
         }
