@@ -1,14 +1,10 @@
-import { parseDepartment } from '$lib/domain/value';
-import { error } from '@sveltejs/kit';
+import { parseDepartment } from '$lib/domain/entity.js';
 
 export async function load({ params, parent }) {
-  const parentData = await parent();
-  const department = parseDepartment(params.dept);
-  if (!department) {
-    throw error(404);
-  }
+  const pd = await parent();
+  const department = parseDepartment(pd.ceremony, params.dept);
   return {
     department,
-    rankedWorks: parentData.winnersByDept.get(department)!,
+    rankedWorks: pd.winnersByDept.get(department)!,
   };
 }

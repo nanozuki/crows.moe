@@ -1,6 +1,8 @@
 import { getService } from '$lib/server';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
+import { Err } from '$lib/domain/errors';
+import { P } from 'ts-pattern';
 
 type SetPasswordForm =
   | { username: string; password: string }
@@ -33,10 +35,17 @@ export const actions = {
     if ('errors' in form) {
       return fail(400, form);
     }
-    await getService().setPassword(form.username, form.password, cookies);
-    if (url.searchParams.has('redirect')) {
-      throw redirect(302, decodeURIComponent(url.searchParams.get('redirect')!));
-    }
-    throw redirect(302, '/');
+    return (await Err.match(() => getService().setPassword(form.username, form.password, cookies)))
+      .with({ ok: true, value: P._ }, () => {
+        if (url.searchParams.has('redirect')) {
+          throw redirect(302, decodeURIComponent(url.searchParams.get('redirect')!));
+        }
+        throw redirect(302, '/');
+      })
+      .with({ ok: false, error: P.select() }, (error) => {
+        const response: SetPasswordForm = { ...form, errors: { username: error.message } };
+        return fail(400, response);
+      })
+      .exhaustive();
   },
 } satisfies Actions;

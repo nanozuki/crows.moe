@@ -4,7 +4,11 @@ import 'unplugin-icons/types/svelte';
 // for information about these interfaces
 declare global {
   namespace App {
-    // interface Error {}
+    interface Error {
+      title: string;
+      message: string;
+      cause?: string;
+    }
     // interface Locals {}
     // interface PageData {}
     // interface Platform {}

@@ -23,20 +23,32 @@ export const errors: Record<ErrorCode, ErrorInfo> = {
 };
 
 export class AppError extends Error {
-  public title: string; // TODO: to svletekit error
+  public title: string;
+  public cause?: string;
 
   constructor(
     public code: ErrorCode,
     public message: string,
-    public cause?: Error,
+    cause?: unknown,
   ) {
     super(message);
     this.title = errors[code].title;
+    this.cause = cause ? JSON.stringify(cause) : undefined;
+  }
+
+  toSvelteKit() {
+    const { title } = errors[this.code];
+    const { message } = this;
+    const cause = this.cause ? JSON.stringify(this.cause) : undefined;
+    return { title, message, cause };
   }
 
   throwToSvelteKit() {
-    const { statusCode } = errors[this.code];
-    throw error(statusCode, { message: this.message });
+    const { statusCode, title } = errors[this.code];
+    const { message } = this;
+    const cause = this.cause ? JSON.stringify(this.cause) : undefined;
+    const e: App.Error = { title, message, cause };
+    throw error(statusCode, e);
   }
 }
 
@@ -48,8 +60,11 @@ function Internal(operation: string, cause: Error): AppError {
   return new AppError(ErrorCode.InternalError, `Internal error when ${operation}`, cause);
 }
 
-function Unknown(error: Error): AppError {
-  return new AppError(ErrorCode.UnknownError, error.message, error);
+function Unknown(error: unknown): AppError {
+  if (error instanceof Error) {
+    return new AppError(ErrorCode.UnknownError, error.message, error);
+  }
+  return new AppError(ErrorCode.UnknownError, 'UnknownError', error);
 }
 
 function NotFound(object: string, ...keys: string[]): AppError {
@@ -83,7 +98,7 @@ async function match_<T>(fn: () => T | Promise<T>) {
     }
     throw e;
   }
-  return match(result);
+  return match<Result<T>>(result);
 }
 
 export const Err = {

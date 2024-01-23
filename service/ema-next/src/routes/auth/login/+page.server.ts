@@ -1,6 +1,8 @@
 import { getService } from '$lib/server';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
+import { Err } from '$lib/domain/errors';
+import { P } from 'ts-pattern';
 
 type LoginForm =
   | { username: string; password: string }
@@ -8,6 +10,11 @@ type LoginForm =
 
 function parseForm(data: FormData): LoginForm {
   const username = data.get('username');
+  if (typeof username !== 'string') {
+    return { errors: { username: '必须是字符串' } };
+  } else if (username === '') {
+    return { errors: { username: '不能为空' } };
+  }
   const password = data.get('password');
   if (typeof username !== 'string') {
     return { errors: { username: '必须是字符串' } };
@@ -29,14 +36,21 @@ export const actions = {
     if ('errors' in form) {
       return fail(400, form);
     }
-    const voter = await getService().logInVoter(form.username, form.password, cookies);
-    if (!voter) {
-      const response: LoginForm = { username: form.username, errors: { password: '密码错误' } };
-      return fail(400, response);
-    }
-    if (url.searchParams.has('redirect')) {
-      throw redirect(302, decodeURIComponent(url.searchParams.get('redirect')!));
-    }
-    throw redirect(302, '/');
+    return (await Err.match(() => getService().logInVoter(form.username, form.password, cookies)))
+      .with({ ok: true, value: undefined }, () => {
+        const response: LoginForm = { ...form, errors: { password: '密码错误' } };
+        return fail(400, response);
+      })
+      .with({ ok: true, value: P.select() }, () => {
+        if (url.searchParams.has('redirect')) {
+          throw redirect(302, decodeURIComponent(url.searchParams.get('redirect')!));
+        }
+        throw redirect(302, '/');
+      })
+      .with({ ok: false, error: P.select() }, (error) => {
+        const response: LoginForm = { ...form, errors: { username: error.message } };
+        return fail(400, response);
+      })
+      .exhaustive();
   },
 } satisfies Actions;

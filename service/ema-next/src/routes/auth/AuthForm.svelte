@@ -1,16 +1,14 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
 
-  export let title: string;
-  export let description: string;
   export let hasError: boolean;
 </script>
 
 <div class="bg-overlay py-8 px-6 -mx-6 mid:mx-0 flex flex-col gap-y-4">
   <div class="flex flex-col gap-y-1">
-    <p class="text-xl font-serif font-bold leading-normal" class:text-love={hasError}>{title}</p>
+    <p class="text-xl font-serif font-bold leading-normal" class:text-love={hasError}><slot name="title" /></p>
     <p class="text-subtle" class:text-love={hasError}>
-      {#if hasError}参数错误{:else}{description}{/if}
+      {#if hasError}参数错误{:else}<slot name="description" />{/if}
     </p>
   </div>
   <form method="POST" class="w-full wide:w-1/2" use:enhance>

@@ -2,24 +2,24 @@ import type { Ceremony, Work, AwardRank, Voter } from '$lib/domain/entity';
 import type { CeremonyRepository, VoteRepository, VoterRepository, WorkRepository } from '$lib/server/adapter';
 import type { Cookies } from '@sveltejs/kit';
 import type { Department } from '$lib/domain/value';
-import { SignJWT, jwtVerify } from 'jose';
-import { env } from '$env/dynamic/private';
-import { newAwardRank, validateDepartment } from '$lib/domain/entity';
+import { newAwardRank, parseDepartment } from '$lib/domain/entity';
 import { z } from 'zod';
+import { Err } from '$lib/domain/errors';
+import { token } from '$lib/server/token';
 
-const tokenOptions = {
-  name: 'token',
-  invitedName: 'invited',
-  issuer: 'https://crows.moe',
-  audience: 'https://ema.crows.moe',
-  expireTime: 1000 * 60 * 60 * 24 * 30, // 30 days
+const tokens = {
+  voter: token<{ voter: Voter }>(
+    'token',
+    z.object({
+      voter: z.object({
+        id: z.number().gt(0),
+        name: z.string().min(1),
+        hasPassword: z.boolean(),
+      }),
+    }),
+  ),
+  invited: token<{ invited: boolean }>('invited', z.object({ invited: z.boolean() })),
 };
-
-const jwtPayloadSchema = z.object({
-  id: z.number().gt(0),
-  name: z.string().min(1),
-  hasPassword: z.boolean(),
-});
 
 export class Service {
   constructor(
@@ -37,9 +37,9 @@ export class Service {
     return await this.workRepository.getWorksInDept(year, department);
   }
 
-  async addNomination(year: string, department: string, workName: string): Promise<void> {
+  async addNomination(year: string, dept: string, workName: string): Promise<void> {
     const ceremony = await this.ceremonyRepository.getByYear(parseInt(year));
-    validateDepartment(ceremony, department as Department);
+    const department = parseDepartment(ceremony, dept);
     return await this.workRepository.addNomination(ceremony.year, department as Department, workName);
   }
 
@@ -60,82 +60,22 @@ export class Service {
     return await this.voterRepository.findVoter(username);
   }
 
-  async newCookie(cookies: Cookies, from: Date, voter: Voter): Promise<void> {
-    const jwtSecret = new TextEncoder().encode(env.EMA_JWT_SECRET);
-    const expires = new Date(from.getTime() + tokenOptions.expireTime);
-    const jwt = await new SignJWT({ voter })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setIssuer(tokenOptions.issuer)
-      .setAudience(tokenOptions.audience)
-      .setExpirationTime(expires)
-      .sign(jwtSecret);
-    cookies.set(tokenOptions.name, jwt, {
-      path: '/',
-      expires,
-      secure: true,
-      httpOnly: true,
-      sameSite: 'strict',
-    });
+  async setVoterToken(cookies: Cookies, from: Date, voter: Voter): Promise<void> {
+    tokens.voter.setToCookie(from, cookies, { voter });
   }
 
-  async newInvitedCookie(cookies: Cookies, from: Date): Promise<void> {
-    const jwtSecret = new TextEncoder().encode(env.EMA_JWT_SECRET);
-    const expires = new Date(from.getTime() + tokenOptions.expireTime);
-    const jwt = await new SignJWT({ invited: true })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setIssuer(tokenOptions.issuer)
-      .setAudience(tokenOptions.audience)
-      .setExpirationTime(expires)
-      .sign(jwtSecret);
-    cookies.set(tokenOptions.invitedName, jwt, {
-      path: '/',
-      expires,
-      secure: true,
-      httpOnly: true,
-      sameSite: 'strict',
-    });
+  async setInvitedToken(cookies: Cookies, from: Date): Promise<void> {
+    tokens.invited.setToCookie(from, cookies, { invited: true });
   }
 
-  async verifyToken(cookies: Cookies): Promise<Voter | undefined> {
-    const jwtSecret = new TextEncoder().encode(env.EMA_JWT_SECRET);
-    const token = cookies.get(tokenOptions.name);
-    if (!token) {
-      return undefined;
-    }
-    try {
-      const { payload } = await jwtVerify(token, jwtSecret, {
-        issuer: tokenOptions.issuer,
-        audience: tokenOptions.audience,
-        requiredClaims: ['iss', 'aud', 'exp', 'iat', 'voter'],
-      });
-      const validate = jwtPayloadSchema.safeParse(payload.voter);
-      if (!validate.success) {
-        return undefined;
-      }
-      return payload.voter as Voter;
-    } catch (e) {
-      return undefined;
-    }
+  async getVoterToken(cookies: Cookies): Promise<Voter | undefined> {
+    const payload = await tokens.voter.getFromCookie(cookies);
+    return payload?.voter;
   }
 
-  async verifyInvited(cookies: Cookies): Promise<boolean> {
-    const jwtSecret = new TextEncoder().encode(env.EMA_JWT_SECRET);
-    const token = cookies.get(tokenOptions.invitedName);
-    if (!token) {
-      return false;
-    }
-    try {
-      const { payload } = await jwtVerify(token, jwtSecret, {
-        issuer: tokenOptions.issuer,
-        audience: tokenOptions.audience,
-        requiredClaims: ['iss', 'aud', 'exp', 'iat', 'invited'],
-      });
-      return payload.invited === true;
-    } catch (e) {
-      return false;
-    }
+  async getInvitedToken(cookies: Cookies): Promise<boolean> {
+    const payload = await tokens.invited.getFromCookie(cookies);
+    return payload?.invited || false;
   }
 
   async logInVoter(name: string, password: string, cookies: Cookies): Promise<Voter | undefined> {
@@ -143,19 +83,19 @@ export class Service {
     if (!voter) {
       return undefined;
     }
-    await this.newCookie(cookies, new Date(), voter);
+    await this.setVoterToken(cookies, new Date(), voter);
     return voter;
   }
 
   async setPassword(name: string, password: string, cookies: Cookies): Promise<Voter> {
     const voter = await this.voterRepository.setPassword(name, password);
-    await this.newCookie(cookies, new Date(), voter);
+    await this.setVoterToken(cookies, new Date(), voter);
     return voter;
   }
 
   async signUpVoter(name: string, password: string, cookies: Cookies): Promise<Voter> {
     const voter = await this.voterRepository.createVoter(name, password);
-    await this.newCookie(cookies, new Date(), voter);
+    await this.setVoterToken(cookies, new Date(), voter);
     return voter;
   }
 
@@ -167,15 +107,12 @@ export class Service {
     return vote.rankings;
   }
 
-  async setVote(cookies: Cookies, year: string, department: string, rankingIds: Map<number, number>): Promise<void> {
+  async setVote(cookies: Cookies, year: string, dept: string, rankingIds: Map<number, number>): Promise<void> {
     const ceremony = await this.ceremonyRepository.getByYear(parseInt(year));
-    if (!ceremony) {
-      throw new Error('Ceremony not found'); // TODO: better error
-    }
-    validateDepartment(ceremony, department as Department);
-    const voter = await this.verifyToken(cookies);
+    const department = parseDepartment(ceremony, dept);
+    const voter = await this.getVoterToken(cookies);
     if (!voter) {
-      throw new Error('Voter not found'); // TODO: better error
+      throw Err.NotFound('voter', 'from cookie');
     }
     const rankings = await Promise.all(
       Array.from(rankingIds.entries(), async ([workId, ranking]) => ({

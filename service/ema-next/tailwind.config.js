@@ -36,6 +36,7 @@ export default {
     fontFamily: {
       sans: ['Noto Sans SC', 'sans-serif'],
       serif: ['Noto Serif SC', 'serif'],
+      monospace: ['monospace'],
     },
     screens: {
       mid: '448px', // 400 + 24*2

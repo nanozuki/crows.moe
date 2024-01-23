@@ -5,15 +5,17 @@
   export let data;
   export let form;
 
-  const title = '注册用户';
-  const description = '请使用telegram的ID或者用户名作为账户的用户名';
   $: username = data?.username || form?.username;
   $: focusOnMount = typeof username !== 'undefined';
   $: invited = data.invited;
 </script>
 
 {#if invited}
-  <AuthForm {title} {description} hasError={typeof form?.errors !== 'undefined'}>
+  <AuthForm hasError={typeof form?.errors !== 'undefined'}>
+    <slot name="title">注册用户</slot>
+    <slot name="description"
+      >请使用<span class="mx-1">telegram</span>的<span class="mx-1">ID</span>或者用户名作为账户的用户名</slot
+    >
     <StringInput field="username" label="用户名" value={username} error={form?.errors?.username} />
     <PasswordInput {focusOnMount} field="password" label="密码" error={form?.errors?.password} />
     <PasswordInput field="password_ensure" label="确认密码" error={form?.errors?.passwordEnsure} />

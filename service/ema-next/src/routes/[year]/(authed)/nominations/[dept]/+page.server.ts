@@ -1,27 +1,27 @@
 import type { Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { getService } from '$lib/server';
-import { parseParams } from '$lib';
+import { parseDepartment } from '$lib/domain/entity';
+import { Err } from '$lib/domain/errors';
+import { P, match } from 'ts-pattern';
 
-export async function load({ params }) {
+export async function load({ params, parent }) {
+  const pd = await parent();
   const service = getService();
-  const [year, department] = parseParams(params);
+  const department = parseDepartment(pd.ceremony, params.dept);
   return {
     department,
-    noms: await service.getWorksInDept(year, department),
+    noms: await service.getWorksInDept(pd.ceremony.year, department),
   };
 }
 
 type NominationForm = { workName: string } | { workName?: string; errors: { workName: string } };
 
 function parseForm(data: FormData): NominationForm {
-  const workName = data.get('workName');
-  if (typeof workName !== 'string') {
-    return { errors: { workName: '必须是字符串' } };
-  } else if (workName === '') {
-    return { errors: { workName: '不能为空' } };
-  }
-  return { workName };
+  return match(data.get('workName'))
+    .with(P.string.minLength(1), (workName) => ({ workName }))
+    .with(P._, () => ({ errors: { workName: '不能为空' } }))
+    .exhaustive();
 }
 
 export const actions = {
@@ -33,6 +33,12 @@ export const actions = {
       return fail(400, form);
     }
     const service = getService();
-    await service.addNomination(year, department, form.workName);
+    return (await Err.match(() => service.addNomination(year, department, form.workName)))
+      .with({ ok: true, value: P._ }, () => {})
+      .with({ ok: false, error: P.select() }, (error) => {
+        const response: NominationForm = { ...form, errors: { workName: error.message } };
+        return fail(400, response);
+      })
+      .exhaustive();
   },
 } satisfies Actions;

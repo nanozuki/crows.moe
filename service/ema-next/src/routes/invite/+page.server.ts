@@ -9,6 +9,6 @@ export const load = async ({ parent, cookies, url }) => {
   }
   const service = getService();
   const parentData = await parent();
-  await service.newInvitedCookie(cookies, parentData.now);
+  await service.setInvitedToken(cookies, parentData.now);
   throw redirect(302, '/');
 };

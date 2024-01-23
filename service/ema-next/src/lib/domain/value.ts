@@ -20,12 +20,6 @@ export const orderedDepartments = [
   Department.Novel,
 ];
 
-export function parseDepartment(d: string): Department | undefined {
-  if (orderedDepartments.includes(d as Department)) {
-    return d as Department;
-  }
-}
-
 export const enum Stage {
   Preparation = 'Preparation',
   Nomination = 'Nomination',

@@ -1,4 +1,4 @@
-import { NoDepartmentError } from '$lib/domain/errors';
+import { Err } from '$lib/domain/errors';
 import { Department, Stage } from '$lib/domain/value';
 
 // Ceremony store the ceremony information of a year
@@ -31,10 +31,11 @@ export function isCeremonyActive(c: Ceremony, time: Date): boolean {
   return time.getTime() - c.awardStartAt.getTime() < awardHighlightDuration;
 }
 
-export function validateDepartment(c: Ceremony, department: Department): void {
-  if (!c.departments.includes(department)) {
-    throw NoDepartmentError(department);
+export function parseDepartment(c: Ceremony, dept: string): Department {
+  if (!c.departments.includes(dept as Department)) {
+    throw Err.NotFound('department', dept);
   }
+  return dept as Department;
 }
 
 export interface Work {
