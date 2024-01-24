@@ -8,4 +8,4 @@
 
 <h1 class="text-3xl font-bold font-serif leading-normal">{$page.error?.title}</h1>
 <p class="text-xl text-subtle leading-normal">{$page.error?.message}</p>
-{#if $page.error?.cause}<p class="text-subtle font-monospace">{$page.error?.cause}</p>{/if}
+{#if $page.error?.stack}<p class="text-subtle font-monospace">{$page.error?.stack}</p>{/if}

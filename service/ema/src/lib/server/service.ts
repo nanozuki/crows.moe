@@ -112,7 +112,7 @@ export class Service {
     const department = parseDepartment(ceremony, dept);
     const voter = await this.getVoterToken(cookies);
     if (!voter) {
-      throw Err.NotFound('voter', 'from cookie');
+      throw Err.NotFound('voter', 'cookie');
     }
     const rankings = await Promise.all(
       Array.from(rankingIds.entries(), async ([workId, ranking]) => ({

@@ -1,100 +1,86 @@
-import { match } from 'ts-pattern';
+import { error, type HttpError } from '@sveltejs/kit';
+import { match, P } from 'ts-pattern';
 
-export const enum ErrorCode {
-  DatabaseError = 'DatabaseError',
-  InternalError = 'InternalError',
-  UnknownError = 'UnknownError',
-  NotFound = 'NotFound',
-  InvalidParameter = 'InvalidParameter',
+function Database(operation: string, err: Error): HttpError {
+  console.log('err.message = ', err.message);
+  const he = error(500, {
+    title: '数据库错误',
+    message: `Database error ${operation}: ${err.message}`,
+    stack: err.stack,
+  });
+  console.log('new database error: ', JSON.stringify(he));
+  return he;
 }
 
-export interface ErrorInfo {
-  statusCode: number;
-  title: string;
+function Internal(operation: string, err: Error): HttpError {
+  return error(500, {
+    title: '内部错误',
+    message: `Internal error when ${operation}: ${err.message} `,
+    stack: err.stack,
+  });
 }
 
-export const errors: Record<ErrorCode, ErrorInfo> = {
-  DatabaseError: { statusCode: 500, title: '数据库错误' },
-  InternalError: { statusCode: 500, title: '内部错误' },
-  UnknownError: { statusCode: 500, title: '未知错误' },
-  NotFound: { statusCode: 404, title: '找不到内容' },
-  InvalidParameter: { statusCode: 400, title: '参数错误' },
-};
-
-export class AppError extends Error implements App.Error {
-  public title: string;
-  public cause?: string;
-
-  constructor(
-    public code: ErrorCode,
-    public message: string,
-    cause?: unknown,
-  ) {
-    super(message);
-    this.title = errors[code].title;
-    if (cause) {
-      if (cause instanceof Error) {
-        this.cause = cause.stack;
-      } else {
-        this.cause = JSON.stringify(cause);
-      }
-    }
-  }
-
-  toError(): App.Error {
-    return {
-      title: this.title,
-      message: this.message,
-      cause: this.cause,
-    };
+function Unknown(err: unknown): HttpError {
+  if (err instanceof Error) {
+    return error(500, {
+      title: '未知错误',
+      message: `Unknown error: ${err.message}`,
+      stack: err.stack,
+    });
+  } else {
+    return error(500, {
+      title: '未知错误',
+      message: `Unknown error: ${JSON.stringify(err)}`,
+    });
   }
 }
 
-function Database(operation: string, cause: Error): AppError {
-  return new AppError(ErrorCode.DatabaseError, `Database error when ${operation}`, cause);
+function NotFound(object: string, ...keys: unknown[]): HttpError {
+  const key = keys.map((k) => JSON.stringify(k)).join('.');
+  return error(404, { title: '找不到内容', message: `${object}(${key}) not found` });
 }
 
-function Internal(operation: string, cause: Error): AppError {
-  return new AppError(ErrorCode.InternalError, `Internal error when ${operation}`, cause);
+function Invalid(type: string, value: unknown): HttpError {
+  return error(400, { title: '参数错误', message: `Invalid ${type}: ${JSON.stringify(value)}` });
 }
 
-function Unknown(error: unknown): AppError {
-  if (error instanceof Error) {
-    return new AppError(ErrorCode.UnknownError, error.message, error);
-  }
-  return new AppError(ErrorCode.UnknownError, 'UnknownError', error);
-}
-
-function NotFound(object: string, ...keys: string[]): AppError {
-  return new AppError(ErrorCode.NotFound, `${object}(${keys.join('.')}) not found`);
-}
-
-function Invalid(type: string, value: unknown): AppError {
-  return new AppError(ErrorCode.InvalidParameter, `Invalid ${type}: ${JSON.stringify(value)}`);
-}
-
-async function catch_<T>(fn: () => T | Promise<T>, eh: (e: Error) => AppError): Promise<T> {
+async function catch_<T>(fn: () => T | Promise<T>, handler: (e: Error) => HttpError): Promise<T> {
   try {
     return await fn();
   } catch (e) {
     if (e instanceof Error) {
-      throw eh(e);
+      if (e.message === '') {
+        e.message = JSON.stringify(e);
+      }
+      throw handler(e);
     }
     throw e;
   }
 }
 
-type Result<T> = { ok: true; value: T } | { ok: false; error: AppError };
+type Result<T> = { ok: true; value: T } | { ok: false; error: HttpError };
+
+export const httpErrorPattern = {
+  status: P.number,
+  body: {
+    title: P.string,
+    message: P.string,
+  },
+};
 
 async function match_<T>(fn: () => T | Promise<T>) {
   let result: Result<T>;
   try {
     result = { ok: true, value: await fn() };
   } catch (e) {
-    if (e instanceof AppError) {
-      result = { ok: false, error: e };
-    }
-    throw e;
+    result = match(e)
+      .returnType<Result<T>>()
+      .with(httpErrorPattern, (value) => {
+        return { ok: false, error: value as HttpError };
+      })
+      .otherwise(() => {
+        throw e;
+      });
   }
   return match<Result<T>>(result);
 }

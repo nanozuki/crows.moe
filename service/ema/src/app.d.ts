@@ -7,7 +7,7 @@ declare global {
     interface Error {
       title: string;
       message: string;
-      cause?: string;
+      stack?: string;
     }
     // interface Locals {}
     // interface PageData {}

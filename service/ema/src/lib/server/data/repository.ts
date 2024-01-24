@@ -23,7 +23,7 @@ export class CeremonyRepositoryImpl implements CeremonyRepository {
       (err) => Err.Database(`ceremony.getByYear(${year})`, err),
     );
     if (results.length == 0) {
-      throw Err.NotFound('ceremony', year.toString());
+      throw Err.NotFound('ceremony', year);
     }
     return results[0];
   }
@@ -105,7 +105,7 @@ export class WorkRepositoryImpl implements WorkRepository {
       (err) => Err.Database(`work.getById(${id})`, err),
     );
     if (results.length === 0) {
-      throw Err.NotFound('work', id.toString());
+      throw Err.NotFound('work', id);
     }
     return modelToWork(results[0]);
   }

@@ -6,3 +6,5 @@
 <svelte:head>
   <title>{title}</title>
 </svelte:head>
+
+<slot />
