@@ -36,7 +36,7 @@ export const actions = {
     return (await Err.match(() => service.addNomination(year, department, form.workName)))
       .with({ ok: true, value: P._ }, () => {})
       .with({ ok: false, error: P.select() }, (error) => {
-        const response: NominationForm = { ...form, errors: { workName: error.message } };
+        const response: NominationForm = { ...form, errors: { workName: error.body.message } };
         return fail(400, response);
       })
       .exhaustive();

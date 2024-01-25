@@ -35,7 +35,7 @@ export const actions = {
         throw redirect(302, '/auth/set_password' + query);
       })
       .with({ ok: false, error: P.select() }, (error) => {
-        const response: AuthForm = { ...form, errors: { username: error.message } };
+        const response: AuthForm = { ...form, errors: { username: error.body.message } };
         return fail(400, response);
       })
       .exhaustive();
