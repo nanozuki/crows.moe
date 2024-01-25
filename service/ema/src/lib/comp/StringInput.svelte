@@ -3,6 +3,7 @@
   export let label: string;
   export let value: string = '';
   export let error: string | undefined;
+  export let required: boolean = false;
 </script>
 
 <div class="w-full flex flex-col gap-y-1">
@@ -14,6 +15,7 @@
     bind:value
     name={field}
     placeholder={label}
+    {required}
     class={'w-full h-10 px-2 rounded bg-surface border-pine border-2 ' +
       'focus:border-rose focus-visible:border-rose outline-none shadow-none'}
   />

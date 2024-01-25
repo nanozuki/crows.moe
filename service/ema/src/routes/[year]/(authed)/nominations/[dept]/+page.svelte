@@ -67,7 +67,7 @@
 <!-- New Nomination Form --->
 
 <form class="flex flex-col gap-y-2 mid:grid mid:grid-cols-nomination mid:gap-x-2 items-end" method="POST">
-  <StringInput field="workName" label="作品名称" value={form?.workName} error={form?.errors?.workName} />
+  <StringInput field="workName" label="作品名称" value={form?.workName} error={form?.errors?.workName} required />
   <button class="bg-pine text-base w-full px-8 h-10 rounded" type="submit">提交提名</button>
 </form>
 
