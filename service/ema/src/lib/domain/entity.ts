@@ -1,5 +1,6 @@
 import { Err } from '$lib/domain/errors';
 import { Department, Stage } from '$lib/domain/value';
+import { redirect } from '@sveltejs/kit';
 
 // Ceremony store the ceremony information of a year
 export interface Ceremony {
@@ -19,6 +20,25 @@ export function getStage(c: Ceremony, time: Date): Stage {
     return Stage.Voting;
   } else {
     return Stage.Award;
+  }
+}
+
+export function ensureStage(ceremony: Ceremony, stage: Stage, now: Date): void {
+  const stageNow = getStage(ceremony, now);
+  console.log(`stageNow: ${stageNow}, stage: ${stage}`);
+  if (stageNow === stage) {
+    // valid, do nothing
+    return;
+  }
+  switch (stageNow) {
+    case Stage.Nomination:
+      throw redirect(302, `/${ceremony.year}/nominations/${ceremony.departments[0]}`);
+    case Stage.Voting:
+      throw redirect(302, `/${ceremony.year}/votes/${ceremony.departments[0]}`);
+    case Stage.Award:
+      throw redirect(302, `/${ceremony.year}/awards`);
+    default:
+      throw redirect(302, `/`);
   }
 }
 

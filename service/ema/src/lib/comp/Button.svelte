@@ -11,6 +11,7 @@
   class:bg-gold={variant === 'negative'}
   class:bg-muted={variant === 'disable'}
   disabled={variant === 'disable'}
+  on:click
   {type}
 >
   <slot />

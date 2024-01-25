@@ -8,6 +8,13 @@
       "when": 1705830164460,
       "tag": "0000_graceful_ultimo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1706162812996,
+      "tag": "0001_steep_magneto",
+      "breakpoints": true
     }
   ]
 }

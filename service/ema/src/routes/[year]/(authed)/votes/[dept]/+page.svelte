@@ -18,6 +18,10 @@
     }
   };
 
+  const resetForm = () => {
+    location.reload();
+  };
+
   $: deptTotal = data.ceremony.departments.length;
   $: deptIndex = data.ceremony.departments.indexOf(data.department);
   $: deptInfo = departmentInfo(data.ceremony.year)[data.department];
@@ -75,8 +79,12 @@
       <Nomination {work} />
     </div>
   {/each}
+
   {#if inputed}
-    <Button type="submit">提交</Button>
+    <div class="flex gap-x-2">
+      <Button variant="negative" on:click={resetForm}>取消</Button>
+      <Button type="submit">提交</Button>
+    </div>
   {/if}
 </form>
 

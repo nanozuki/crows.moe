@@ -8,6 +8,7 @@ export const departmentTitle: Record<Department, string> = {
   [Department.NonTVAnime]: '其他动画部门',
   [Department.Manga]: '漫画部门',
   [Department.Novel]: '文学部门',
+  [Department.Music]: '音乐部门',
 };
 
 export interface DepartmentInfo {
@@ -111,5 +112,10 @@ export const departmentInfo = (year: number): { [key in Department]: DepartmentI
         url: `https://bangumi.tv/book/browser/comic/airtime/${year}?sort=rank`,
       },
     ],
+  },
+  [Department.Music]: {
+    title: '音乐',
+    introduction: `${year}年内发表的，前述动画、游戏部门范围内的作品使用的单首音乐作品。`,
+    reference: [],
   },
 });

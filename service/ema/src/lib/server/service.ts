@@ -1,11 +1,11 @@
 import type { Ceremony, Work, AwardRank, Voter } from '$lib/domain/entity';
 import type { CeremonyRepository, VoteRepository, VoterRepository, WorkRepository } from '$lib/server/adapter';
-import type { Cookies } from '@sveltejs/kit';
-import type { Department } from '$lib/domain/value';
-import { newAwardRank, parseDepartment } from '$lib/domain/entity';
-import { z } from 'zod';
 import { Err } from '$lib/domain/errors';
+import { Stage, type Department } from '$lib/domain/value';
+import { getStage, newAwardRank, parseDepartment } from '$lib/domain/entity';
+import { redirect, type Cookies } from '@sveltejs/kit';
 import { token } from '$lib/server/token';
+import { z } from 'zod';
 
 const tokens = {
   voter: token<{ voter: Voter }>(

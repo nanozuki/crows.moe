@@ -2,6 +2,7 @@ export const enum Department {
   Anime = 'anime',
   MangaAndNovel = 'manga-novel',
   Game = 'game',
+  Music = 'music',
 
   // legacy category
   TVAnime = 'tv-anime',
@@ -18,6 +19,7 @@ export const orderedDepartments = [
   Department.MangaAndNovel,
   Department.Game,
   Department.Novel,
+  Department.Music,
 ];
 
 export const enum Stage {

@@ -39,16 +39,18 @@
 <div class="flex flex-col gap-y-2">
   <p class="text-xl font-serif font-bold leading-normal">{deptIndex + 1}/{deptTotal}：{deptInfo.title}部门</p>
   <p class="text-subtle leading-normal">{deptInfo.introduction}</p>
-  <p class="text-subtle leading-normal">部分作品参考链接：</p>
-  <ul class="list-disc list-inside">
-    {#each deptInfo.reference as { description, url } (url)}
-      <li>
-        <a href={url} target="_blank" rel="noopener noreferrer" class="text-pine ml-1 mr-1 underline">
-          {description}
-        </a>
-      </li>
-    {/each}
-  </ul>
+  {#if deptInfo.reference.length > 0}
+    <p class="text-subtle leading-normal">部分作品参考链接：</p>
+    <ul class="list-disc list-inside">
+      {#each deptInfo.reference as { description, url } (url)}
+        <li>
+          <a href={url} target="_blank" rel="noopener noreferrer" class="text-pine ml-1 mr-1 underline">
+            {description}
+          </a>
+        </li>
+      {/each}
+    </ul>
+  {/if}
 </div>
 
 <!-- Nomination List --->
