@@ -2,7 +2,7 @@ import type { Ceremony, Vote, Voter, Work } from '$lib/domain/entity';
 import type { CeremonyRepository, WorkRepository, VoterRepository, VoteRepository } from '$lib/server/adapter';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { ceremony, rankingInVote, vote, voter, work } from './schema';
-import { desc, eq, and, gte } from 'drizzle-orm';
+import { desc, eq, and, gte, or, sql } from 'drizzle-orm';
 import type { Department } from '$lib/domain/value';
 import bcrypt from 'bcrypt';
 import { Err } from '$lib/domain/errors';
@@ -12,14 +12,14 @@ export class CeremonyRepositoryImpl implements CeremonyRepository {
 
   async getCeremonies(): Promise<Ceremony[]> {
     return Err.catch(
-      () => this.db.select().from(ceremony).orderBy(desc(ceremony.year)),
+      async () => await this.db.select().from(ceremony).orderBy(desc(ceremony.year)),
       (err) => Err.Database('ceremony.getCeremonies', err),
     );
   }
 
   async getByYear(year: number): Promise<Ceremony> {
     const results = await Err.catch(
-      () => this.db.select().from(ceremony).where(eq(ceremony.year, year)),
+      async () => await this.db.select().from(ceremony).where(eq(ceremony.year, year)),
       (err) => Err.Database(`ceremony.getByYear(${year})`, err),
     );
     if (results.length == 0) {
@@ -46,7 +46,7 @@ export class WorkRepositoryImpl implements WorkRepository {
 
   async getAllWinners(): Promise<Map<number, Work[]>> {
     const results = await Err.catch(
-      () => this.db.select().from(work).where(eq(work.ranking, 1)),
+      async () => await this.db.select().from(work).where(eq(work.ranking, 1)),
       (err) => Err.Database('work.getAllWinners', err),
     );
     const works = new Map<number, Work[]>();
@@ -62,8 +62,8 @@ export class WorkRepositoryImpl implements WorkRepository {
 
   async getAwardsByYear(year: number): Promise<Map<Department, Work[]>> {
     const results = await Err.catch(
-      () =>
-        this.db
+      async () =>
+        await this.db
           .select()
           .from(work)
           .where(and(eq(work.year, year), gte(work.ranking, 1)))
@@ -81,8 +81,8 @@ export class WorkRepositoryImpl implements WorkRepository {
 
   async getWorksInDept(year: number, department: Department): Promise<Work[]> {
     const results = await Err.catch(
-      () =>
-        this.db
+      async () =>
+        await this.db
           .select()
           .from(work)
           .where(and(eq(work.year, year), eq(work.department, department)))
@@ -93,15 +93,32 @@ export class WorkRepositoryImpl implements WorkRepository {
   }
 
   async addNomination(year: number, department: Department, workName: string): Promise<void> {
-    await Err.catch(
-      () => this.db.insert(work).values({ year, department, name: workName }).onConflictDoNothing(),
-      (err) => Err.Database(`work.addNomination(${year}, ${department}, ${workName})`, err),
-    );
+    const operation = async () => {
+      await this.db.transaction(
+        async (db) => {
+          const works = await db
+            .select()
+            .from(work)
+            .where(
+              and(
+                eq(work.year, year),
+                eq(work.department, department),
+                or(eq(work.name, workName), eq(work.originName, workName), sql`${workName} = ANY(work.aliases)`),
+              ),
+            );
+          if (works.length === 0) {
+            await db.insert(work).values({ year, department, name: workName });
+          }
+        },
+        { isolationLevel: 'serializable' },
+      );
+    };
+    await Err.catch(operation, (err) => Err.Database(`work.addNomination(${year}, ${department}, ${workName})`, err));
   }
 
   async getById(id: number): Promise<Work> {
     const results = await Err.catch(
-      () => this.db.select().from(work).where(eq(work.id, id)),
+      async () => await this.db.select().from(work).where(eq(work.id, id)),
       (err) => Err.Database(`work.getById(${id})`, err),
     );
     if (results.length === 0) {
@@ -116,7 +133,7 @@ export class VoterRepositoryImpl implements VoterRepository {
 
   async findVoter(name: string): Promise<Voter | undefined> {
     const results = await Err.catch(
-      () => this.db.select().from(voter).where(eq(voter.name, name)),
+      async () => await this.db.select().from(voter).where(eq(voter.name, name)),
       (err) => Err.Database(`voter.getVoterByName(${name})`, err),
     );
     if (results.length == 0) {
@@ -131,11 +148,11 @@ export class VoterRepositoryImpl implements VoterRepository {
 
   async createVoter(name: string, password: string): Promise<Voter> {
     const passwordHash = await Err.catch(
-      () => bcrypt.hash(password, 10),
+      async () => await bcrypt.hash(password, 10),
       (err) => Err.Internal('bcrypt.hash(password)', err),
     );
     const result = await Err.catch(
-      () => this.db.insert(voter).values({ name, passwordHash }).returning({ id: voter.id }),
+      async () => await this.db.insert(voter).values({ name, passwordHash }).returning({ id: voter.id }),
       (err) => Err.Database(`voter.createVoter(${name}, ${password})`, err),
     );
     return { id: result[0].id, name, hasPassword: true };
@@ -143,11 +160,12 @@ export class VoterRepositoryImpl implements VoterRepository {
 
   async setPassword(name: string, password: string): Promise<Voter> {
     const passwordHash = await Err.catch(
-      () => bcrypt.hash(password, 10),
+      async () => await bcrypt.hash(password, 10),
       (err) => Err.Internal('bcrypt.hash(password)', err),
     );
     const result = await Err.catch(
-      () => this.db.update(voter).set({ passwordHash }).where(eq(voter.name, name)).returning({ id: voter.id }),
+      async () =>
+        await this.db.update(voter).set({ passwordHash }).where(eq(voter.name, name)).returning({ id: voter.id }),
       (err) => Err.Database(`voter.setPassword(${name}, ${password})`, err),
     );
     return { id: result[0].id, name, hasPassword: true };
@@ -155,7 +173,7 @@ export class VoterRepositoryImpl implements VoterRepository {
 
   async verifyPassword(name: string, password: string): Promise<Voter | undefined> {
     const results = await Err.catch(
-      () => this.db.select().from(voter).where(eq(voter.name, name)),
+      async () => await this.db.select().from(voter).where(eq(voter.name, name)),
       (err) => Err.Database(`voter.verifyPassword(${name}, ${password})`, err),
     );
     const passwordHash = results[0] && results[0].passwordHash;
@@ -163,7 +181,7 @@ export class VoterRepositoryImpl implements VoterRepository {
       return undefined;
     }
     const equal = await Err.catch(
-      () => bcrypt.compare(password, passwordHash),
+      async () => await bcrypt.compare(password, passwordHash),
       (err) => Err.Internal('bcrypt.compare(password, passwordHash)', err),
     );
     if (!equal) {
