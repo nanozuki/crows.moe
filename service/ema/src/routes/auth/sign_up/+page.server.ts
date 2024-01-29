@@ -18,8 +18,8 @@ function parseForm(data: FormData): SignUpForm {
   const password = data.get('password');
   if (typeof password !== 'string') {
     return { username, errors: { password: '必须是字符串' } };
-  } else if (password.length < 8 || password.length > 20) {
-    return { username, errors: { password: '长度必须在8到20之间' } };
+  } else if (password.length < 8) {
+    return { username, errors: { password: '长度必须大于8' } };
   }
   const passwordEnsure = data.get('password_ensure');
   if (password !== passwordEnsure) {
@@ -43,7 +43,7 @@ export const actions = {
         throw redirect(302, '/');
       })
       .with({ ok: false, error: P.select() }, (error) => {
-        const response: SignUpForm = { ...form, errors: { username: error.message } };
+        const response: SignUpForm = { ...form, errors: { username: error.body.message } };
         return fail(400, response);
       })
       .exhaustive();
