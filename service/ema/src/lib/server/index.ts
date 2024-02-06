@@ -8,6 +8,7 @@ import {
 import { env } from '$env/dynamic/private';
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
+import { calculator } from '$lib/server/calculate';
 
 function initService(): Service {
   const dbClient = drizzle(postgres(env.EMA_POSTGRES_URL!), { logger: true });
@@ -15,7 +16,7 @@ function initService(): Service {
   const work = new WorkRepositoryImpl(dbClient);
   const voter = new VoterRepositoryImpl(dbClient);
   const vote = new VoteRepositoryImpl(dbClient);
-  return new Service(ceremony, work, voter, vote);
+  return new Service(ceremony, work, voter, vote, calculator);
 }
 
 let service: Service | undefined;

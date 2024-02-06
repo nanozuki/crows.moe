@@ -1,5 +1,11 @@
 import type { Ceremony, Vote, Voter, Work } from '$lib/domain/entity';
-import type { CeremonyRepository, WorkRepository, VoterRepository, VoteRepository } from '$lib/server/adapter';
+import type {
+  CeremonyRepository,
+  WorkRepository,
+  VoterRepository,
+  VoteRepository,
+  VoteItem,
+} from '$lib/server/adapter';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { ceremony, rankingInVote, vote, voter, work } from './schema';
 import { desc, eq, and, gte, or, sql } from 'drizzle-orm';
@@ -245,6 +251,22 @@ export class VoteRepositoryImpl implements VoteRepository {
         );
       },
       (err) => Err.Database(`vote.setVote(${year}, ${department}, ${voterId}, ${works})`, err),
+    );
+  }
+
+  async getVotes(year: number, department: Department): Promise<VoteItem[]> {
+    return await Err.catch(
+      async () => {
+        const rows = await this.db
+          .select({ id: vote.id, workId: rankingInVote.workId, ranking: rankingInVote.ranking })
+          .from(vote)
+          .leftJoin(rankingInVote, eq(vote.id, rankingInVote.voteId))
+          .where(and(eq(vote.year, year), eq(vote.department, department)));
+        return rows
+          .filter((r) => r.workId && r.ranking)
+          .map((r) => ({ voteId: r.id, workId: r.workId!, ranking: r.ranking! }));
+      },
+      (err) => Err.Database(`vote.getVotes(${year}, ${department})`, err),
     );
   }
 }

@@ -1,5 +1,11 @@
 import type { Ceremony, Work, AwardRank, Voter } from '$lib/domain/entity';
-import type { CeremonyRepository, VoteRepository, VoterRepository, WorkRepository } from '$lib/server/adapter';
+import type {
+  CeremonyRepository,
+  RankCalculator,
+  VoteRepository,
+  VoterRepository,
+  WorkRepository,
+} from '$lib/server/adapter';
 import type { Cookies } from '@sveltejs/kit';
 import type { Department } from '$lib/domain/value';
 import { Err } from '$lib/domain/errors';
@@ -27,6 +33,7 @@ export class Service {
     private workRepository: WorkRepository,
     private voterRepository: VoterRepository,
     private voteRepository: VoteRepository,
+    private calculator: RankCalculator,
   ) {}
 
   async getCeremonies(): Promise<Ceremony[]> {
@@ -121,5 +128,18 @@ export class Service {
       })),
     );
     return await this.voteRepository.setVote(ceremony.year, department as Department, voter.id, rankings);
+  }
+
+  async calculate(year: number, department: Department): Promise<void> {
+    const works = await this.workRepository.getWorksInDept(year, department);
+    for (const work of works) {
+      if (work.ranking) {
+        console.log('already calculated, return directly');
+        return;
+      }
+    }
+    const voteItems = await this.voteRepository.getVotes(year, department);
+    const results = await this.calculator.calculate(voteItems);
+    console.log('results', JSON.stringify(results));
   }
 }
