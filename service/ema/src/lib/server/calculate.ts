@@ -16,7 +16,7 @@ type Response = number[][];
 const apiUrl = 'https://schwartz.fubuki.me';
 
 // Send post to apiUrl, using the Request as json body, reveive json like Response.
-export async function calculate(items: VoteItem[]): Promise<RankResultItem[]> {
+async function calculate(items: VoteItem[]): Promise<RankResultItem[]> {
   const req: Request = { payload: [] };
   for (const item of items) {
     let found = false;

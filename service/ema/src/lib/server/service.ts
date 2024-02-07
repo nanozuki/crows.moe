@@ -2,6 +2,7 @@ import type { Ceremony, Work, AwardRank, Voter } from '$lib/domain/entity';
 import type {
   CeremonyRepository,
   RankCalculator,
+  RankResultItem,
   VoteRepository,
   VoterRepository,
   WorkRepository,
@@ -130,7 +131,7 @@ export class Service {
     return await this.voteRepository.setVote(ceremony.year, department as Department, voter.id, rankings);
   }
 
-  async calculate(year: number, department: Department): Promise<void> {
+  async calculate(year: number, department: Department): Promise<RankResultItem[]> {
     const works = await this.workRepository.getWorksInDept(year, department);
     for (const work of works) {
       if (work.ranking) {
@@ -140,6 +141,6 @@ export class Service {
     }
     const voteItems = await this.voteRepository.getVotes(year, department);
     const results = await this.calculator.calculate(voteItems);
-    console.log('results', JSON.stringify(results));
+    return results;
   }
 }
