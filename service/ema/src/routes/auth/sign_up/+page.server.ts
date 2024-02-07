@@ -38,9 +38,9 @@ export const actions = {
     return (await Err.match(() => getService().signUpVoter(form.username, form.password, cookies)))
       .with({ ok: true, value: P._ }, () => {
         if (url.searchParams.has('redirect')) {
-          throw redirect(302, decodeURIComponent(url.searchParams.get('redirect')!));
+          redirect(302, decodeURIComponent(url.searchParams.get('redirect')!));
         }
-        throw redirect(302, '/');
+        redirect(302, '/');
       })
       .with({ ok: false, error: P.select() }, (error) => {
         const response: SignUpForm = { ...form, errors: { username: error.body.message } };
