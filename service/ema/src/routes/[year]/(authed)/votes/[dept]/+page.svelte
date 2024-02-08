@@ -84,7 +84,7 @@
         name={work.id.toString()}
         bind:value={work.ranking}
         min="1"
-        class="[appearance:textfield] h-8 w-8 text-center leading-7 bg-surface rounded border-2 border-pine self-center focus:border-rose focus-visible:border-rose outline-none shadow-none"
+        class="h-8 w-8 text-center leading-7 bg-surface rounded border-2 border-pine self-center focus:border-rose focus-visible:border-rose outline-none shadow-none"
         on:input={() => (inputed = true)}
       />
       <Nomination {work} />
