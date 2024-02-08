@@ -32,13 +32,13 @@ export function ensureStage(ceremony: Ceremony, stage: Stage, now: Date): void {
   }
   switch (stageNow) {
     case Stage.Nomination:
-      throw redirect(302, `/${ceremony.year}/nominations/${ceremony.departments[0]}`);
+      return redirect(302, `/${ceremony.year}/nominations/${ceremony.departments[0]}`);
     case Stage.Voting:
-      throw redirect(302, `/${ceremony.year}/votes/${ceremony.departments[0]}`);
+      return redirect(302, `/${ceremony.year}/votes/${ceremony.departments[0]}`);
     case Stage.Award:
-      throw redirect(302, `/${ceremony.year}/awards`);
+      return redirect(302, `/${ceremony.year}/awards`);
     default:
-      throw redirect(302, `/`);
+      return redirect(302, `/`);
   }
 }
 

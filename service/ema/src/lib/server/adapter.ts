@@ -12,6 +12,7 @@ export interface WorkRepository {
   getWorksInDept(year: number, department: Department): Promise<Work[]>;
   getById(id: number): Promise<Work | undefined>;
   addNomination(year: number, department: Department, workName: string): Promise<void>;
+  setWorkRanking(ranks: RankResultItem[]): Promise<void>;
 }
 
 export interface VoterRepository {
@@ -21,7 +22,23 @@ export interface VoterRepository {
   verifyPassword(name: string, password: string): Promise<Voter | undefined>;
 }
 
+export interface VoteItem {
+  voteId: number;
+  workId: number;
+  ranking: number;
+}
+
+export interface RankResultItem {
+  workId: number;
+  ranking: number;
+}
+
 export interface VoteRepository {
   getVote(year: number, department: Department, voterId: number): Promise<Vote | undefined>;
   setVote(year: number, department: Department, voterId: number, rankings: Work[]): Promise<void>;
+  getVotes(year: number, department: Department): Promise<VoteItem[]>;
+}
+
+export interface RankCalculator {
+  calculate(items: VoteItem[]): Promise<RankResultItem[]>;
 }

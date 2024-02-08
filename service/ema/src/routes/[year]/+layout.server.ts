@@ -11,5 +11,5 @@ export async function load({ params, parent }) {
   if (!ceremony) {
     throw Err.NotFound('ceremony', year);
   }
-  return { ceremony } satisfies { ceremony: Ceremony };
+  return { ceremony } as { ceremony: Ceremony }; // Let TypeScript infer the type
 }

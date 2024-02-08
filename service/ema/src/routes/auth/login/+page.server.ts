@@ -43,9 +43,9 @@ export const actions = {
       })
       .with({ ok: true, value: P.select() }, () => {
         if (url.searchParams.has('redirect')) {
-          throw redirect(302, decodeURIComponent(url.searchParams.get('redirect')!));
+          redirect(302, decodeURIComponent(url.searchParams.get('redirect')!));
         }
-        throw redirect(302, '/');
+        redirect(302, '/');
       })
       .with({ ok: false, error: P.select() }, (error) => {
         const response: LoginForm = { ...form, errors: { username: error.body.message } };

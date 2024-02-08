@@ -12,7 +12,7 @@ export const load = async ({ parent, cookies, url }) => {
   const parentData = await parent();
   await service.setInvitedToken(cookies, parentData.now);
   if (url.searchParams.has('redirect')) {
-    throw redirect(302, decodeURIComponent(url.searchParams.get('redirect')!));
+    redirect(302, decodeURIComponent(url.searchParams.get('redirect')!));
   }
-  throw redirect(302, '/');
+  redirect(302, '/');
 };

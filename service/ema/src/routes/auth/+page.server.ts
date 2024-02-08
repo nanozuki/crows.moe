@@ -26,13 +26,13 @@ export const actions = {
     }
     return (await Err.match(() => getService().getUserByName(form.username)))
       .with({ ok: true, value: undefined }, () => {
-        throw redirect(302, '/auth/sign_up' + query);
+        redirect(302, '/auth/sign_up' + query);
       })
       .with({ ok: true, value: { hasPassword: true } }, () => {
-        throw redirect(302, '/auth/login' + query);
+        redirect(302, '/auth/login' + query);
       })
       .with({ ok: true, value: { hasPassword: false } }, () => {
-        throw redirect(302, '/auth/set_password' + query);
+        redirect(302, '/auth/set_password' + query);
       })
       .with({ ok: false, error: P.select() }, (error) => {
         const response: AuthForm = { ...form, errors: { username: error.body.message } };
