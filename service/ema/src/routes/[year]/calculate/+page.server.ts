@@ -1,7 +1,7 @@
 import { getStage } from '$lib/domain/entity';
 import { getService } from '$lib/server';
 import { Err } from '$lib/domain/errors';
-import { Department, Stage } from '$lib/domain/value';
+import { Stage } from '$lib/domain/value';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ parent }) => {
@@ -11,6 +11,6 @@ export const load: PageServerLoad = async ({ parent }) => {
   }
   const service = getService();
   return {
-    calculated: await service.calculate(pd.ceremony.year, Department.Anime),
+    result: await service.calculate(pd.ceremony.year),
   };
 };

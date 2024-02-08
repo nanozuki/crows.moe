@@ -5,6 +5,7 @@ import type {
   VoterRepository,
   VoteRepository,
   VoteItem,
+  RankResultItem,
 } from '$lib/server/adapter';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { ceremony, rankingInVote, vote, voter, work } from './schema';
@@ -131,6 +132,20 @@ export class WorkRepositoryImpl implements WorkRepository {
       throw Err.NotFound('work', id);
     }
     return modelToWork(results[0]);
+  }
+
+  async setWorkRanking(ranks: RankResultItem[]): Promise<void> {
+    const op = async () => {
+      await this.db.transaction(
+        async (db) => {
+          for (const { workId, ranking } of ranks) {
+            await db.update(work).set({ ranking }).where(eq(work.id, workId));
+          }
+        },
+        { isolationLevel: 'serializable' },
+      );
+    };
+    await Err.catch(op, (err) => Err.Database(`work.setWorkRanking(${ranks})`, err));
   }
 }
 

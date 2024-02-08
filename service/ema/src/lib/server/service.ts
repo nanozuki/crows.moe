@@ -2,7 +2,6 @@ import type { Ceremony, Work, AwardRank, Voter } from '$lib/domain/entity';
 import type {
   CeremonyRepository,
   RankCalculator,
-  RankResultItem,
   VoteRepository,
   VoterRepository,
   WorkRepository,
@@ -131,16 +130,23 @@ export class Service {
     return await this.voteRepository.setVote(ceremony.year, department as Department, voter.id, rankings);
   }
 
-  async calculate(year: number, department: Department): Promise<RankResultItem[]> {
-    const works = await this.workRepository.getWorksInDept(year, department);
-    for (const work of works) {
-      if (work.ranking) {
-        console.log('already calculated, return directly');
-        return;
+  async calculate(year: number): Promise<CalculatedResult> {
+    const ceremony = await this.ceremonyRepository.getByYear(year);
+    const results: CalculatedResult = new Map();
+    for (const dept of ceremony.departments) {
+      const works = await this.workRepository.getWorksInDept(year, dept);
+      if (works.find((work) => work.ranking)) {
+        results.set(dept, 'calculated');
+      } else {
+        const voteItems = await this.voteRepository.getVotes(year, dept);
+        const result = await this.calculator.calculate(voteItems);
+        console.log(`calculated for ${dept}, get result: ${JSON.stringify(result)}`);
+        await this.workRepository.setWorkRanking(result);
+        results.set(dept, 'ok');
       }
     }
-    const voteItems = await this.voteRepository.getVotes(year, department);
-    const results = await this.calculator.calculate(voteItems);
     return results;
   }
 }
+
+type CalculatedResult = Map<Department, 'ok' | 'calculated'>;

@@ -12,6 +12,7 @@ export interface WorkRepository {
   getWorksInDept(year: number, department: Department): Promise<Work[]>;
   getById(id: number): Promise<Work | undefined>;
   addNomination(year: number, department: Department, workName: string): Promise<void>;
+  setWorkRanking(ranks: RankResultItem[]): Promise<void>;
 }
 
 export interface VoterRepository {
