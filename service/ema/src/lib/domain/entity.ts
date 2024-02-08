@@ -25,7 +25,6 @@ export function getStage(c: Ceremony, time: Date): Stage {
 
 export function ensureStage(ceremony: Ceremony, stage: Stage, now: Date): void {
   const stageNow = getStage(ceremony, now);
-  console.log(`stageNow: ${stageNow}, stage: ${stage}`);
   if (stageNow === stage) {
     // valid, do nothing
     return;

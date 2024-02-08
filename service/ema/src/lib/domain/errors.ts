@@ -2,13 +2,11 @@ import { error, type HttpError } from '@sveltejs/kit';
 import { match, P } from 'ts-pattern';
 
 function Database(operation: string, err: Error): HttpError {
-  console.log('err.message = ', err.message);
   const he = error(500, {
     title: '数据库错误',
     message: `Database error ${operation}: ${err.message}`,
     stack: err.stack,
   });
-  console.log('new database error: ', JSON.stringify(he));
   return he;
 }
 

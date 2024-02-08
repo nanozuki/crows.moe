@@ -140,7 +140,6 @@ export class Service {
       } else {
         const voteItems = await this.voteRepository.getVotes(year, dept);
         const result = await this.calculator.calculate(voteItems);
-        console.log(`calculated for ${dept}, get result: ${JSON.stringify(result)}`);
         await this.workRepository.setWorkRanking(result);
         results.set(dept, 'ok');
       }

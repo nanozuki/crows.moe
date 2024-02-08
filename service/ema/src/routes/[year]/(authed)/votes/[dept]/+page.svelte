@@ -5,23 +5,23 @@
   import { Button, Nomination, TabLine } from '$lib/comp';
   import { dataRangeString, type Work } from '$lib/domain/entity';
   import { departmentInfo } from '$lib/assets';
+  import { enhance } from '$app/forms';
 
   export let data: PageData;
   export let form: ActionData;
   let inputed = false;
 
-  const inputValue = (work: Work) => {
-    if (form?.rankings.has(work.id)) {
-      return form?.rankings.get(work.id);
-    } else {
-      return work.ranking;
-    }
+  const getWork = (work: Work, f?: ActionData) => {
+    let formRanking = f?.rankings.get(work.id) || 0;
+    work.ranking = formRanking > 0 ? formRanking : work.ranking;
+    return work;
   };
 
   const resetForm = () => {
     location.reload();
   };
 
+  $: works = data.works.map((work) => getWork(work, form));
   $: deptTotal = data.ceremony.departments.length;
   $: deptIndex = data.ceremony.departments.indexOf(data.department);
   $: deptInfo = departmentInfo(data.ceremony.year)[data.department];
@@ -62,16 +62,27 @@
 
 <!-- Voting Form --->
 
-<form method="POST" class="w-full flex flex-col gap-y-4">
+<form
+  method="POST"
+  class="w-full flex flex-col gap-y-4"
+  use:enhance={() => {
+    return async () => {
+      inputed = false;
+      works = works.sort((a, b) => (a.ranking || Infinity) - (b.ranking || Infinity));
+    };
+  }}
+>
   <p class="text-text font-serif leading-normal">请在左侧写入作品的排名数字</p>
-  {#if form?.error} <p class="text-rose leading-normal">{form?.error}</p> {/if}
-  {#each data.works as work (work.id)}
-    {#if form?.errors.get(work.id)}<p class="text-rose leading-normal">{form?.errors.get(work.id)}</p>{/if}
+  {#if form?.error}
+    <p class="text-rose leading-normal">{form?.error}</p>
+  {/if}
+  {#each works as work (work.id)}
+    {#if form?.errors?.get(work.id)}<p class="text-rose leading-normal">{form?.errors?.get(work.id)}</p>{/if}
     <div class="w-full grid grid-cols-ballot gap-x-2 gap-y-4">
       <input
         type="number"
         name={work.id.toString()}
-        value={inputValue(work)}
+        bind:value={work.ranking}
         min="1"
         class="[appearance:textfield] h-8 w-8 text-center leading-7 bg-surface rounded border-2 border-pine self-center focus:border-rose focus-visible:border-rose outline-none shadow-none"
         on:input={() => (inputed = true)}
