@@ -32,6 +32,7 @@
             nodePackages.svelte-language-server
             nodePackages.svelte-check
             # go
+            go
             gofumpt # formatter
             golangci-lint # linter
             gomodifytags
