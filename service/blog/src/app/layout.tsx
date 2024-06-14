@@ -30,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <head>
+        <link rel="icon" href="/icon.jpg" />
         <Script
           id="adobe-font"
           dangerouslySetInnerHTML={{ __html: adobeFont }}
