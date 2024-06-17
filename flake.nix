@@ -29,8 +29,8 @@
             nodePackages.eslint
             nodePackages.eslint_d
             # svelte
-            nodePackages.svelte-language-server
-            nodePackages.svelte-check
+            # nodePackages.svelte-language-server
+            # nodePackages.svelte-check
             # go
             go
             gofumpt # formatter
@@ -42,6 +42,10 @@
             gotools
             iferr
             impl
+            # gleam
+            erlang_27
+            gleam
+            ngrok
           ];
           shellHook = ''
             export GOROOT="${pkgs.go}/share/go"
