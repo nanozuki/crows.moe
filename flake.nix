@@ -43,6 +43,9 @@
             iferr
             impl
           ];
+          shellHook = ''
+            export GOROOT="${pkgs.go}/share/go"
+          '';
         };
       };
     };
