@@ -51,8 +51,8 @@ export async function getArticleDatas(): Promise<ArticleData[]> {
   const articles = await Promise.all(files.map(readArticleProps));
   articles.sort((a, b) => {
     const [pa, pb] = [a.meta.publish_date, b.meta.publish_date];
-    if (pa < pb) return -1;
-    if (pa > pb) return 1;
+    if (pa < pb) return 1;
+    if (pa > pb) return -1;
     return 0;
   });
   allArticles = articles;
@@ -61,39 +61,25 @@ export async function getArticleDatas(): Promise<ArticleData[]> {
 
 const components = {
   h1: ({ children }: JSX.IntrinsicElements['h1']) => (
-    <h1 className="text-text font-serif font-bold my-em leading-normal text-3xl">
-      {children}
-    </h1>
+    <h1 className="text-text font-serif font-bold my-em leading-normal text-3xl">{children}</h1>
   ),
   h2: ({ children }: JSX.IntrinsicElements['h2']) => (
-    <h2 className="text-text font-serif font-bold my-em leading-normal text-2xl">
-      {children}
-    </h2>
+    <h2 className="text-text font-serif font-bold my-em leading-normal text-2xl">{children}</h2>
   ),
   h3: ({ children }: JSX.IntrinsicElements['h3']) => (
-    <h3 className="text-text font-serif font-bold my-em leading-normal text-xl">
-      {children}
-    </h3>
+    <h3 className="text-text font-serif font-bold my-em leading-normal text-xl">{children}</h3>
   ),
   h4: ({ children }: JSX.IntrinsicElements['h4']) => (
-    <h4 className="text-text font-sans font-bold my-em leading-normal">
-      {children}
-    </h4>
+    <h4 className="text-text font-sans font-bold my-em leading-normal">{children}</h4>
   ),
   h5: ({ children }: JSX.IntrinsicElements['h5']) => (
-    <h5 className="text-text font-sans font-bold my-em leading-normal">
-      {children}
-    </h5>
+    <h5 className="text-text font-sans font-bold my-em leading-normal">{children}</h5>
   ),
   p: ({ children }: JSX.IntrinsicElements['p']) => (
     <p className="text-text font-sans my-em leading-normal">{children}</p>
   ),
-  li: ({ children }: JSX.IntrinsicElements['li']) => (
-    <li className="text-text leading-normal">{children}</li>
-  ),
-  pre: ({ children }: JSX.IntrinsicElements['pre']) => (
-    <pre className="text-text font-monospace">{children}</pre>
-  ),
+  li: ({ children }: JSX.IntrinsicElements['li']) => <li className="text-text leading-normal">{children}</li>,
+  pre: ({ children }: JSX.IntrinsicElements['pre']) => <pre className="text-text font-monospace">{children}</pre>,
   Image,
 };
 
