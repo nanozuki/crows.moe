@@ -1,5 +1,7 @@
-import envoy
-import gleam/io
+import gleam/http.{Post}
+import gleam/http/request
+import gleam/http/response
+import gleam/httpc
 import gleam/result
 
 import bot_api
@@ -15,7 +17,23 @@ pub fn bot_from_env() {
 }
 
 pub fn main() {
-  bot_from_env()
-  |> result.map(bot_api.set_webhook)
-  |> io.debug
+  let req =
+    request.to("https://api.telegram.org/bot" <> bot_token <> "/getMe")
+    |> result.map(request.set_header(_, "content-type", "application/json"))
+    |> result.map(request.set_method(_, Post))
+
+  let resp = result.try(req, httpc.send)
+
+  // We get a response record back
+  resp.status
+  |> should.equal(200)
+
+  resp
+  |> response.get_header("content-type")
+  |> should.equal(Ok("application/json"))
+
+  resp.body
+  |> should.equal("{\"message\":\"Hello World\"}")
+
+  Ok(resp)
 }
