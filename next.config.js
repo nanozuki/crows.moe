@@ -6,6 +6,10 @@ const nextConfig = {
     mdxRs: true,
   },
   reactStrictMode: true,
+  images: {
+    loader: 'custom',
+    loaderFile: './static-loader.ts',
+  }
 };
 
 const withMDX = require('@next/mdx')();
