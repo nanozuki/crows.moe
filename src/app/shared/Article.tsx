@@ -1,7 +1,6 @@
 import { readFile } from 'fs/promises';
 import { opendir } from 'fs/promises';
 import { compileMDX } from 'next-mdx-remote/rsc';
-import NextImage from 'next/image';
 import path from 'path';
 import ArticleTitle, { ArticleMeta } from '@/app/shared/ArticleTitle';
 
@@ -14,7 +13,7 @@ interface ImageProps {
 
 const Image = (props: ImageProps) => (
   <div className="w-[calc(100%+2rem)] -mx-4 my-4 wide:w-full wide:mx-0 ">
-    <NextImage className="block bg-overlay" loading="eager" {...props} />
+    <img className="block bg-overlay" loading="eager" {...props} />
   </div>
 );
 
