@@ -12,15 +12,9 @@
       perSystem = { config, self', inputs', pkgs, system, ... }: {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            # nodejs and typescript
             nodePackages.nodejs
             nodePackages.pnpm
-            nodePackages.typescript
-            # tailwindcss
             nodePackages."@tailwindcss/language-server"
-            # linter
-            nodePackages.eslint
-            nodePackages.eslint_d
           ];
         };
       };
