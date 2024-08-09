@@ -6,14 +6,6 @@ const nextConfig = {
     mdxRs: true,
   },
   reactStrictMode: true,
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'strapi.us-east-1.linodeobjects.com',
-      },
-    ],
-  },
 };
 
 const withMDX = require('@next/mdx')();
