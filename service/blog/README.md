@@ -1,3 +1,0 @@
-# blog
-
-https://crows.moe

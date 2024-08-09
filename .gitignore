@@ -23,22 +23,17 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+.direnv/
+.envrc
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
+next-env.d.ts
 
 # editor
 .idea/
 .vscode/
-*auto.tfvars*
-
-# nix and direnv
-.direnv/
-.envrc

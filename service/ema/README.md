@@ -1,3 +1,0 @@
-# EMA
-
-Exodus Media Awards

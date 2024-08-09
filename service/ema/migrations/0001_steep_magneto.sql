@@ -1,1 +1,0 @@
-ALTER TYPE "department" ADD VALUE 'music';
